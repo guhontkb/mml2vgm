@@ -16,9 +16,22 @@ namespace mml2vgmx64
         public frmMain()
         {
             InitializeComponent();
+            registerDragDropTarget(this);
 #if DEBUG
             Corex64.Log.debug = true;
 #endif
+        }
+
+        private void registerDragDropTarget(Control control)
+        {
+            control.AllowDrop = true;
+            control.DragEnter += FrmMain_DragEnter;
+            control.DragDrop += FrmMain_DragDrop;
+
+            foreach (Control child in control.Controls)
+            {
+                registerDragDropTarget(child);
+            }
         }
 
         private void frmMain_Shown(object sender, EventArgs e)
@@ -62,10 +75,16 @@ namespace mml2vgmx64
             {
                 return;
             }
+
+            openAndCompile(ofd.FileNames);
+        }
+
+        private void openAndCompile(string[] fileNames)
+        {
             args = null;
             List<string> a = new List<string>();
             a.Add("dummy");
-            foreach (string fn in ofd.FileNames)
+            foreach (string fn in fileNames)
             {
                 a.Add(fn);
             }
@@ -399,12 +418,7 @@ namespace mml2vgmx64
                 return;
             }
 
-            List<string> fs = new List<string>();
-            fs.Add("");//dummy;
-            fs.AddRange(fileNames);
-            args = fs.ToArray();
-
-            tsbCompile_Click(null, null);
+            openAndCompile(fileNames);
         }
 
         private void FrmMain_KeyDown(object sender, KeyEventArgs e)
@@ -422,8 +436,8 @@ namespace mml2vgmx64
                     tsbCompile_Click(null, null);
                     break;
                 default:
-                    //Å´KeyDataämîFóp
-                    //log.Write(string.Format("ìÆçÏñ¢íËã`ÇÃÉLÅ[ÅF{0}",e.KeyData));
+                    //ÔøΩÔøΩKeyDataÔøΩmÔøΩFÔøΩp
+                    //log.Write(string.Format("ÔøΩÔøΩÔøΩÏñ¢ÔøΩÔøΩ`ÔøΩÃÉLÔøΩ[ÔøΩF{0}",e.KeyData));
                     break;
             }
         }
