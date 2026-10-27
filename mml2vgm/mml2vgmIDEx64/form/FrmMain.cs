@@ -1637,15 +1637,38 @@ namespace mml2vgmIDEx64
                 return;
             }
 
+            if (setting.other.LastOpenedFiles != null && setting.other.LastOpenedFiles.Length > 0)
+            {
+                int openedCount = 0;
+                foreach (string fn in setting.other.LastOpenedFiles)
+                {
+                    if (string.IsNullOrEmpty(fn) || !File.Exists(fn)) continue;
+
+                    try
+                    {
+                        OpenFile(fn);
+                        openedCount++;
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.ForcedWrite(ex);
+                    }
+                }
+
+                if (openedCount > 0) return;
+            }
+
             string lastFn = "";
             if (setting.other.GwiFileHistory == null) return;
             foreach (string fn in setting.other.GwiFileHistory)
             {
                 if (string.IsNullOrEmpty(fn))
                     continue;
-                lastFn = fn;
                 if (File.Exists(fn))
+                {
+                    lastFn = fn;
                     break;
+                }
             }
             if (string.IsNullOrEmpty(lastFn)) return;
 
@@ -3557,6 +3580,14 @@ namespace mml2vgmIDEx64
                 if (frmSien != null) frmSien.Close();
 
                 ScriptInterface.Cleanup();
+
+                List<string> lastOpenedFiles = new List<string>();
+                foreach (Document document in DocumentBox)
+                {
+                    if (!string.IsNullOrEmpty(document.gwiFullPath))
+                        lastOpenedFiles.Add(document.gwiFullPath);
+                }
+                setting.other.LastOpenedFiles = lastOpenedFiles.ToArray();
 
                 setting.Save();
             }
