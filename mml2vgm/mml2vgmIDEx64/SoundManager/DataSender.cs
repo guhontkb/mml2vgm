@@ -440,7 +440,8 @@ namespace SoundManager
 
                     if (od.type == enmMMLType.Length)
                     {
-                        if (od.linePos.chip == parent.CurrentChip
+                        if (od.linePos != null
+                            && od.linePos.chip == parent.CurrentChip
                             && od.linePos.ch == parent.CurrentCh - 1)
                         {
                             parent.CurrentNoteLength = (int)od.args[0];
