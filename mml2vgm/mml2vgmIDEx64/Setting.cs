@@ -1780,7 +1780,7 @@ namespace mml2vgmIDEx64
             }
 
             private bool _exchgPAN = false;
-            public bool exchgPAN 
+            public bool exchgPAN
             {
                 get { return _exchgPAN; }
                 set { _exchgPAN = value; }
@@ -4285,7 +4285,7 @@ namespace mml2vgmIDEx64
                 return no;
             }
         }
-        
+
         [Serializable]
         public class GensOption
         {
