@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
   <PropertyGroup>
-    <TargetFrameworks>net472;net10.0-windows</TargetFrameworks>
+    <TargetFrameworks>net10.0-windows</TargetFrameworks>
     <UseWindowsForms>true</UseWindowsForms>
     <OutputType>Library</OutputType>
     <RootNamespace>CustomControl</RootNamespace>

@@ -8,9 +8,9 @@ del /Q .\output\mml2vgmx64\lang\*.*
 del /Q .\output\samples\*.*
 
 rem Copy mml2vgmx64 (lightweight UI version)
-xcopy .\mml2vgmx64\bin\Release\net8.0-windows\*.* .\output\mml2vgmx64 /E /R /Y /I /K
+xcopy .\mml2vgmx64\bin\Release\net10.0-windows\*.* .\output\mml2vgmx64 /E /R /Y /I /K
 rem Copy mvcx64 (command-line version)
-xcopy .\mvcx64\bin\Release\net8.0\*.* .\output\mml2vgmx64 /E /R /Y /I /K
+xcopy .\mvcx64\bin\Release\net10.0\*.* .\output\mml2vgmx64 /E /R /Y /I /K
 rem Copy sample files
 xcopy .\samples\*.* .\output\samples /E /R /Y /I /K
 rem Copy mml2vgmIDEx64
