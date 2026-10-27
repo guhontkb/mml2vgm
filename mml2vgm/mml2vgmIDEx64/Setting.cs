@@ -2057,6 +2057,7 @@ namespace mml2vgmIDEx64
             public int TabWidth { get => _TabWidth; set => _TabWidth = value; }
             private int _TabWidth = 8;
             private string[] _GwiFileHistory = null;
+            public string[] LastOpenedFiles { get; set; }
             private string _Tutorial = "Tutorial.txt";
             private string _CommandManual = "mml2vgm_MMLCommandMemo.txt";
             private string _CommandManualMucom = "";
@@ -2129,6 +2130,7 @@ namespace mml2vgmIDEx64
                 other.TextFontSize = this.TextFontSize;
                 other.TextFontStyle = this.TextFontStyle;
                 other.GwiFileHistory = this.GwiFileHistory;
+                other.LastOpenedFiles = this.LastOpenedFiles;
                 other.LogWarning = this.LogWarning;
                 other.PlayDeviceCB = this.PlayDeviceCB;
                 other.LogLevel = this.LogLevel;
