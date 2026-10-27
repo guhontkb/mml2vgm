@@ -1,62 +1,40 @@
 echo mml2vgm
 
-rem 既存ファイルの削除
+rem Delete old output files
 del /Q .\output\*.*
 del /Q .\output\mml2vgmx64\*.*
 del /Q .\output\mml2vgmx64\fnum\*.*
 del /Q .\output\mml2vgmx64\lang\*.*
 del /Q .\output\samples\*.*
 
-rem rem mml2vgm(簡易UI版)のコピー
-rem xcopy .\mml2vgm\bin\Release\*.* .\output\mml2vgm /E /R /Y /I /K
-rem mml2vgmx64(簡易UI版)のコピー
+rem Copy mml2vgmx64 (lightweight UI version)
 xcopy .\mml2vgmx64\bin\Release\net8.0-windows\*.* .\output\mml2vgmx64 /E /R /Y /I /K
-rem rem mvc(コマンドライン版)のコピー
-rem xcopy .\mvc\bin\Release\*.* .\output\mml2vgm /E /R /Y /I /K
-rem mvcx64(コマンドライン版)のコピー
+rem Copy mvcx64 (command-line version)
 xcopy .\mvcx64\bin\Release\net8.0\*.* .\output\mml2vgmx64 /E /R /Y /I /K
-rem サンプルファイルのコピー
+rem Copy sample files
 xcopy .\samples\*.* .\output\samples /E /R /Y /I /K
-rem rem mml2vgmIDEのコピー
-rem xcopy .\mml2vgmIDE\bin\Release\*.* .\output\mml2vgmIDE /E /R /Y /I /K
-rem mml2vgmIDEx64のコピー
+rem Copy mml2vgmIDEx64
 xcopy .\mml2vgmIDEx64\bin\x64\Release\net10.0-windows7.0\*.* .\output\mml2vgmIDEx64 /E /R /Y /I /K
 
 copy /Y .\CHANGE.txt .\output
-copy /Y .\IDE.txt .\output
-copy /Y .\Script.txt .\output
 copy /Y .\..\LICENSE.txt .\output
 copy /Y .\..\mml2vgm_MMLCommandMemo.txt .\output
-rem copy /Y .\..\mml2vgm_MMLCommandMemo.txt .\output\mml2vgmIDE
 copy /Y .\..\mml2vgm_MMLCommandMemo.txt .\output\mml2vgmIDEx64
 copy /Y .\..\mmlCommandTable.md .\output
 copy /Y .\..\README.md .\output
-copy /Y .\..\ZGMspec.txt .\output
-copy /Y .\..\PSG2.txt .\output
-copy /Y .\..\YM2609.txt .\output
 copy /Y .\removeZoneIdent.bat .\output
-md .\output\OtherDocuments
-copy /Y .\..\..\mucomDotNET\MML.txt .\output\OtherDocuments
-copy /Y .\..\m98コマンド・リファレンス.pdf .\output\OtherDocuments
+if exist .\output\OtherDocuments rmdir /S /Q .\output\OtherDocuments
+xcopy .\OtherDocuments .\output\OtherDocuments /E /R /Y /I /K
 
-rem del /Q .\output\mml2vgm\*.config
-rem del /Q .\output\mml2vgm\*.pdb
-rem del /Q .\output\mml2vgm\*.wav
 del /Q .\output\mml2vgmx64\*.pdb
 del /Q .\output\mml2vgmx64\*.wav
 
-rem rem del /Q .\output\mml2vgmIDE\*.config
-rem del /Q .\output\mml2vgmIDE\*.pdb
-rem del /Q .\output\mml2vgmIDE\scci.dll
-rem del /Q .\output\mml2vgmIDE\scciconfig.exe
-rem del /Q .\output\mml2vgmIDE\*.wav
-
-rem rem del /Q .\output\mml2vgmIDE\*.config
 del /Q .\output\mml2vgmIDEx64\*.pdb
 del /Q .\output\mml2vgmIDEx64\scci.dll
 del /Q .\output\mml2vgmIDEx64\scciconfig.exe
 del /Q .\output\mml2vgmIDEx64\*.wav
 
-del /Q .\output\bin.zip
+del /Q .\output\mml2vgm_custom.zip
+powershell -NoProfile -ExecutionPolicy Bypass -Command "Compress-Archive -Path '.\output\*' -DestinationPath '.\output\mml2vgm_custom.zip' -Force"
 
 pause
