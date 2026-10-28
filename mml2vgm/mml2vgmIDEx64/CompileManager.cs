@@ -194,13 +194,15 @@ namespace mml2vgmIDEx64
             string path1 = Path.GetDirectoryName(qi.doc.gwiFullPath);
             path1 = string.IsNullOrEmpty(path1) ? qi.doc.gwiFullPath : path1;
             string wrkPath = path1;
+            string compileOption = qi.param?.ToString() ?? string.Empty;
             msgBox.clear();
             musicDriverInterface.MmlDatum[] mData = null;
             bool isSuccess = true;
 
             try
             {
-                mData = moonDriver.compileFromSrcText(qi.srcText, wrkPath, qi.param.ToString(), Point.Empty, true);
+                Log.ForcedWrite($"MoonDriver compilation invoked: {qi.doc.gwiFullPath}, workPath={wrkPath}, option={compileOption}");
+                mData = moonDriver.compileFromSrcText(qi.srcText, wrkPath, compileOption, Point.Empty, true);
             }
             catch (Exception ex)
             {
@@ -208,7 +210,11 @@ namespace mml2vgmIDEx64
                 Log.ForcedWrite(ex);
                 isSuccess = false;
             }
-            if (mData == null) isSuccess = false;
+            if (mData == null)
+            {
+                Log.ForcedWrite($"MoonDriver compilation returned null data: {qi.doc.gwiFullPath}");
+                isSuccess = false;
+            }
 
             qi.doc.compiledData = mData;
             qi.doc.compileStatus = isSuccess ? Document.EnmCompileStatus.Success : Document.EnmCompileStatus.Failed;
@@ -253,13 +259,15 @@ namespace mml2vgmIDEx64
             string path1 = Path.GetDirectoryName(qi.doc.gwiFullPath);
             path1 = string.IsNullOrEmpty(path1) ? qi.doc.gwiFullPath : path1;
             string wrkPath = path1;
+            string compileOption = qi.param?.ToString() ?? string.Empty;
             msgBox.clear();
             musicDriverInterface.MmlDatum[] mData = null;
             bool isSuccess = true;
 
             try
             {
-                mData = pmd.compileFromSrcText(qi.srcText, wrkPath, qi.param.ToString(), Point.Empty, true);
+                Log.ForcedWrite($"PMD compilation invoked: {qi.doc.gwiFullPath}, workPath={wrkPath}, option={compileOption}");
+                mData = pmd.compileFromSrcText(qi.srcText, wrkPath, compileOption, Point.Empty, true);
             }
             catch (Exception ex)
             {
@@ -267,7 +275,11 @@ namespace mml2vgmIDEx64
                 Log.ForcedWrite(ex);
                 isSuccess = false;
             }
-            if (mData == null) isSuccess = false;
+            if (mData == null)
+            {
+                Log.ForcedWrite($"PMD compilation returned null data: {qi.doc.gwiFullPath}");
+                isSuccess = false;
+            }
 
             qi.doc.compiledData = mData;
             qi.doc.compileStatus = isSuccess ? Document.EnmCompileStatus.Success : Document.EnmCompileStatus.Failed;
@@ -318,6 +330,7 @@ namespace mml2vgmIDEx64
 
             try
             {
+                Log.ForcedWrite($"mucom compilation invoked: {qi.doc.gwiFullPath}, workPath={wrkPath}");
                 mubData = mucom.compileFromSrcText(qi.srcText, wrkPath, Point.Empty);
             }
             catch (Exception ex)
@@ -326,7 +339,11 @@ namespace mml2vgmIDEx64
                 Log.ForcedWrite(ex);
                 isSuccess = false;
             }
-            if (mubData == null) isSuccess = false;
+            if (mubData == null)
+            {
+                Log.ForcedWrite($"mucom compilation returned null data: {qi.doc.gwiFullPath}");
+                isSuccess = false;
+            }
 
             qi.doc.compiledData = mubData;
             qi.doc.compileStatus = isSuccess ? Document.EnmCompileStatus.Success : Document.EnmCompileStatus.Failed;
@@ -372,54 +389,70 @@ namespace mml2vgmIDEx64
             string wrkPath = path1;
             msgBox.clear();
 
-            Mml2vgm mv = new Mml2vgm(compileTargetDocument, activeMMLTextLines, tempPath, null, stPath, disp, wrkPath, false);
-            mv.isIDE = true;
-            int result = mv.Start();
-
-            qi.doc.errBox = msgBox.getErr();
-            qi.doc.wrnBox = msgBox.getWrn();
-
-            disp("\r\n");
-            disp(string.Format(Msg.get("I0110"), msgBox.getErr().Length, msgBox.getWrn().Length));
-            if (mv.desVGM.loopSamples != -1)
+            try
             {
-                disp(string.Format(Msg.get("I0111"), mv.desVGM.loopClock));
-                if (mv.desVGM.info.format == enmFormat.VGM)
-                    disp(string.Format(Msg.get("I0112"), mv.desVGM.loopSamples, mv.desVGM.loopSamples / 44100L));
-                else
-                    disp(string.Format(Msg.get("I0112"), mv.desVGM.loopSamples, mv.desVGM.loopSamples / (mv.desVGM.info.xgmSamplesPerSecond)));
-            }
-            disp(string.Format(Msg.get("I0113"), mv.desVGM.lClock));
-            if (mv.desVGM.info.format == enmFormat.VGM)
-                disp(string.Format(Msg.get("I0114"), mv.desVGM.dSample, mv.desVGM.dSample / 44100L));
-            else
-                disp(string.Format(Msg.get("I0114"), mv.desVGM.dSample, mv.desVGM.dSample / (mv.desVGM.info.xgmSamplesPerSecond)));
-            disp(Msg.get("I0126"));
+                Log.ForcedWrite($"GWI compilation invoked: {qi.doc.gwiFullPath}, workPath={wrkPath}, tempPath={tempPath}, lines={activeMMLTextLines.Length}");
 
-            if (result == 0)
-            {
-                if (mv.desVGM.info.format == enmFormat.VGM)
+                Mml2vgm mv = new Mml2vgm(compileTargetDocument, activeMMLTextLines, tempPath, null, stPath, disp, wrkPath, false);
+                mv.isIDE = true;
+                int result = mv.Start();
+
+                qi.doc.errBox = msgBox.getErr();
+                qi.doc.wrnBox = msgBox.getWrn();
+
+                disp("\r\n");
+                disp(string.Format(Msg.get("I0110"), msgBox.getErr().Length, msgBox.getWrn().Length));
+                if (mv.desVGM.loopSamples != -1)
                 {
-                    uint EOFOffset = Common.getLE32(mv.desBuf, 0x04) + (uint)mv.desVGM.dummyCmdCounter;
-                    Common.SetLE32(mv.desBuf, 0x04, EOFOffset);
-
-                    uint GD3Offset = Common.getLE32(mv.desBuf, 0x14) + (uint)mv.desVGM.dummyCmdCounter;
-                    Common.SetLE32(mv.desBuf, 0x14, GD3Offset);
-
-                    uint LoopOffset = (uint)mv.desVGM.dummyCmdLoopOffset - 0x1c;
-                    Common.SetLE32(mv.desBuf, 0x1c, LoopOffset);
+                    disp(string.Format(Msg.get("I0111"), mv.desVGM.loopClock));
+                    if (mv.desVGM.info.format == enmFormat.VGM)
+                        disp(string.Format(Msg.get("I0112"), mv.desVGM.loopSamples, mv.desVGM.loopSamples / 44100L));
+                    else
+                        disp(string.Format(Msg.get("I0112"), mv.desVGM.loopSamples, mv.desVGM.loopSamples / (mv.desVGM.info.xgmSamplesPerSecond)));
                 }
+                disp(string.Format(Msg.get("I0113"), mv.desVGM.lClock));
+                if (mv.desVGM.info.format == enmFormat.VGM)
+                    disp(string.Format(Msg.get("I0114"), mv.desVGM.dSample, mv.desVGM.dSample / 44100L));
+                else
+                    disp(string.Format(Msg.get("I0114"), mv.desVGM.dSample, mv.desVGM.dSample / (mv.desVGM.info.xgmSamplesPerSecond)));
+                disp(Msg.get("I0126"));
 
-                qi.doc.dstFileFormat = mv.desVGM.info.format == enmFormat.VGM
-                    ? EnmFileFormat.VGM
-                    : (mv.desVGM.info.format == enmFormat.XGM
-                    ? EnmFileFormat.XGM
-                    : EnmFileFormat.ZGM);
-                qi.doc.compiledData = mv;
-                qi.doc.compileStatus = Document.EnmCompileStatus.Success;
+                if (result == 0)
+                {
+                    if (mv.desVGM.info.format == enmFormat.VGM)
+                    {
+                        uint EOFOffset = Common.getLE32(mv.desBuf, 0x04) + (uint)mv.desVGM.dummyCmdCounter;
+                        Common.SetLE32(mv.desBuf, 0x04, EOFOffset);
+
+                        uint GD3Offset = Common.getLE32(mv.desBuf, 0x14) + (uint)mv.desVGM.dummyCmdCounter;
+                        Common.SetLE32(mv.desBuf, 0x14, GD3Offset);
+
+                        uint LoopOffset = (uint)mv.desVGM.dummyCmdLoopOffset - 0x1c;
+                        Common.SetLE32(mv.desBuf, 0x1c, LoopOffset);
+                    }
+
+                    qi.doc.dstFileFormat = mv.desVGM.info.format == enmFormat.VGM
+                        ? EnmFileFormat.VGM
+                        : (mv.desVGM.info.format == enmFormat.XGM
+                        ? EnmFileFormat.XGM
+                        : EnmFileFormat.ZGM);
+                    qi.doc.compiledData = mv;
+                    qi.doc.compileStatus = Document.EnmCompileStatus.Success;
+                }
+                else
+                {
+                    Log.ForcedWrite($"GWI compilation failed with non-zero result: {qi.doc.gwiFullPath}, result={result}, errors={qi.doc.errBox?.Length ?? 0}, warnings={qi.doc.wrnBox?.Length ?? 0}");
+                    qi.doc.dstFileFormat = EnmFileFormat.unknown;
+                    qi.doc.compiledData = null;
+                    qi.doc.compileStatus = Document.EnmCompileStatus.Failed;
+                }
             }
-            else
+            catch (Exception ex)
             {
+                Log.ForcedWrite($"GWI compilation failed with exception: {qi.doc.gwiFullPath}");
+                Log.ForcedWrite(ex);
+                qi.doc.errBox = msgBox.getErr();
+                qi.doc.wrnBox = msgBox.getWrn();
                 qi.doc.dstFileFormat = EnmFileFormat.unknown;
                 qi.doc.compiledData = null;
                 qi.doc.compileStatus = Document.EnmCompileStatus.Failed;
