@@ -2100,10 +2100,18 @@ namespace mml2vgmIDEx64
             mv.doSkip = doSkip;
             mv.doSkipStop = doSkipStop;
             mv.caretPoint = caretPoint;
-            if (mv.Start() != 0)
+            try
             {
+                if (mv.Start() != 0)
+                {
+                    isSuccess = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.ForcedWrite($"GWI compilation failed: {title}");
+                Log.ForcedWrite(ex);
                 isSuccess = false;
-                //break;
             }
 
             Corex64.Log.Write("Return mml2vgm core");
@@ -2128,8 +2136,10 @@ namespace mml2vgmIDEx64
             {
                 mubData = mucom.compileFromSrcText(activeMMLTextLines[0], wrkPath, doSkip ? caretPoint : Point.Empty);
             }
-            catch
+            catch (Exception ex)
             {
+                Log.ForcedWrite($"MUC compilation failed: {title}");
+                Log.ForcedWrite(ex);
                 isSuccess = false;
             }
 
@@ -2160,8 +2170,10 @@ namespace mml2vgmIDEx64
             {
                 mData = pmdmng.compileFromSrcText(activeMMLTextLines[0], wrkPath, args[1], doSkip ? caretPoint : Point.Empty, !doExport);
             }
-            catch
+            catch (Exception ex)
             {
+                Log.ForcedWrite($"MML compilation failed: {title}");
+                Log.ForcedWrite(ex);
                 isSuccess = false;
             }
 
@@ -2192,8 +2204,10 @@ namespace mml2vgmIDEx64
             {
                 mData = mdmng.compileFromSrcText(activeMMLTextLines[0], wrkPath, args[1], doSkip ? caretPoint : Point.Empty, !doExport);
             }
-            catch
+            catch (Exception ex)
             {
+                Log.ForcedWrite($"MDL compilation failed: {title}");
+                Log.ForcedWrite(ex);
                 isSuccess = false;
             }
 
@@ -2224,8 +2238,10 @@ namespace mml2vgmIDEx64
             {
                 mData = mpmng.compileFromSrcText(activeMMLTextLines[0], wrkPath, args[1], doSkip ? caretPoint : Point.Empty, !doExport);
             }
-            catch
+            catch (Exception ex)
             {
+                Log.ForcedWrite($"MUS compilation failed: {title}");
+                Log.ForcedWrite(ex);
                 isSuccess = false;
             }
 
@@ -2325,7 +2341,7 @@ namespace mml2vgmIDEx64
             }
         }
 
-        private void finishedCompileGWI()
+        private void finishedCompileGWI(bool headerAlreadyAdjusted = false)
         {
 
             if (mv == null)
@@ -2399,8 +2415,10 @@ namespace mml2vgmIDEx64
                     frmPartCounter.refreshMuteSolo();
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                Log.ForcedWrite($"GWI compile post-processing failed: {doc?.gwiFullPath}");
+                Log.ForcedWrite(ex);
                 isSuccess = false;
                 Compiling = 0;
                 UpdateControl();
@@ -2508,9 +2526,10 @@ namespace mml2vgmIDEx64
             try
             {
                 //ヘッダー情報にダミーコマンド情報分の値を水増しした値をセットしなおす
+                bool playerStarted;
                 if (mv.desVGM.info.format == enmFormat.VGM)
                 {
-                    if (!exportWav)
+                    if (!exportWav && !headerAlreadyAdjusted)
                     {
                         uint EOFOffset = Common.getLE32(mv.desBuf, 0x04) + (uint)mv.desVGM.dummyCmdCounter;
                         Common.SetLE32(mv.desBuf, 0x04, EOFOffset);
@@ -2522,26 +2541,30 @@ namespace mml2vgmIDEx64
                         Common.SetLE32(mv.desBuf, 0x1c, LoopOffset);
                     }
 
-                    InitPlayer(EnmFileFormat.VGM, mv.desBuf, mv.desVGM.jumpPointClock);
+                    playerStarted = InitPlayer(EnmFileFormat.VGM, mv.desBuf, mv.desVGM.jumpPointClock);
                 }
                 else if (mv.desVGM.info.format == enmFormat.XGM)
                 {
                     //XGM
-                    InitPlayer(EnmFileFormat.XGM, mv.desBuf, mv.desVGM.jumpPointClock);
+                    playerStarted = InitPlayer(EnmFileFormat.XGM, mv.desBuf, mv.desVGM.jumpPointClock);
                 }
                 else if (mv.desVGM.info.format == enmFormat.XGM2)
                 {
                     //XGM2
-                    InitPlayer(EnmFileFormat.XGM2, mv.desBuf, mv.desVGM.jumpPointClock);
+                    playerStarted = InitPlayer(EnmFileFormat.XGM2, mv.desBuf, mv.desVGM.jumpPointClock);
                 }
                 else
                 {
                     //ZGM
-                    InitPlayer(EnmFileFormat.ZGM, mv.desBuf, mv.desVGM.jumpPointClock);
+                    playerStarted = InitPlayer(EnmFileFormat.ZGM, mv.desBuf, mv.desVGM.jumpPointClock);
                 }
+                if (!playerStarted)
+                    Log.ForcedWrite($"Playback initialization failed after compilation: {doc?.gwiFullPath}, format={mv.desVGM.info.format}, audioError={Audio.errMsg}");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Log.ForcedWrite($"Playback initialization failed after compilation: {doc?.gwiFullPath}");
+                Log.ForcedWrite(ex);
                 MessageBox.Show(Msg.get("E0100"), "mml2vgm", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
@@ -2555,6 +2578,14 @@ namespace mml2vgmIDEx64
         private void finishedCompileMUC()
         {
             musicDriverInterface.CompilerInfo ci = mucom.GetCompilerInfo();
+            if (ci == null)
+            {
+                Compiling = 0;
+                UpdateControl();
+                return;
+            }
+            List<Tuple<int, int, string>> errorList = ci.errorList ?? new List<Tuple<int, int, string>>();
+            List<Tuple<int, int, string>> warningList = ci.warningList ?? new List<Tuple<int, int, string>>();
 
             Document doc = null;
             if (compileTargetDocument is FrmEditor) doc = (Document)((FrmEditor)compileTargetDocument).Tag;
@@ -2642,8 +2673,10 @@ namespace mml2vgmIDEx64
                     frmPartCounter.refreshMuteSolo();
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                Log.ForcedWrite($"MUC compile post-processing failed: {doc?.gwiFullPath}");
+                Log.ForcedWrite(ex);
                 isSuccess = false;
                 Compiling = 0;
                 UpdateControl();
@@ -2652,25 +2685,23 @@ namespace mml2vgmIDEx64
 
             //frmLog.tbLog.AppendText(msg.get("I0107"));
 
-            if (ci != null)
-                foreach (Tuple<int, int, string> mes in ci.errorList)
-                {
-                    frmErrorList.dataGridView1.Rows.Add("Error", "-"
-                        , mes.Item1 == -1 ? "-" : (mes.Item1 + 1).ToString()
-                        , mes.Item3);
-                    msgInfo mi = new msgInfo(null, "", mes.Item1, mes.Item2, -1, mes.Item3);
-                    msgBox.setErrMsg(mi);
-                }
+            foreach (Tuple<int, int, string> mes in errorList)
+            {
+                frmErrorList.dataGridView1.Rows.Add("Error", "-"
+                    , mes.Item1 == -1 ? "-" : (mes.Item1 + 1).ToString()
+                    , mes.Item3);
+                msgInfo mi = new msgInfo(null, "", mes.Item1, mes.Item2, -1, mes.Item3);
+                msgBox.setErrMsg(mi);
+            }
 
-            if (ci != null)
-                foreach (Tuple<int, int, string> mes in ci.warningList)
-                {
-                    frmErrorList.dataGridView1.Rows.Add("Warning", "-"
-                        , mes.Item1 == -1 ? "-" : (mes.Item1 + 1).ToString()
-                        , mes.Item3);
-                    msgInfo mi = new msgInfo(null, "", mes.Item1, mes.Item2, -1, mes.Item3);
-                    msgBox.setWrnMsg(mi);
-                }
+            foreach (Tuple<int, int, string> mes in warningList)
+            {
+                frmErrorList.dataGridView1.Rows.Add("Warning", "-"
+                    , mes.Item1 == -1 ? "-" : (mes.Item1 + 1).ToString()
+                    , mes.Item3);
+                msgInfo mi = new msgInfo(null, "", mes.Item1, mes.Item2, -1, mes.Item3);
+                msgBox.setWrnMsg(mi);
+            }
 
             if (isSuccess)
             {
@@ -2732,7 +2763,7 @@ namespace mml2vgmIDEx64
                     }
                 }
 
-                if (doPlay && ci.errorList.Count < 1)
+                if (doPlay && errorList.Count < 1)
                 {
                     try
                     {
@@ -2753,6 +2784,14 @@ namespace mml2vgmIDEx64
         private void finishedCompileMML()
         {
             musicDriverInterface.CompilerInfo ci = pmdmng.GetCompilerInfo();
+            if (ci == null)
+            {
+                Compiling = 0;
+                UpdateControl();
+                return;
+            }
+            List<Tuple<int, int, string>> errorList = ci.errorList ?? new List<Tuple<int, int, string>>();
+            List<Tuple<int, int, string>> warningList = ci.warningList ?? new List<Tuple<int, int, string>>();
             Document doc = null;
             if (compileTargetDocument is FrmEditor) doc = (Document)((FrmEditor)compileTargetDocument).Tag;
             else doc = (Document)compileTargetDocument;
@@ -2826,15 +2865,17 @@ namespace mml2vgmIDEx64
 
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                Log.ForcedWrite($"MML compile post-processing failed: {doc?.gwiFullPath}");
+                Log.ForcedWrite(ex);
                 isSuccess = false;
                 Compiling = 0;
                 UpdateControl();
                 return;
             }
 
-            foreach (Tuple<int, int, string> mes in ci.errorList)
+            foreach (Tuple<int, int, string> mes in errorList)
             {
                 frmErrorList.dataGridView1.Rows.Add("Error", "-"
                     , mes.Item1 == -1 ? "-" : (mes.Item1 + 1).ToString()
@@ -2843,7 +2884,7 @@ namespace mml2vgmIDEx64
                 msgBox.setErrMsg(mi);
             }
 
-            foreach (Tuple<int, int, string> mes in ci.warningList)
+            foreach (Tuple<int, int, string> mes in warningList)
             {
                 frmErrorList.dataGridView1.Rows.Add("Warning", "-"
                     , mes.Item1 == -1 ? "-" : (mes.Item1 + 1).ToString()
@@ -2855,7 +2896,7 @@ namespace mml2vgmIDEx64
             if (isSuccess)
             {
 
-                if (doPlay && ci.errorList.Count < 1)
+                if (doPlay && errorList.Count < 1)
                 {
                     try
                     {
@@ -2889,6 +2930,8 @@ namespace mml2vgmIDEx64
                 UpdateControl();
                 return;
             }
+            List<Tuple<int, int, string>> errorList = ci.errorList ?? new List<Tuple<int, int, string>>();
+            List<Tuple<int, int, string>> warningList = ci.warningList ?? new List<Tuple<int, int, string>>();
             try
             {
                 if (isSuccess)
@@ -2926,15 +2969,17 @@ namespace mml2vgmIDEx64
                     frmPartCounter.refreshMuteSolo();
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                Log.ForcedWrite($"MDL compile post-processing failed: {doc?.gwiFullPath}");
+                Log.ForcedWrite(ex);
                 isSuccess = false;
                 Compiling = 0;
                 UpdateControl();
                 return;
             }
 
-            foreach (Tuple<int, int, string> mes in ci.errorList)
+            foreach (Tuple<int, int, string> mes in errorList)
             {
                 frmErrorList.dataGridView1.Rows.Add("Error", "-"
                     , mes.Item1 == -1 ? "-" : (mes.Item1 + 1).ToString()
@@ -2943,7 +2988,7 @@ namespace mml2vgmIDEx64
                 msgBox.setErrMsg(mi);
             }
 
-            foreach (Tuple<int, int, string> mes in ci.warningList)
+            foreach (Tuple<int, int, string> mes in warningList)
             {
                 frmErrorList.dataGridView1.Rows.Add("Warning", "-"
                     , mes.Item1 == -1 ? "-" : (mes.Item1 + 1).ToString()
@@ -2954,7 +2999,7 @@ namespace mml2vgmIDEx64
 
             if (isSuccess)
             {
-                if (doPlay && ci.errorList.Count < 1)
+                if (doPlay && errorList.Count < 1)
                 {
                     try
                     {
@@ -2988,6 +3033,8 @@ namespace mml2vgmIDEx64
                 UpdateControl();
                 return;
             }
+            List<Tuple<int, int, string>> errorList = ci.errorList ?? new List<Tuple<int, int, string>>();
+            List<Tuple<int, int, string>> warningList = ci.warningList ?? new List<Tuple<int, int, string>>();
             try
             {
                 if (isSuccess)
@@ -3028,15 +3075,17 @@ namespace mml2vgmIDEx64
                     frmPartCounter.refreshMuteSolo();
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                Log.ForcedWrite($"MUS compile post-processing failed: {doc?.gwiFullPath}");
+                Log.ForcedWrite(ex);
                 isSuccess = false;
                 Compiling = 0;
                 UpdateControl();
                 return;
             }
 
-            foreach (Tuple<int, int, string> mes in ci.errorList)
+            foreach (Tuple<int, int, string> mes in errorList)
             {
                 frmErrorList.dataGridView1.Rows.Add("Error", "-"
                     , mes.Item1 == -1 ? "-" : (mes.Item1 + 1).ToString()
@@ -3045,7 +3094,7 @@ namespace mml2vgmIDEx64
                 msgBox.setErrMsg(mi);
             }
 
-            foreach (Tuple<int, int, string> mes in ci.warningList)
+            foreach (Tuple<int, int, string> mes in warningList)
             {
                 frmErrorList.dataGridView1.Rows.Add("Warning", "-"
                     , mes.Item1 == -1 ? "-" : (mes.Item1 + 1).ToString()
@@ -3056,7 +3105,7 @@ namespace mml2vgmIDEx64
 
             if (isSuccess)
             {
-                if (doPlay && ci.errorList.Count < 1)
+                if (doPlay && errorList.Count < 1)
                 {
                     try
                     {
@@ -3949,7 +3998,7 @@ namespace mml2vgmIDEx64
                     {
                         Log.ForcedWrite(ex);
                     }
-                    if (Audio.errMsg == "") throw new Exception();
+                    if (Audio.errMsg == "") throw new InvalidOperationException("Audio.Play returned false without an error message.");
                     else
                     {
 
@@ -3961,6 +4010,7 @@ namespace mml2vgmIDEx64
             }
             catch (Exception e)
             {
+                Log.ForcedWrite(e);
                 Audio.errMsg = e.Message;
             }
         }
@@ -4887,6 +4937,7 @@ namespace mml2vgmIDEx64
             IDockContent dc = GetActiveDockContent();
             if (dc == null) return;
             if (!(dc is FrmEditor)) return;
+            compileTargetDocument = (FrmEditor)dc;
             compileManager.RequestCompile(((FrmEditor)dc).document, ((FrmEditor)dc).azukiControl.Text + "");
             compileManager.RequestPlayBack(((FrmEditor)dc).document, cbPlayBack);
         }
@@ -4899,18 +4950,65 @@ namespace mml2vgmIDEx64
                 return;
             }
 
-            if (qi.doc.dstFileFormat == EnmFileFormat.MUB)
+            if (qi?.doc == null) return;
+
+            compileTargetDocument = qi.doc.editor != null ? (object)qi.doc.editor : qi.doc;
+            args = new string[2] { qi.doc.gwiFullPath, "" };
+            doPlay = true;
+
+            switch (qi.doc.dstFileFormat)
             {
-                mubData = (musicDriverInterface.MmlDatum[])qi.doc.compiledData;
-                doPlay = true;
-                finishedCompileMUC();
-            }
-            else
-            {
-                mv = (Mml2vgm)qi.doc.compiledData;
-                doPlay = true;
-                args = new string[2] { qi.doc.gwiFullPath, "" };
-                finishedCompileGWI();
+                case EnmFileFormat.MUB:
+                    mubData = qi.doc.compiledData as musicDriverInterface.MmlDatum[];
+                    if (mubData == null)
+                    {
+                        MessageBox.Show("コンパイル結果(MUB)の再生データ取得に失敗しました。", "mml2vgm", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+                    finishedCompileMUC();
+                    break;
+                case EnmFileFormat.M:
+                    mData = qi.doc.compiledData as musicDriverInterface.MmlDatum[];
+                    if (mData == null)
+                    {
+                        MessageBox.Show("コンパイル結果(M)の再生データ取得に失敗しました。", "mml2vgm", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+                    finishedCompileMML();
+                    break;
+                case EnmFileFormat.MDR:
+                    mData = qi.doc.compiledData as musicDriverInterface.MmlDatum[];
+                    if (mData == null)
+                    {
+                        MessageBox.Show("コンパイル結果(MDR)の再生データ取得に失敗しました。", "mml2vgm", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+                    finishedCompileMDL();
+                    break;
+                case EnmFileFormat.MUS:
+                    mData = qi.doc.compiledData as musicDriverInterface.MmlDatum[];
+                    if (mData == null)
+                    {
+                        MessageBox.Show("コンパイル結果(MUS)の再生データ取得に失敗しました。", "mml2vgm", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+                    finishedCompileMUS();
+                    break;
+                case EnmFileFormat.VGM:
+                case EnmFileFormat.XGM:
+                case EnmFileFormat.XGM2:
+                case EnmFileFormat.ZGM:
+                    mv = qi.doc.compiledData as Mml2vgm;
+                    if (mv == null)
+                    {
+                        MessageBox.Show("コンパイル結果(VGM/XGM/ZGM)の再生データ取得に失敗しました。", "mml2vgm", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+                    finishedCompileGWI(headerAlreadyAdjusted: true);
+                    break;
+                default:
+                    MessageBox.Show($"未対応のコンパイル結果形式です({qi.doc.dstFileFormat})。", "mml2vgm", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    break;
             }
         }
 
@@ -5772,7 +5870,7 @@ namespace mml2vgmIDEx64
                 mv = (Mml2vgm)qi.doc.compiledData;
                 doPlay = true;
                 args = new string[2] { qi.doc.gwiFullPath, "" };
-                finishedCompileGWI();
+                finishedCompileGWI(headerAlreadyAdjusted: true);
 
                 Audio.waveMode = true;
                 Audio.waveModeAbort = false;
@@ -6003,7 +6101,7 @@ namespace mml2vgmIDEx64
                     doPlay = true;
                     args = new string[2] { qi.doc.gwiFullPath, "" };
                     compileTargetDocument = qi.doc;
-                    finishedCompileGWI();
+                    finishedCompileGWI(headerAlreadyAdjusted: true);
                 }
 
                 Audio.waveMode = true;
@@ -6140,7 +6238,7 @@ namespace mml2vgmIDEx64
                     mv = (Mml2vgm)qi.doc.compiledData;
                     doPlay = true;
                     args = new string[2] { qi.doc.gwiFullPath, "" };
-                    finishedCompileGWI();
+                    finishedCompileGWI(headerAlreadyAdjusted: true);
                 }
 
 

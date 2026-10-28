@@ -67,6 +67,7 @@ namespace mml2vgmIDEx64
             if (doc == null) return;
             if (doc.compileStatus == Document.EnmCompileStatus.Compiling) return;
 
+            Log.ForcedWrite($"Compile requested: {doc.gwiFullPath}");
             doc.compileStatus = Document.EnmCompileStatus.ReqCompile;
             queCompile.Enqueue(new queItem(enmCompileCommand.compile, doc, srcText, null, param));
 
@@ -92,30 +93,63 @@ namespace mml2vgmIDEx64
 
         private void run()
         {
-            while (queCompile.Count > 0)
+            try
             {
-                queItem qi = queCompile.Dequeue();
-
-                switch (qi.cmd)
+                while (queCompile.Count > 0)
                 {
-                    case enmCompileCommand.compile:
-                        if (qi.doc == null) break;
-                        if (qi.srcText == null)
+                    queItem qi = queCompile.Dequeue();
+                    if (qi.doc == null) continue;
+
+                    try
+                    {
+                        switch (qi.cmd)
                         {
-                            qi.doc.compileStatus = Document.EnmCompileStatus.Success;//対象がない場合は無条件で成功
-                            break;
+                            case enmCompileCommand.compile:
+                                qi.doc.compileStatus = Document.EnmCompileStatus.Compiling;
+                                qi.doc.errBox = null;
+                                qi.doc.wrnBox = null;
+                                qi.doc.compiledData = null;
+                                qi.doc.dstFileFormat = EnmFileFormat.unknown;
+                                if (qi.srcText == null)
+                                {
+                                    qi.doc.compileStatus = Document.EnmCompileStatus.Success;//対象がない場合は無条件で成功
+                                    break;
+                                }
+                                Log.ForcedWrite($"Compile started: {qi.doc.gwiFullPath}");
+                                Compile(qi);
+                                Log.ForcedWrite($"Compile finished: {qi.doc.gwiFullPath}, status={qi.doc.compileStatus}, format={qi.doc.dstFileFormat}, errors={qi.doc.errBox?.Length ?? 0}, warnings={qi.doc.wrnBox?.Length ?? 0}");
+                                if (qi.doc.compileStatus == Document.EnmCompileStatus.Failed || (qi.doc.errBox?.Length ?? 0) > 0)
+                                {
+                                    foreach (msgInfo error in qi.doc.errBox ?? Array.Empty<msgInfo>())
+                                        Log.ForcedWrite($"Compile error: {qi.doc.gwiFullPath}, {error.filename}:{(error.line < 0 ? "-" : (error.line + 1).ToString())}:{(error.column < 0 ? "-" : (error.column + 1).ToString())}: {error.body}");
+                                }
+                                break;
+                            case enmCompileCommand.play:
+                                if (qi.doc.compileStatus != Document.EnmCompileStatus.Success)
+                                {
+                                    Log.ForcedWrite($"Compile post-processing skipped: {qi.doc.gwiFullPath}, status={qi.doc.compileStatus}");
+                                    break;
+                                }
+                                Log.ForcedWrite($"Compile post-processing started: {qi.doc.gwiFullPath}, format={qi.doc.dstFileFormat}");
+                                qi.callPlayBack?.Invoke(qi);
+                                Log.ForcedWrite($"Compile post-processing returned: {qi.doc.gwiFullPath}");
+                                break;
                         }
-                        Compile(qi);
-                        break;
-                    case enmCompileCommand.play:
-                        if (qi.doc == null) break;
-                        if (qi.doc.compileStatus != Document.EnmCompileStatus.Success) break;
-                        qi.callPlayBack?.Invoke(qi);
-                        break;
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.ForcedWrite($"Compile {qi.cmd} failed: {qi.doc.gwiFullPath}");
+                        Log.ForcedWrite(ex);
+                        qi.doc.compileStatus = Document.EnmCompileStatus.Failed;
+                        qi.doc.compiledData = null;
+                        qi.doc.dstFileFormat = EnmFileFormat.unknown;
+                    }
                 }
             }
-
-            runner = null;
+            finally
+            {
+                runner = null;
+            }
         }
 
 
@@ -141,6 +175,8 @@ namespace mml2vgmIDEx64
                 case ".mus":
                     Compile_MUS(qi);
                     break;
+                default:
+                    throw new NotSupportedException($"Unsupported compile source: {qi.doc.gwiFullPath}");
             }
 
         }
@@ -149,7 +185,8 @@ namespace mml2vgmIDEx64
         {
             if (moonDriver == null)
             {
-                qi.doc.compileStatus = Document.EnmCompileStatus.Success;
+                Log.ForcedWrite($"MoonDriver compiler unavailable: {qi.doc.gwiFullPath}");
+                qi.doc.compileStatus = Document.EnmCompileStatus.Failed;
                 return;
             }
 
@@ -165,8 +202,10 @@ namespace mml2vgmIDEx64
             {
                 mData = moonDriver.compileFromSrcText(qi.srcText, wrkPath, qi.param.ToString(), Point.Empty, true);
             }
-            catch
+            catch (Exception ex)
             {
+                Log.ForcedWrite($"MoonDriver compilation failed: {qi.doc.gwiFullPath}");
+                Log.ForcedWrite(ex);
                 isSuccess = false;
             }
             if (mData == null) isSuccess = false;
@@ -205,7 +244,8 @@ namespace mml2vgmIDEx64
         {
             if (pmd == null)
             {
-                qi.doc.compileStatus = Document.EnmCompileStatus.Success;
+                Log.ForcedWrite($"PMD compiler unavailable: {qi.doc.gwiFullPath}");
+                qi.doc.compileStatus = Document.EnmCompileStatus.Failed;
                 return;
             }
 
@@ -221,8 +261,10 @@ namespace mml2vgmIDEx64
             {
                 mData = pmd.compileFromSrcText(qi.srcText, wrkPath, qi.param.ToString(), Point.Empty, true);
             }
-            catch
+            catch (Exception ex)
             {
+                Log.ForcedWrite($"PMD compilation failed: {qi.doc.gwiFullPath}");
+                Log.ForcedWrite(ex);
                 isSuccess = false;
             }
             if (mData == null) isSuccess = false;
@@ -261,7 +303,8 @@ namespace mml2vgmIDEx64
         {
             if (mucom == null)
             {
-                qi.doc.compileStatus = Document.EnmCompileStatus.Success;
+                Log.ForcedWrite($"mucom compiler unavailable: {qi.doc.gwiFullPath}");
+                qi.doc.compileStatus = Document.EnmCompileStatus.Failed;
                 return;
             }
 
@@ -277,8 +320,10 @@ namespace mml2vgmIDEx64
             {
                 mubData = mucom.compileFromSrcText(qi.srcText, wrkPath, Point.Empty);
             }
-            catch
+            catch (Exception ex)
             {
+                Log.ForcedWrite($"mucom compilation failed: {qi.doc.gwiFullPath}");
+                Log.ForcedWrite(ex);
                 isSuccess = false;
             }
             if (mubData == null) isSuccess = false;
@@ -318,7 +363,7 @@ namespace mml2vgmIDEx64
 
         private void Compile_GWI(queItem qi)
         {
-            object compileTargetDocument = qi.doc;
+            object compileTargetDocument = qi.doc.editor;
             string stPath = System.Windows.Forms.Application.StartupPath;
             string[] activeMMLTextLines = qi.srcText.Split(new string[] { "\r\n" }, StringSplitOptions.None);
             string tempPath = Path.Combine(Common.GetApplicationDataFolder(true), "temp", Path.GetFileName(qi.doc.gwiFullPath));
@@ -386,9 +431,13 @@ namespace mml2vgmIDEx64
         {
             if (muap == null)
             {
-                qi.doc.compileStatus = Document.EnmCompileStatus.Success;
+                Log.ForcedWrite($"muap compiler unavailable: {qi.doc.gwiFullPath}");
+                qi.doc.compileStatus = Document.EnmCompileStatus.Failed;
                 return;
             }
+
+            Log.ForcedWrite($"MUS compilation is not implemented: {qi.doc.gwiFullPath}");
+            qi.doc.compileStatus = Document.EnmCompileStatus.Failed;
 
             //string tempPath = Path.Combine(Common.GetApplicationDataFolder(true), "temp", Path.GetFileName(qi.doc.gwiFullPath));
             //string path1 = Path.GetDirectoryName(qi.doc.gwiFullPath);
