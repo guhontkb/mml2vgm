@@ -38,6 +38,7 @@ namespace mml2vgmIDEx64
         public bool isTrace = false;
         private bool doSkip = false;
         private bool doSkipStop = false;
+        private bool suppressAutoPlayAfterCompile = false;
         private bool doExport;
         private Point caretPoint = Point.Empty;
         public int Compiling = 0;
@@ -1862,6 +1863,7 @@ namespace mml2vgmIDEx64
             }
 
             isSuccess = true;
+            suppressAutoPlayAfterCompile = !doPlay;
             this.doPlay = doPlay;
             this.isTrace = isTrace;
             this.doSkip = doSkip;
@@ -2516,7 +2518,7 @@ namespace mml2vgmIDEx64
             //    return;
             //}
 
-            if (args.Length != 2 || !doPlay || msgBox.getErr().Length >= 1)
+            if (args.Length != 2 || !doPlay || suppressAutoPlayAfterCompile || msgBox.getErr().Length >= 1)
             {
                 Compiling = 0;
                 UpdateControl();
@@ -2763,7 +2765,7 @@ namespace mml2vgmIDEx64
                     }
                 }
 
-                if (doPlay && errorList.Count < 1)
+                if (doPlay && !suppressAutoPlayAfterCompile && errorList.Count < 1)
                 {
                     try
                     {
@@ -2896,7 +2898,7 @@ namespace mml2vgmIDEx64
             if (isSuccess)
             {
 
-                if (doPlay && errorList.Count < 1)
+                if (doPlay && !suppressAutoPlayAfterCompile && errorList.Count < 1)
                 {
                     try
                     {
@@ -2999,7 +3001,7 @@ namespace mml2vgmIDEx64
 
             if (isSuccess)
             {
-                if (doPlay && errorList.Count < 1)
+                if (doPlay && !suppressAutoPlayAfterCompile && errorList.Count < 1)
                 {
                     try
                     {
@@ -3105,7 +3107,7 @@ namespace mml2vgmIDEx64
 
             if (isSuccess)
             {
-                if (doPlay && errorList.Count < 1)
+                if (doPlay && !suppressAutoPlayAfterCompile && errorList.Count < 1)
                 {
                     try
                     {
@@ -4937,6 +4939,14 @@ namespace mml2vgmIDEx64
             IDockContent dc = GetActiveDockContent();
             if (dc == null) return;
             if (!(dc is FrmEditor)) return;
+
+            // F4(Compile) はコンパイル結果の反映のみを行い、再生やトレース再生には遷移しない
+            suppressAutoPlayAfterCompile = true;
+            doPlay = false;
+            isTrace = false;
+            doSkip = false;
+            doSkipStop = false;
+
             compileTargetDocument = (FrmEditor)dc;
             compileManager.RequestCompile(((FrmEditor)dc).document, ((FrmEditor)dc).azukiControl.Text + "");
             compileManager.RequestPlayBack(((FrmEditor)dc).document, cbPlayBack);
@@ -4954,7 +4964,11 @@ namespace mml2vgmIDEx64
 
             compileTargetDocument = qi.doc.editor != null ? (object)qi.doc.editor : qi.doc;
             args = new string[2] { qi.doc.gwiFullPath, "" };
-            doPlay = true;
+            suppressAutoPlayAfterCompile = true;
+            doPlay = false;
+            isTrace = false;
+            doSkip = false;
+            doSkipStop = false;
 
             switch (qi.doc.dstFileFormat)
             {
@@ -5010,6 +5024,10 @@ namespace mml2vgmIDEx64
                     MessageBox.Show($"未対応のコンパイル結果形式です({qi.doc.dstFileFormat})。", "mml2vgm", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     break;
             }
+
+            // F4コンパイル後に誤って再生系(通常再生/トレース再生)へ遷移した場合の保険
+            stop();
+            suppressAutoPlayAfterCompile = false;
         }
 
         private void tsmiImport_D88toMuc_Click(object sender, EventArgs e)
