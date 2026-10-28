@@ -16,6 +16,11 @@ namespace mml2vgmIDEx64
             this.labelCopyright.Text = AssemblyCopyright;
             this.labelCompanyName.Text = AssemblyCompany;
             this.textBoxDescription.Text = AssemblyDescription;
+            if (!String.IsNullOrEmpty(this.textBoxDescription.Text))
+            {
+                this.textBoxDescription.AppendText(Environment.NewLine);
+            }
+            this.textBoxDescription.AppendText(String.Format("フォーク版{0}ビルド日時: {1}", Environment.NewLine, AssemblyBuildDate));
         }
 
         #region アセンブリ属性アクセサー
@@ -42,6 +47,22 @@ namespace mml2vgmIDEx64
             get
             {
                 return Assembly.GetExecutingAssembly().GetName().Version.ToString();
+            }
+        }
+
+        public string AssemblyBuildDate
+        {
+            get
+            {
+                object[] attributes = Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyMetadataAttribute), false);
+                foreach (AssemblyMetadataAttribute attribute in attributes)
+                {
+                    if (attribute.Key == "BuildDate")
+                    {
+                        return attribute.Value;
+                    }
+                }
+                return "不明";
             }
         }
 
@@ -104,7 +125,7 @@ namespace mml2vgmIDEx64
             System.Diagnostics.Process.Start(new ProcessStartInfo
             {
                 UseShellExecute = true,
-                FileName = "https://github.com/kuma4649/mml2vgm/releases/latest"
+                FileName = "https://github.com/guhontkb/mml2vgm"
             }).Dispose();
 
         }
