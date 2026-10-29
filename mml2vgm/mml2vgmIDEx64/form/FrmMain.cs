@@ -3501,6 +3501,7 @@ namespace mml2vgmIDEx64
             frmFolderTree.parentUpdate = UpdateControl;
             frmFolderTree.parentExecFile = ExecFile;
             frmFolderTree.parentDeleteFile = DeleteFile;
+            frmFolderTree.parentGetSetting = () => this.setting;
             frmErrorList.parentUpdate = UpdateControl;
             frmErrorList.parentJumpDocument = JumpDocument;
             frmLyrics.parentUpdate = UpdateControl;

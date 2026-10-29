@@ -1890,6 +1890,34 @@ namespace mml2vgmIDEx64
                 }
             }
 
+            private string _SoxPath = "";
+            public string SoxPath
+            {
+                get
+                {
+                    return _SoxPath;
+                }
+
+                set
+                {
+                    _SoxPath = value;
+                }
+            }
+
+            private string _SoundEnginePath = "";
+            public string SoundEnginePath
+            {
+                get
+                {
+                    return _SoundEnginePath;
+                }
+
+                set
+                {
+                    _SoundEnginePath = value;
+                }
+            }
+
             //private EnmInstFormat _InstFormat = EnmInstFormat.MML2VGM;
             //public EnmInstFormat InstFormat
             //{
@@ -2110,6 +2138,8 @@ namespace mml2vgmIDEx64
                 other.LoopTimes = this.LoopTimes;
                 other.UseGetInst = this.UseGetInst;
                 other.DefaultDataPath = this.DefaultDataPath;
+                other.SoxPath = this.SoxPath;
+                other.SoundEnginePath = this.SoundEnginePath;
                 //other.InstFormat = this.InstFormat;
                 other.Zoom = this.Zoom;
                 other.ScreenFrameRate = this.ScreenFrameRate;

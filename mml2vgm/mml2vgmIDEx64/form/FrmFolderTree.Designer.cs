@@ -38,6 +38,7 @@ namespace mml2vgmIDEx64
             imgList = new ImageList(components);
             cmsMenu = new ContextMenuStrip(components);
             TsmiOpen = new ToolStripMenuItem();
+            TsmiOpenSoundEngine = new ToolStripMenuItem();
             TsmiDelete = new ToolStripMenuItem();
             toolStripSeparator1 = new ToolStripSeparator();
             tvFolderTree = new CustomControl.MultiSelectTreeView();
@@ -71,10 +72,10 @@ namespace mml2vgmIDEx64
             // 
             // cmsMenu
             // 
-            cmsMenu.Items.AddRange(new ToolStripItem[] { TsmiOpen, TsmiDelete, toolStripSeparator1 });
+            cmsMenu.Items.AddRange(new ToolStripItem[] { TsmiOpen, TsmiOpenSoundEngine, TsmiDelete, toolStripSeparator1 });
             cmsMenu.Name = "cmsMenu";
             cmsMenu.ShowImageMargin = false;
-            cmsMenu.Size = new Size(74, 54);
+            cmsMenu.Size = new Size(167, 76);
             // 
             // TsmiOpen
             // 
@@ -83,10 +84,17 @@ namespace mml2vgmIDEx64
             TsmiOpen.Text = "開く";
             TsmiOpen.MouseUp += TsmiOpen_MouseUp;
             // 
+            // TsmiOpenSoundEngine
+            // 
+            TsmiOpenSoundEngine.Name = "TsmiOpenSoundEngine";
+            TsmiOpenSoundEngine.Size = new Size(166, 22);
+            TsmiOpenSoundEngine.Text = "SoundEngineで開く";
+            TsmiOpenSoundEngine.MouseUp += TsmiOpenSoundEngine_MouseUp;
+            // 
             // TsmiDelete
             // 
             TsmiDelete.Name = "TsmiDelete";
-            TsmiDelete.Size = new Size(73, 22);
+            TsmiDelete.Size = new Size(166, 22);
             TsmiDelete.Text = "削除";
             TsmiDelete.MouseUp += TsmiDelete_MouseUp;
             // 
@@ -278,6 +286,7 @@ namespace mml2vgmIDEx64
         private System.Windows.Forms.ImageList imgList;
         private System.Windows.Forms.ContextMenuStrip cmsMenu;
         private System.Windows.Forms.ToolStripMenuItem TsmiOpen;
+        private System.Windows.Forms.ToolStripMenuItem TsmiOpenSoundEngine;
         private System.Windows.Forms.ToolStripMenuItem TsmiDelete;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripContainer toolStripContainer1;

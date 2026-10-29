@@ -17,6 +17,13 @@ namespace mml2vgmIDEx64
         public Setting setting = null;
         private bool IsInitialOpenFolder;
         DataGridView[] dgv = null;
+        private TabPage tpFolder;
+        private Label lblSoxPath;
+        private TextBox tbSoxPath;
+        private Button btnSoxPath;
+        private Label lblSoundEnginePath;
+        private TextBox tbSoundEnginePath;
+        private Button btnSoundEnginePath;
 
 
         public FrmSetting(Setting setting)
@@ -24,6 +31,7 @@ namespace mml2vgmIDEx64
             this.setting = setting.Copy();
 
             InitializeComponent();
+            InitializeFolderTab();
 
             dgv = new DataGridView[] {
                 dgvMIDIoutListA,dgvMIDIoutListB,dgvMIDIoutListC,dgvMIDIoutListD
@@ -43,6 +51,98 @@ namespace mml2vgmIDEx64
             tbcMIDIoutList.TabPages.Remove(tabPage2);
             tbcMIDIoutList.TabPages.Remove(tabPage3);
             tbcMIDIoutList.TabPages.Remove(tabPage4);
+        }
+
+        private void InitializeFolderTab()
+        {
+            tpFolder = new TabPage();
+            lblSoxPath = new Label();
+            tbSoxPath = new TextBox();
+            btnSoxPath = new Button();
+            lblSoundEnginePath = new Label();
+            tbSoundEnginePath = new TextBox();
+            btnSoundEnginePath = new Button();
+
+            tpFolder.SuspendLayout();
+
+            tpFolder.BorderStyle = BorderStyle.FixedSingle;
+            tpFolder.Location = new System.Drawing.Point(4, 44);
+            tpFolder.Margin = new Padding(4);
+            tpFolder.Name = "tpFolder";
+            tpFolder.Size = new System.Drawing.Size(518, 510);
+            tpFolder.TabIndex = 20;
+            tpFolder.Text = "Folder";
+            tpFolder.UseVisualStyleBackColor = true;
+
+            lblSoxPath.AutoSize = true;
+            lblSoxPath.Location = new System.Drawing.Point(8, 20);
+            lblSoxPath.Margin = new Padding(4, 0, 4, 0);
+            lblSoxPath.Name = "lblSoxPath";
+            lblSoxPath.Size = new System.Drawing.Size(55, 15);
+            lblSoxPath.TabIndex = 0;
+            lblSoxPath.Text = "SOX path";
+
+            tbSoxPath.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            tbSoxPath.Location = new System.Drawing.Point(72, 16);
+            tbSoxPath.Margin = new Padding(4);
+            tbSoxPath.Name = "tbSoxPath";
+            tbSoxPath.Size = new System.Drawing.Size(392, 23);
+            tbSoxPath.TabIndex = 1;
+
+            btnSoxPath.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnSoxPath.Location = new System.Drawing.Point(472, 16);
+            btnSoxPath.Margin = new Padding(4);
+            btnSoxPath.Name = "btnSoxPath";
+            btnSoxPath.Size = new System.Drawing.Size(32, 23);
+            btnSoxPath.TabIndex = 2;
+            btnSoxPath.Text = "...";
+            btnSoxPath.UseVisualStyleBackColor = true;
+            btnSoxPath.Click += btnSoxPath_Click;
+
+            tpFolder.Controls.Add(lblSoxPath);
+            tpFolder.Controls.Add(tbSoxPath);
+            tpFolder.Controls.Add(btnSoxPath);
+            tpFolder.Controls.Add(lblSoundEnginePath);
+            tpFolder.Controls.Add(tbSoundEnginePath);
+            tpFolder.Controls.Add(btnSoundEnginePath);
+
+            lblSoundEnginePath.AutoSize = true;
+            lblSoundEnginePath.Location = new System.Drawing.Point(8, 52);
+            lblSoundEnginePath.Margin = new Padding(4, 0, 4, 0);
+            lblSoundEnginePath.Name = "lblSoundEnginePath";
+            lblSoundEnginePath.Size = new System.Drawing.Size(115, 15);
+            lblSoundEnginePath.TabIndex = 3;
+            lblSoundEnginePath.Text = "SoundEngine path";
+
+            tbSoundEnginePath.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            tbSoundEnginePath.Location = new System.Drawing.Point(128, 48);
+            tbSoundEnginePath.Margin = new Padding(4);
+            tbSoundEnginePath.Name = "tbSoundEnginePath";
+            tbSoundEnginePath.Size = new System.Drawing.Size(336, 23);
+            tbSoundEnginePath.TabIndex = 4;
+
+            btnSoundEnginePath.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnSoundEnginePath.Location = new System.Drawing.Point(472, 48);
+            btnSoundEnginePath.Margin = new Padding(4);
+            btnSoundEnginePath.Name = "btnSoundEnginePath";
+            btnSoundEnginePath.Size = new System.Drawing.Size(32, 23);
+            btnSoundEnginePath.TabIndex = 5;
+            btnSoundEnginePath.Text = "...";
+            btnSoundEnginePath.UseVisualStyleBackColor = true;
+            btnSoundEnginePath.Click += btnSoundEnginePath_Click;
+
+            int editorTabIndex = tcSetting.TabPages.IndexOf(tpEditor);
+            if (editorTabIndex >= 0)
+            {
+                tcSetting.TabPages.Insert(editorTabIndex + 1, tpFolder);
+            }
+            else
+            {
+                tcSetting.TabPages.Add(tpFolder);
+            }
+
+            tpFolder.ResumeLayout(false);
+            tpFolder.PerformLayout();
         }
 
         public void Init()
@@ -499,6 +599,8 @@ namespace mml2vgmIDEx64
             cbUseGetInst.Checked = setting.other.UseGetInst;
             cbUseGetInst_CheckedChanged(null, null);
             tbDataPath.Text = setting.other.DefaultDataPath;
+            tbSoxPath.Text = setting.other.SoxPath;
+            tbSoundEnginePath.Text = setting.other.SoundEnginePath;
             //cmbInstFormat.SelectedIndex = (int)setting.other.InstFormat;
             tbScreenFrameRate.Text = setting.other.ScreenFrameRate.ToString();
             cbAutoOpen.Checked = setting.other.AutoOpen;
@@ -1380,6 +1482,8 @@ namespace mml2vgmIDEx64
             setting.export.AlwaysAsksForLoopCounts = cbAlwaysAskForLoopCount.Checked;
             setting.other.UseGetInst = cbUseGetInst.Checked;
             setting.other.DefaultDataPath = tbDataPath.Text;
+            setting.other.SoxPath = tbSoxPath.Text;
+            setting.other.SoundEnginePath = tbSoundEnginePath.Text;
             //setting.other.InstFormat = (EnmInstFormat)cmbInstFormat.SelectedIndex;
             if (int.TryParse(tbScreenFrameRate.Text, out i))
             {
@@ -2090,6 +2194,76 @@ namespace mml2vgmIDEx64
 
             tbDataPath.Text = fbd.SelectedPath;
 
+        }
+
+        private void btnSoxPath_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Filter = "sox実行ファイル(sox*.exe)|sox*.exe|実行ファイル(*.exe)|*.exe|すべてのファイル(*.*)|*.*";
+            ofd.Title = "SOXの実行ファイルを選択してください";
+            ofd.CheckPathExists = true;
+            ofd.CheckFileExists = true;
+            ofd.Multiselect = false;
+
+            if (!string.IsNullOrWhiteSpace(tbSoxPath.Text))
+            {
+                string dir = Path.GetDirectoryName(tbSoxPath.Text);
+                if (!string.IsNullOrWhiteSpace(dir) && Directory.Exists(dir))
+                {
+                    ofd.InitialDirectory = dir;
+                }
+            }
+            else if (setting.other.DefaultDataPath != "" && Directory.Exists(setting.other.DefaultDataPath) && IsInitialOpenFolder)
+            {
+                ofd.InitialDirectory = setting.other.DefaultDataPath;
+            }
+            else
+            {
+                ofd.RestoreDirectory = true;
+            }
+
+            if (ofd.ShowDialog(this) != DialogResult.OK)
+            {
+                return;
+            }
+
+            IsInitialOpenFolder = false;
+            tbSoxPath.Text = ofd.FileName;
+        }
+
+        private void btnSoundEnginePath_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Filter = "SoundEngine実行ファイル(*.exe)|*.exe|すべてのファイル(*.*)|*.*";
+            ofd.Title = "SoundEngineの実行ファイルを選択してください";
+            ofd.CheckPathExists = true;
+            ofd.CheckFileExists = true;
+            ofd.Multiselect = false;
+
+            if (!string.IsNullOrWhiteSpace(tbSoundEnginePath.Text))
+            {
+                string dir = Path.GetDirectoryName(tbSoundEnginePath.Text);
+                if (!string.IsNullOrWhiteSpace(dir) && Directory.Exists(dir))
+                {
+                    ofd.InitialDirectory = dir;
+                }
+            }
+            else if (setting.other.DefaultDataPath != "" && Directory.Exists(setting.other.DefaultDataPath) && IsInitialOpenFolder)
+            {
+                ofd.InitialDirectory = setting.other.DefaultDataPath;
+            }
+            else
+            {
+                ofd.RestoreDirectory = true;
+            }
+
+            if (ofd.ShowDialog(this) != DialogResult.OK)
+            {
+                return;
+            }
+
+            IsInitialOpenFolder = false;
+            tbSoundEnginePath.Text = ofd.FileName;
         }
 
         private void cbUseGetInst_CheckedChanged(object sender, EventArgs e)

@@ -15,12 +15,15 @@ namespace mml2vgmIDEx64
         public Action parentUpdate = null;
         public Action<string[]> parentExecFile = null;
         public Action<string[]> parentDeleteFile = null;
+        public Func<Setting> parentGetSetting = null;
         public string basePath = "";
         private bool useMouse;
+        private readonly Setting setting;
 
         public FrmFolderTree(Setting setting, DockPanel dockPanel)
         {
             InitializeComponent();
+            this.setting = setting;
             this.tvFolderTree.BackColor = Color.FromArgb(setting.ColorScheme.FolderTree_BackColor);
             this.tvFolderTree.ForeColor = Color.FromArgb(setting.ColorScheme.FolderTree_ForeColor);
             this.tvFolderTree.HotColor = Color.FromArgb(setting.ColorScheme.FolderTree_BackColor);
@@ -310,6 +313,74 @@ namespace mml2vgmIDEx64
 
             parentDeleteFile?.Invoke(lstFullPath.ToArray());
 
+        }
+
+        private void TsmiOpenSoundEngine_MouseUp(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right) return;
+
+            Setting currentSetting = parentGetSetting?.Invoke() ?? setting;
+            string soundEnginePath = currentSetting?.other?.SoundEnginePath ?? "";
+            if (string.IsNullOrWhiteSpace(soundEnginePath) || !File.Exists(soundEnginePath))
+            {
+                OpenFileDialog ofd = new OpenFileDialog();
+                ofd.Filter = "SoundEngine実行ファイル(*.exe)|*.exe|すべてのファイル(*.*)|*.*";
+                ofd.Title = "SoundEngineの実行ファイルを選択してください";
+                ofd.CheckPathExists = true;
+                ofd.CheckFileExists = true;
+                ofd.Multiselect = false;
+
+                if (!string.IsNullOrWhiteSpace(soundEnginePath))
+                {
+                    string dir = Path.GetDirectoryName(soundEnginePath);
+                    if (!string.IsNullOrWhiteSpace(dir) && Directory.Exists(dir))
+                    {
+                        ofd.InitialDirectory = dir;
+                    }
+                }
+                else if (currentSetting?.other != null
+                    && !string.IsNullOrWhiteSpace(currentSetting.other.DefaultDataPath)
+                    && Directory.Exists(currentSetting.other.DefaultDataPath))
+                {
+                    ofd.InitialDirectory = currentSetting.other.DefaultDataPath;
+                }
+                else
+                {
+                    ofd.RestoreDirectory = true;
+                }
+
+                if (ofd.ShowDialog(this) != DialogResult.OK)
+                {
+                    return;
+                }
+
+                soundEnginePath = ofd.FileName;
+                if (!File.Exists(soundEnginePath))
+                {
+                    MessageBox.Show("指定されたSoundEngineの実行ファイルが見つかりません。"
+                        , "SoundEngine path error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                currentSetting.other.SoundEnginePath = soundEnginePath;
+                currentSetting.Save();
+            }
+
+            List<string> lstFullPath = new List<string>();
+            GetCheckTreeNodesFullPath(ref lstFullPath, tvFolderTree.Nodes);
+            if (lstFullPath.Count < 1) return;
+
+            foreach (string fullPath in lstFullPath)
+            {
+                if (!File.Exists(fullPath)) continue;
+
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = soundEnginePath,
+                    Arguments = $"\"{fullPath}\"",
+                    UseShellExecute = true
+                }).Dispose();
+            }
         }
 
 
