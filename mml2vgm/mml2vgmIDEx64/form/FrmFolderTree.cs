@@ -3,21 +3,27 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using WeifenLuo.WinFormsUI.Docking;
 using System.ComponentModel;
+using NAudio.Wave;
 
 namespace mml2vgmIDEx64
 {
     public partial class FrmFolderTree : WeifenLuo.WinFormsUI.Docking.DockContent
     {
+        private static readonly Color FileListHeaderBackColor = Color.FromArgb(45, 45, 48);
+        private static readonly Color FileListHeaderForeColor = Color.FromArgb(241, 241, 241);
         public Action parentUpdate = null;
         public Action<string[]> parentExecFile = null;
         public Action<string[]> parentDeleteFile = null;
         public Func<Setting> parentGetSetting = null;
         public string basePath = "";
         private bool useMouse;
+        private int fileListSortColumn = -1;
+        private bool fileListSortAscending = true;
         private readonly Setting setting;
 
         public FrmFolderTree(Setting setting, DockPanel dockPanel)
@@ -31,11 +37,14 @@ namespace mml2vgmIDEx64
                 (int)(tvFolderTree.HotColor.R * 1.3),
                 (int)(tvFolderTree.HotColor.G * 1.3),
                 (int)(tvFolderTree.HotColor.B * 1.3));
+            lvFileList.BackColor = Color.FromArgb(setting.ColorScheme.FolderTree_BackColor);
+            lvFileList.ForeColor = Color.FromArgb(setting.ColorScheme.FolderTree_ForeColor);
 
             tvFolderTree.TreeViewNodeSorter = new NodeSorter();
 
             dockPanel.Theme.ApplyTo(cmsMenu);
             dockPanel.Theme.ApplyTo(toolStrip1);
+            cmsMenu.Opening += CmsMenu_Opening;
 
             Common.SetDoubleBuffered(tvFolderTree);
         }
@@ -70,11 +79,6 @@ namespace mml2vgmIDEx64
                         ts.Nodes.Add("!dmy");
                         node.Nodes.Add(ts);
                     }
-                    foreach (FileInfo fi in dm.GetFiles())
-                    {
-                        ts = new TreeNode(fi.Name, 0, 0);
-                        node.Nodes.Add(ts);
-                    }
                 }
                 catch (UnauthorizedAccessException)
                 {
@@ -86,27 +90,14 @@ namespace mml2vgmIDEx64
 
         private void TvFolderTree_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-            List<string> lstFullPath = new List<string>();
-            GetCheckTreeNodesFullPath(ref lstFullPath, tvFolderTree.Nodes);
-            if (lstFullPath.Count < 1) return;
-            parentExecFile?.Invoke(lstFullPath.ToArray());
+            UpdateFileList(e.Node);
         }
 
         private void TvFolderTree_KeyPress(object sender, KeyPressEventArgs e)
         {
             if (e.KeyChar == '\r')
             {
-                List<string> lstFullPath = new List<string>();
-                GetCheckTreeNodesFullPath(ref lstFullPath, tvFolderTree.Nodes);
-                if (lstFullPath.Count < 1) return;
-                parentExecFile?.Invoke(lstFullPath.ToArray());
-
-                //TreeNode tn = tvFolderTree.SelectedNode;
-                //if (tn == null) return;
-                //if (tn.ImageIndex == 1) return;
-                //string fullpath = System.IO.Path.Combine(Path.GetDirectoryName(basePath), tn.FullPath);
-                //parentExecFile?.Invoke(fullpath);
-
+                UpdateFileList(tvFolderTree.SelectedNode);
                 e.Handled = true;
             }
         }
@@ -154,6 +145,7 @@ namespace mml2vgmIDEx64
 
         private void TvFolderTree_AfterSelect(object sender, TreeViewEventArgs e)
         {
+            UpdateFileList(e.Node);
             if (useMouse)
             {
                 useMouse = false;
@@ -269,8 +261,7 @@ namespace mml2vgmIDEx64
         {
             if (e.Button == MouseButtons.Right) return;
 
-            List<string> lstFullPath = new List<string>();
-            GetCheckTreeNodesFullPath(ref lstFullPath, tvFolderTree.Nodes);
+            List<string> lstFullPath = GetSelectedFilePaths();
             if (lstFullPath.Count < 1) return;
             parentExecFile?.Invoke(lstFullPath.ToArray());
 
@@ -280,8 +271,7 @@ namespace mml2vgmIDEx64
         {
             if (e.Button == MouseButtons.Right) return;
 
-            List<string> lstFullPath = new List<string>();
-            GetCheckTreeNodesFullPath(ref lstFullPath, tvFolderTree.Nodes);
+            List<string> lstFullPath = GetSelectedFilePaths();
             if (lstFullPath.Count < 1) return;
 
             DialogResult ret = DialogResult.Cancel;
@@ -366,8 +356,7 @@ namespace mml2vgmIDEx64
                 currentSetting.Save();
             }
 
-            List<string> lstFullPath = new List<string>();
-            GetCheckTreeNodesFullPath(ref lstFullPath, tvFolderTree.Nodes);
+            List<string> lstFullPath = GetSelectedFilePaths();
             if (lstFullPath.Count < 1) return;
 
             foreach (string fullPath in lstFullPath)
@@ -510,10 +499,10 @@ namespace mml2vgmIDEx64
             if (tvFolderTree.Nodes.Count > 0)
             {
                 refreshAddCheck(tvFolderTree.Nodes[0]);
-                refreshFilter(tvFolderTree.Nodes[0].Nodes);
             }
             tvFolderTree.Sort();
             tvFolderTree.ExpandAll();
+            UpdateFileList(tvFolderTree.SelectedNode ?? (tvFolderTree.Nodes.Count > 0 ? tvFolderTree.Nodes[0] : null));
         }
 
         private void refreshRemoveCheck(TreeNodeCollection nodes)
@@ -596,31 +585,6 @@ namespace mml2vgmIDEx64
                     {
                         ts = new TreeNode(ds.Name, 1, 1);
                         ts.Nodes.Add("!dmy");
-                        tn.Nodes.Add(ts);
-                    }
-                }
-                foreach (FileInfo fi in dm.GetFiles())
-                {
-                    int i = 0;
-                    bool flg = false;
-                    while (i < tn.Nodes.Count)
-                    {
-                        TreeNode ttn = tn.Nodes[i++];
-                        string fpath = Path.Combine(path1, Path.GetFullPath(ttn.FullPath));
-                        if (fi.FullName.ToUpper() == fpath.ToUpper())
-                        {
-                            flg = true;
-                            if (fi.FullName != fpath)
-                            {
-                                tn.Nodes.Remove(ttn);
-                                flg = false;
-                            }
-                            break;
-                        }
-                    }
-                    if (!flg)
-                    {
-                        ts = new TreeNode(fi.Name, 0, 0);
                         tn.Nodes.Add(ts);
                     }
                 }
@@ -969,7 +933,339 @@ namespace mml2vgmIDEx64
 
         private void TvFolderTree_AfterExpand(object sender, TreeViewEventArgs e)
         {
-            refreshFilter(e.Node.Nodes);
+            UpdateFileList(tvFolderTree.SelectedNode);
+        }
+
+        private void UpdateFileList(TreeNode node)
+        {
+            lvFileList.BeginUpdate();
+            lvFileList.Items.Clear();
+            try
+            {
+                if (node == null) return;
+
+                string path1 = Path.GetDirectoryName(basePath);
+                path1 = string.IsNullOrEmpty(path1) ? basePath : path1;
+                string directoryPath = Path.Combine(path1, Path.GetFullPath(node.FullPath));
+                DirectoryInfo directory = new DirectoryInfo(directoryPath);
+                if (ShouldShowFolders())
+                {
+                    foreach (DirectoryInfo subDirectory in directory.GetDirectories()
+                        .OrderBy(directoryInfo => directoryInfo.Name, StringComparer.CurrentCultureIgnoreCase))
+                    {
+                        ListViewItem item = new ListViewItem(subDirectory.Name, 1);
+                        item.SubItems.Add(subDirectory.LastWriteTime.ToString("yyyy/MM/dd HH:mm:ss"));
+                        item.SubItems.Add(string.Empty);
+                        item.Tag = subDirectory.FullName;
+                        lvFileList.Items.Add(item);
+                    }
+                }
+                foreach (FileInfo file in directory.GetFiles()
+                    .OrderBy(file => file.Name, StringComparer.CurrentCultureIgnoreCase))
+                {
+                    if (!IsFileVisible(file)) continue;
+
+                    ListViewItem item = new ListViewItem(file.Name, 0);
+                    item.SubItems.Add(file.LastWriteTime.ToString("yyyy/MM/dd HH:mm:ss"));
+                    item.SubItems.Add(file.Length.ToString("N0") + " bytes");
+                    string[] waveInfo = GetWaveInfo(file.FullName);
+                    foreach (string value in waveInfo)
+                    {
+                        item.SubItems.Add(value);
+                    }
+                    item.Tag = file.FullName;
+                    lvFileList.Items.Add(item);
+                }
+            }
+            catch (UnauthorizedAccessException)
+            {
+                MessageBox.Show("アクセスが拒否されました。", "権限不足", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            catch (DirectoryNotFoundException)
+            {
+            }
+            finally
+            {
+                lvFileList.EndUpdate();
+                if (lvFileList.ListViewItemSorter != null) lvFileList.Sort();
+                if (lvFileList.Items.Count > 0)
+                {
+                    ListViewItem firstItem = lvFileList.Items[0];
+                    firstItem.Selected = true;
+                    firstItem.Focused = true;
+                    firstItem.EnsureVisible();
+                    if (lvFileList.CanFocus) lvFileList.Focus();
+                }
+            }
+        }
+
+        private void LvFileList_ColumnClick(object sender, ColumnClickEventArgs e)
+        {
+            if (e.Column == columnHeaderHeaderFill.Index) return;
+
+            if (fileListSortColumn == e.Column)
+            {
+                fileListSortAscending = !fileListSortAscending;
+            }
+            else
+            {
+                fileListSortColumn = e.Column;
+                fileListSortAscending = true;
+            }
+
+            lvFileList.ListViewItemSorter = new FileListItemComparer(fileListSortColumn, fileListSortAscending);
+            lvFileList.Sort();
+        }
+
+        private void LvFileList_ColumnWidthChanging(object sender, ColumnWidthChangingEventArgs e)
+        {
+            if (e.ColumnIndex == columnHeaderHeaderFill.Index) e.Cancel = true;
+        }
+
+        private void LvFileList_SizeChanged(object sender, EventArgs e)
+        {
+            UpdateHeaderFillWidth();
+        }
+
+        private void LvFileList_HandleCreated(object sender, EventArgs e)
+        {
+            UpdateHeaderFillWidth();
+        }
+
+        private void SplitContainer1_SizeChanged(object sender, EventArgs e)
+        {
+            UpdateHeaderFillWidth();
+        }
+
+        private void FrmFolderTree_Shown(object sender, EventArgs e)
+        {
+            UpdateHeaderFillWidth();
+        }
+
+        private void UpdateHeaderFillWidth()
+        {
+            if (lvFileList.Columns.Count == 0) return;
+            int fixedWidth = 0;
+            foreach (ColumnHeader column in lvFileList.Columns)
+            {
+                if (column != columnHeaderHeaderFill) fixedWidth += column.Width;
+            }
+            columnHeaderHeaderFill.Width = Math.Max(0, lvFileList.ClientSize.Width - fixedWidth);
+        }
+
+        private void LvFileList_DrawColumnHeader(object sender, DrawListViewColumnHeaderEventArgs e)
+        {
+            using (SolidBrush backgroundBrush = new SolidBrush(FileListHeaderBackColor))
+            {
+                e.Graphics.FillRectangle(backgroundBrush, e.Bounds);
+            }
+
+            TextFormatFlags alignment = e.Header.TextAlign == HorizontalAlignment.Right
+                ? TextFormatFlags.Right
+                : e.Header.TextAlign == HorizontalAlignment.Center ? TextFormatFlags.HorizontalCenter : TextFormatFlags.Left;
+            TextRenderer.DrawText(e.Graphics, e.Header.Text, e.Font,
+                Rectangle.Inflate(e.Bounds, -6, 0), FileListHeaderForeColor,
+                alignment | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
+        }
+
+        private void LvFileList_DrawItem(object sender, DrawListViewItemEventArgs e)
+        {
+            e.DrawDefault = true;
+        }
+
+        private void LvFileList_DrawSubItem(object sender, DrawListViewSubItemEventArgs e)
+        {
+            e.DrawDefault = true;
+        }
+
+        private sealed class FileListItemComparer : IComparer
+        {
+            private readonly int column;
+            private readonly bool ascending;
+
+            public FileListItemComparer(int column, bool ascending)
+            {
+                this.column = column;
+                this.ascending = ascending;
+            }
+
+            public int Compare(object x, object y)
+            {
+                ListViewItem left = (ListViewItem)x;
+                ListViewItem right = (ListViewItem)y;
+                IComparable leftKey = GetSortKey(left, column);
+                IComparable rightKey = GetSortKey(right, column);
+                int result;
+
+                if (leftKey == null || rightKey == null)
+                {
+                    result = leftKey == null ? (rightKey == null ? 0 : -1) : 1;
+                }
+                else
+                {
+                    result = leftKey.CompareTo(rightKey);
+                }
+
+                return ascending ? result : -result;
+            }
+
+            private static IComparable GetSortKey(ListViewItem item, int column)
+            {
+                string text = item.SubItems[column].Text;
+                if (string.IsNullOrWhiteSpace(text)) return null;
+
+                switch (column)
+                {
+                    case 1:
+                        if (DateTime.TryParseExact(text, "yyyy/MM/dd HH:mm:ss", CultureInfo.InvariantCulture,
+                            DateTimeStyles.None, out DateTime lastWriteTime)) return lastWriteTime;
+                        break;
+                    case 2:
+                        if (long.TryParse(text.Replace(" bytes", string.Empty), NumberStyles.Number,
+                            CultureInfo.CurrentCulture, out long size)) return size;
+                        break;
+                    case 3:
+                        string[] durationParts = text.Split(':');
+                        if (durationParts.Length == 3
+                            && int.TryParse(durationParts[0], out int hours)
+                            && int.TryParse(durationParts[1], out int minutes)
+                            && int.TryParse(durationParts[2], out int seconds))
+                        {
+                            return TimeSpan.FromHours(hours).Add(TimeSpan.FromMinutes(minutes)).Add(TimeSpan.FromSeconds(seconds));
+                        }
+                        break;
+                    case 4:
+                        if (long.TryParse(text.Replace(" Hz", string.Empty), NumberStyles.Number,
+                            CultureInfo.CurrentCulture, out long sampleRate)) return sampleRate;
+                        break;
+                    case 5:
+                        if (int.TryParse(text.Replace(" bit", string.Empty), out int bitsPerSample)) return bitsPerSample;
+                        break;
+                    case 6:
+                        if (text == "モノラル") return 1;
+                        if (text == "ステレオ") return 2;
+                        if (int.TryParse(text.Replace(" ch", string.Empty), out int channels)) return channels;
+                        break;
+                }
+
+                return text;
+            }
+        }
+
+        private bool IsFileVisible(FileInfo file)
+        {
+            if (tsmiFilterAll.Checked || tsmiFilterFile.Checked) return true;
+            string extension = file.Extension;
+            return (tsmiFilterGwi.Checked && extension.Equals(".gwi", StringComparison.OrdinalIgnoreCase))
+                || (tsmiFilterMuc.Checked && extension.Equals(".muc", StringComparison.OrdinalIgnoreCase))
+                || (tsmiFilterMml.Checked && extension.Equals(".mml", StringComparison.OrdinalIgnoreCase))
+                || (tsmiFilterWav.Checked && extension.Equals(".wav", StringComparison.OrdinalIgnoreCase));
+        }
+
+        private string[] GetWaveInfo(string filePath)
+        {
+            string[] waveInfo = new string[4];
+            if (!Path.GetExtension(filePath).Equals(".wav", StringComparison.OrdinalIgnoreCase)) return waveInfo;
+
+            try
+            {
+                using (WaveFileReader reader = new WaveFileReader(filePath))
+                {
+                    TimeSpan duration = reader.TotalTime;
+                    waveInfo[0] = string.Format("{0:00}:{1:00}:{2:00}",
+                        (int)duration.TotalHours, duration.Minutes, duration.Seconds);
+                    waveInfo[1] = reader.WaveFormat.SampleRate.ToString("N0");
+                    waveInfo[2] = string.Format("{0} bit", reader.WaveFormat.BitsPerSample);
+                    waveInfo[3] = reader.WaveFormat.Channels == 1
+                        ? "モノラル"
+                        : reader.WaveFormat.Channels == 2 ? "ステレオ" : string.Format("{0} ch", reader.WaveFormat.Channels);
+                }
+            }
+            catch (Exception)
+            {
+            }
+
+            return waveInfo;
+        }
+
+            private bool ShouldShowFolders()
+            {
+                return tsmiFilterAll.Checked || tsmiFilterFolder.Checked;
+            }
+
+        private List<string> GetSelectedFilePaths()
+        {
+            List<string> paths = new List<string>();
+            foreach (ListViewItem item in lvFileList.SelectedItems)
+            {
+                if (item.Tag is string path && File.Exists(path)) paths.Add(path);
+            }
+            return paths;
+        }
+
+        private void LvFileList_ItemActivate(object sender, EventArgs e)
+        {
+            if (lvFileList.SelectedItems.Count == 1
+                && lvFileList.SelectedItems[0].Tag is string selectedPath
+                && Directory.Exists(selectedPath))
+            {
+                SelectFolderNode(selectedPath, tvFolderTree.Nodes);
+                return;
+            }
+
+            List<string> paths = GetSelectedFilePaths();
+            if (paths.Count > 0) parentExecFile?.Invoke(paths.ToArray());
+        }
+
+        private void LvFileList_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode != Keys.Back) return;
+
+            TreeNode parentNode = tvFolderTree.SelectedNode?.Parent;
+            if (parentNode == null) return;
+
+            tvFolderTree.SelectedNode = parentNode;
+            parentNode.EnsureVisible();
+            e.Handled = true;
+            e.SuppressKeyPress = true;
+        }
+
+        private bool SelectFolderNode(string targetPath, TreeNodeCollection nodes)
+        {
+            string path1 = Path.GetDirectoryName(basePath);
+            path1 = string.IsNullOrEmpty(path1) ? basePath : path1;
+            foreach (TreeNode node in nodes)
+            {
+                string nodePath = Path.Combine(path1, Path.GetFullPath(node.FullPath));
+                if (string.Equals(nodePath, targetPath, StringComparison.OrdinalIgnoreCase))
+                {
+                    tvFolderTree.SelectedNode = node;
+                    node.EnsureVisible();
+                    return true;
+                }
+                if (SelectFolderNode(targetPath, node.Nodes)) return true;
+            }
+            return false;
+        }
+
+        private void LvFileList_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button != MouseButtons.Right) return;
+            ListViewItem item = lvFileList.GetItemAt(e.X, e.Y);
+            if (item == null) return;
+            if (!item.Selected)
+            {
+                lvFileList.SelectedItems.Clear();
+                item.Selected = true;
+            }
+            List<string> paths = GetSelectedFilePaths();
+            CheckExtension(cmsMenu.Items, paths.ConvertAll(Path.GetExtension).ToArray());
+            cmsMenu.Show(lvFileList, e.Location);
+        }
+
+        private void CmsMenu_Opening(object sender, CancelEventArgs e)
+        {
+            e.Cancel = GetSelectedFilePaths().Count == 0;
         }
 
         private void tvFolderTree_DrawNode(object sender, DrawTreeNodeEventArgs e)

@@ -43,6 +43,16 @@ namespace mml2vgmIDEx64
             toolStripSeparator1 = new ToolStripSeparator();
             tvFolderTree = new CustomControl.MultiSelectTreeView();
             toolStripContainer1 = new ToolStripContainer();
+            splitContainer1 = new SplitContainer();
+            lvFileList = new ListView();
+            columnHeaderName = new ColumnHeader();
+            columnHeaderLastWriteTime = new ColumnHeader();
+            columnHeaderSize = new ColumnHeader();
+            columnHeaderDuration = new ColumnHeader();
+            columnHeaderSampleRate = new ColumnHeader();
+            columnHeaderBitsPerSample = new ColumnHeader();
+            columnHeaderChannels = new ColumnHeader();
+            columnHeaderHeaderFill = new ColumnHeader();
             toolStrip1 = new ToolStrip();
             tsbReload = new ToolStripButton();
             tsddbFilter = new ToolStripDropDownButton();
@@ -59,52 +69,56 @@ namespace mml2vgmIDEx64
             toolStripContainer1.ContentPanel.SuspendLayout();
             toolStripContainer1.TopToolStripPanel.SuspendLayout();
             toolStripContainer1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
+            splitContainer1.Panel1.SuspendLayout();
+            splitContainer1.Panel2.SuspendLayout();
+            splitContainer1.SuspendLayout();
             toolStrip1.SuspendLayout();
             SuspendLayout();
-            // 
+            //
             // imgList
-            // 
+            //
             imgList.ColorDepth = ColorDepth.Depth32Bit;
             imgList.ImageStream = (ImageListStreamer)resources.GetObject("imgList.ImageStream");
             imgList.TransparentColor = Color.Transparent;
             imgList.Images.SetKeyName(0, "File.png");
             imgList.Images.SetKeyName(1, "Folder.png");
-            // 
+            //
             // cmsMenu
-            // 
+            //
             cmsMenu.Items.AddRange(new ToolStripItem[] { TsmiOpen, TsmiOpenSoundEngine, TsmiDelete, toolStripSeparator1 });
             cmsMenu.Name = "cmsMenu";
             cmsMenu.ShowImageMargin = false;
             cmsMenu.Size = new Size(167, 76);
-            // 
+            //
             // TsmiOpen
-            // 
+            //
             TsmiOpen.Name = "TsmiOpen";
             TsmiOpen.Size = new Size(73, 22);
             TsmiOpen.Text = "開く";
             TsmiOpen.MouseUp += TsmiOpen_MouseUp;
-            // 
+            //
             // TsmiOpenSoundEngine
-            // 
+            //
             TsmiOpenSoundEngine.Name = "TsmiOpenSoundEngine";
             TsmiOpenSoundEngine.Size = new Size(166, 22);
             TsmiOpenSoundEngine.Text = "SoundEngineで開く";
             TsmiOpenSoundEngine.MouseUp += TsmiOpenSoundEngine_MouseUp;
-            // 
+            //
             // TsmiDelete
-            // 
+            //
             TsmiDelete.Name = "TsmiDelete";
             TsmiDelete.Size = new Size(166, 22);
             TsmiDelete.Text = "削除";
             TsmiDelete.MouseUp += TsmiDelete_MouseUp;
-            // 
+            //
             // toolStripSeparator1
-            // 
+            //
             toolStripSeparator1.Name = "toolStripSeparator1";
             toolStripSeparator1.Size = new Size(70, 6);
-            // 
+            //
             // tvFolderTree
-            // 
+            //
             tvFolderTree.AllowDrop = true;
             tvFolderTree.BackColor = Color.Gray;
             tvFolderTree.BorderStyle = BorderStyle.None;
@@ -142,13 +156,13 @@ namespace mml2vgmIDEx64
             tvFolderTree.DragDrop += TvFolderTree_DragDrop;
             tvFolderTree.DragOver += TvFolderTree_DragOver;
             tvFolderTree.KeyPress += TvFolderTree_KeyPress;
-            // 
+            //
             // toolStripContainer1
-            // 
-            // 
+            //
+            //
             // toolStripContainer1.ContentPanel
-            // 
-            toolStripContainer1.ContentPanel.Controls.Add(tvFolderTree);
+            //
+            toolStripContainer1.ContentPanel.Controls.Add(splitContainer1);
             toolStripContainer1.ContentPanel.Size = new Size(289, 355);
             toolStripContainer1.Dock = DockStyle.Fill;
             toolStripContainer1.Location = new Point(0, 0);
@@ -156,13 +170,93 @@ namespace mml2vgmIDEx64
             toolStripContainer1.Size = new Size(289, 380);
             toolStripContainer1.TabIndex = 1;
             toolStripContainer1.Text = "toolStripContainer1";
-            // 
+            //
             // toolStripContainer1.TopToolStripPanel
-            // 
+            //
             toolStripContainer1.TopToolStripPanel.Controls.Add(toolStrip1);
-            // 
+            //
+            // splitContainer1
+            //
+            splitContainer1.Dock = DockStyle.Fill;
+            splitContainer1.Location = new Point(0, 0);
+            splitContainer1.Name = "splitContainer1";
+            splitContainer1.Panel1.Controls.Add(tvFolderTree);
+            splitContainer1.Panel1MinSize = 100;
+            splitContainer1.Panel2.Controls.Add(lvFileList);
+            splitContainer1.Panel2MinSize = 150;
+            splitContainer1.Size = new Size(560, 355);
+            splitContainer1.SplitterDistance = 190;
+            splitContainer1.TabIndex = 0;
+            splitContainer1.SizeChanged += SplitContainer1_SizeChanged;
+            //
+            // lvFileList
+            //
+            lvFileList.Columns.AddRange(new ColumnHeader[] { columnHeaderName, columnHeaderLastWriteTime, columnHeaderSize, columnHeaderDuration, columnHeaderSampleRate, columnHeaderBitsPerSample, columnHeaderChannels, columnHeaderHeaderFill });
+            lvFileList.Dock = DockStyle.Fill;
+            lvFileList.FullRowSelect = true;
+            lvFileList.HideSelection = false;
+            lvFileList.Location = new Point(0, 0);
+            lvFileList.MultiSelect = true;
+            lvFileList.Name = "lvFileList";
+            lvFileList.OwnerDraw = true;
+            lvFileList.SmallImageList = imgList;
+            lvFileList.UseCompatibleStateImageBehavior = false;
+            lvFileList.View = View.Details;
+            lvFileList.ColumnClick += LvFileList_ColumnClick;
+            lvFileList.ColumnWidthChanging += LvFileList_ColumnWidthChanging;
+            lvFileList.DrawColumnHeader += LvFileList_DrawColumnHeader;
+            lvFileList.DrawItem += LvFileList_DrawItem;
+            lvFileList.DrawSubItem += LvFileList_DrawSubItem;
+            lvFileList.ItemActivate += LvFileList_ItemActivate;
+            lvFileList.KeyDown += LvFileList_KeyDown;
+            lvFileList.MouseDown += LvFileList_MouseDown;
+            lvFileList.SizeChanged += LvFileList_SizeChanged;
+            lvFileList.HandleCreated += LvFileList_HandleCreated;
+            //
+            // columnHeaderName
+            //
+            columnHeaderName.Text = "名前";
+            columnHeaderName.Width = 180;
+            //
+            // columnHeaderLastWriteTime
+            //
+            columnHeaderLastWriteTime.Text = "更新日時";
+            columnHeaderLastWriteTime.Width = 140;
+            //
+            // columnHeaderSize
+            //
+            columnHeaderSize.Text = "サイズ";
+            columnHeaderSize.TextAlign = HorizontalAlignment.Right;
+            columnHeaderSize.Width = 100;
+            //
+            // columnHeaderDuration
+            //
+            columnHeaderDuration.Text = "再生時間";
+            columnHeaderDuration.Width = 90;
+            //
+            // columnHeaderSampleRate
+            //
+            columnHeaderSampleRate.Text = "サンプリングレート";
+            columnHeaderSampleRate.TextAlign = HorizontalAlignment.Right;
+            columnHeaderSampleRate.Width = 130;
+            //
+            // columnHeaderBitsPerSample
+            //
+            columnHeaderBitsPerSample.Text = "ビット数";
+            columnHeaderBitsPerSample.Width = 80;
+            //
+            // columnHeaderChannels
+            //
+            columnHeaderChannels.Text = "チャンネル";
+            columnHeaderChannels.Width = 100;
+            //
+            // columnHeaderHeaderFill
+            //
+            columnHeaderHeaderFill.Text = string.Empty;
+            columnHeaderHeaderFill.Width = 0;
+            //
             // toolStrip1
-            // 
+            //
             toolStrip1.Dock = DockStyle.None;
             toolStrip1.Items.AddRange(new ToolStripItem[] { tsbReload, tsddbFilter });
             toolStrip1.Location = new Point(0, 0);
@@ -170,9 +264,9 @@ namespace mml2vgmIDEx64
             toolStrip1.Size = new Size(289, 25);
             toolStrip1.Stretch = true;
             toolStrip1.TabIndex = 0;
-            // 
+            //
             // tsbReload
-            // 
+            //
             tsbReload.DisplayStyle = ToolStripItemDisplayStyle.Image;
             tsbReload.Image = Resources.Reload;
             tsbReload.ImageTransparentColor = Color.Magenta;
@@ -180,9 +274,9 @@ namespace mml2vgmIDEx64
             tsbReload.Size = new Size(23, 22);
             tsbReload.Text = "Reload";
             tsbReload.Click += TsbReload_Click;
-            // 
+            //
             // tsddbFilter
-            // 
+            //
             tsddbFilter.DisplayStyle = ToolStripItemDisplayStyle.Image;
             tsddbFilter.DropDownItems.AddRange(new ToolStripItem[] { tsmiFilterAll, toolStripSeparator2, tsmiFilterFolder, tsmiFilterFile, toolStripSeparator3, tsmiFilterGwi, tsmiFilterMuc, tsmiFilterMml, tsmiFilterWav });
             tsddbFilter.Image = Resources.Filter;
@@ -190,9 +284,9 @@ namespace mml2vgmIDEx64
             tsddbFilter.Name = "tsddbFilter";
             tsddbFilter.Size = new Size(29, 22);
             tsddbFilter.Text = "Filter";
-            // 
+            //
             // tsmiFilterAll
-            // 
+            //
             tsmiFilterAll.Checked = true;
             tsmiFilterAll.CheckOnClick = true;
             tsmiFilterAll.CheckState = CheckState.Checked;
@@ -200,80 +294,85 @@ namespace mml2vgmIDEx64
             tsmiFilterAll.Size = new Size(123, 22);
             tsmiFilterAll.Text = "*.* (All)";
             tsmiFilterAll.Click += TsmiFilterAll_Click;
-            // 
+            //
             // toolStripSeparator2
-            // 
+            //
             toolStripSeparator2.Name = "toolStripSeparator2";
             toolStripSeparator2.Size = new Size(120, 6);
-            // 
+            //
             // tsmiFilterFolder
-            // 
+            //
             tsmiFilterFolder.CheckOnClick = true;
             tsmiFilterFolder.Name = "tsmiFilterFolder";
             tsmiFilterFolder.Size = new Size(123, 22);
             tsmiFilterFolder.Text = "* (Folder)";
             tsmiFilterFolder.Click += TsmiFilterFolder_Click;
-            // 
+            //
             // tsmiFilterFile
-            // 
+            //
             tsmiFilterFile.CheckOnClick = true;
             tsmiFilterFile.Name = "tsmiFilterFile";
             tsmiFilterFile.Size = new Size(123, 22);
             tsmiFilterFile.Text = "* (File)";
             tsmiFilterFile.Click += TsmiFilterFile_Click;
-            // 
+            //
             // toolStripSeparator3
-            // 
+            //
             toolStripSeparator3.Name = "toolStripSeparator3";
             toolStripSeparator3.Size = new Size(120, 6);
-            // 
+            //
             // tsmiFilterGwi
-            // 
+            //
             tsmiFilterGwi.CheckOnClick = true;
             tsmiFilterGwi.Name = "tsmiFilterGwi";
             tsmiFilterGwi.Size = new Size(123, 22);
             tsmiFilterGwi.Text = ".gwi";
             tsmiFilterGwi.Click += TsmiFilterGwi_Click;
-            // 
+            //
             // tsmiFilterMuc
-            // 
+            //
             tsmiFilterMuc.CheckOnClick = true;
             tsmiFilterMuc.Name = "tsmiFilterMuc";
             tsmiFilterMuc.Size = new Size(123, 22);
             tsmiFilterMuc.Text = ".muc";
             tsmiFilterMuc.Click += tsmiFilterMuc_Click;
-            // 
+            //
             // tsmiFilterMml
-            // 
+            //
             tsmiFilterMml.CheckOnClick = true;
             tsmiFilterMml.Name = "tsmiFilterMml";
             tsmiFilterMml.Size = new Size(123, 22);
             tsmiFilterMml.Text = ".mml";
             tsmiFilterMml.Click += tsmiFilterMml_Click;
-            // 
+            //
             // tsmiFilterWav
-            // 
+            //
             tsmiFilterWav.CheckOnClick = true;
             tsmiFilterWav.Name = "tsmiFilterWav";
             tsmiFilterWav.Size = new Size(123, 22);
             tsmiFilterWav.Text = ".wav";
             tsmiFilterWav.Click += TsmiFilterWav_Click;
-            // 
+            //
             // FrmFolderTree
-            // 
-            ClientSize = new Size(289, 380);
+            //
+            ClientSize = new Size(560, 380);
             Controls.Add(toolStripContainer1);
             DockAreas = WeifenLuo.WinFormsUI.Docking.DockAreas.Float | WeifenLuo.WinFormsUI.Docking.DockAreas.DockLeft | WeifenLuo.WinFormsUI.Docking.DockAreas.DockRight | WeifenLuo.WinFormsUI.Docking.DockAreas.DockTop | WeifenLuo.WinFormsUI.Docking.DockAreas.DockBottom;
             Icon = (Icon)resources.GetObject("$this.Icon");
             Name = "FrmFolderTree";
             Text = "Folder";
             FormClosing += FrmFolderTree_FormClosing;
+            Shown += FrmFolderTree_Shown;
             cmsMenu.ResumeLayout(false);
             toolStripContainer1.ContentPanel.ResumeLayout(false);
             toolStripContainer1.TopToolStripPanel.ResumeLayout(false);
             toolStripContainer1.TopToolStripPanel.PerformLayout();
             toolStripContainer1.ResumeLayout(false);
             toolStripContainer1.PerformLayout();
+            splitContainer1.Panel1.ResumeLayout(false);
+            splitContainer1.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)splitContainer1).EndInit();
+            splitContainer1.ResumeLayout(false);
             toolStrip1.ResumeLayout(false);
             toolStrip1.PerformLayout();
             ResumeLayout(false);
@@ -290,6 +389,16 @@ namespace mml2vgmIDEx64
         private System.Windows.Forms.ToolStripMenuItem TsmiDelete;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripContainer toolStripContainer1;
+        private System.Windows.Forms.SplitContainer splitContainer1;
+        private System.Windows.Forms.ListView lvFileList;
+        private System.Windows.Forms.ColumnHeader columnHeaderName;
+        private System.Windows.Forms.ColumnHeader columnHeaderLastWriteTime;
+        private System.Windows.Forms.ColumnHeader columnHeaderSize;
+        private System.Windows.Forms.ColumnHeader columnHeaderDuration;
+        private System.Windows.Forms.ColumnHeader columnHeaderSampleRate;
+        private System.Windows.Forms.ColumnHeader columnHeaderBitsPerSample;
+        private System.Windows.Forms.ColumnHeader columnHeaderChannels;
+        private System.Windows.Forms.ColumnHeader columnHeaderHeaderFill;
         private System.Windows.Forms.ToolStrip toolStrip1;
         private System.Windows.Forms.ToolStripButton tsbReload;
         private System.Windows.Forms.ToolStripDropDownButton tsddbFilter;

@@ -120,7 +120,7 @@ namespace mml2vgmIDEx64
             compileStatus = EnmCompileStatus.NeedCompile;
             dstFileFormat = EnmFileFormat.unknown;
             compiledData = null;
-            
+
             return true;
         }
 
@@ -217,11 +217,6 @@ namespace mml2vgmIDEx64
                 {
                     ts = new TreeNode(ds.Name, 1, 1);
                     ts.Nodes.Add("!dmy");
-                    tn.Nodes.Add(ts);
-                }
-                foreach (FileInfo fi in dm.GetFiles())
-                {
-                    ts = new TreeNode(fi.Name, 0, 0);
                     tn.Nodes.Add(ts);
                 }
             }
