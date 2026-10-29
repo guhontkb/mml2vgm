@@ -11,14 +11,14 @@ namespace mml2vgmIDEx64
         [STAThread]
         static void Main()
         {
-            //DOBON.NET ‚³‚ñ‚ÌƒR[ƒh‚ğ—¬—p
+            //DOBON.NET ï¿½ï¿½ï¿½ï¿½ÌƒRï¿½[ï¿½hï¿½ğ—¬—p
 
             string mutexName = "mml2vgmIDE";
             bool createdNew;
 
             using (Mutex mutex = new Mutex(true, mutexName, out createdNew))
             {
-                //ƒ~ƒ…[ƒeƒbƒNƒX‚Ì‰ŠúŠ—LŒ ‚ª•t—^‚³‚ê‚½‚©’²‚×‚é
+                //ï¿½~ï¿½ï¿½ï¿½[ï¿½eï¿½bï¿½Nï¿½Xï¿½Ìï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Lï¿½ï¿½ï¿½ï¿½ï¿½tï¿½^ï¿½ï¿½ï¿½ê‚½ï¿½ï¿½ï¿½ï¿½ï¿½×‚ï¿½
                 if (!createdNew)
                 {
                     if (Environment.GetCommandLineArgs().Length > 1)
@@ -31,8 +31,8 @@ namespace mml2vgmIDEx64
                         }
                     }
 
-                    //‚³‚ê‚È‚©‚Á‚½ê‡‚ÍA‚·‚Å‚É‹N“®‚µ‚Ä‚¢‚é‚Æ”»’f‚µ‚ÄI—¹
-                    MessageBox.Show("‘½d‹N“®‚Í‚Å‚«‚Ü‚¹‚ñB");
+                    //ï¿½ï¿½ï¿½ï¿½È‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ê‡ï¿½ÍAï¿½ï¿½ï¿½Å‚É‹Nï¿½ï¿½ï¿½ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½Æ”ï¿½ï¿½fï¿½ï¿½ï¿½ÄIï¿½ï¿½
+                    MessageBox.Show("ï¿½ï¿½ï¿½dï¿½Nï¿½ï¿½ï¿½Í‚Å‚ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½B");
                     return;
                 }
 
@@ -62,7 +62,7 @@ namespace mml2vgmIDEx64
                     try
                     {
                         Log.ForcedWrite(ex);
-                        MessageBox.Show(ex.Message, "’v–½“I‚ÈƒGƒ‰[");
+                        MessageBox.Show(ex.Message, "ï¿½vï¿½ï¿½ï¿½Iï¿½ÈƒGï¿½ï¿½ï¿½[");
                     }
                     finally
                     {
@@ -70,7 +70,8 @@ namespace mml2vgmIDEx64
                 }
                 finally
                 {
-                    //ƒ~ƒ…[ƒeƒbƒNƒX‚ğ‰ğ•ú‚·‚é
+                    Log.Shutdown();
+                    //ï¿½~ï¿½ï¿½ï¿½[ï¿½eï¿½bï¿½Nï¿½Xï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
                     mutex.ReleaseMutex();
                 }
 
@@ -82,11 +83,11 @@ namespace mml2vgmIDEx64
             try
             {
                 Log.ForcedWrite(e.Exception);
-                MessageBox.Show(e.Exception.Message, "’v–½“I‚ÈƒGƒ‰[");
+                MessageBox.Show(e.Exception.Message, "ï¿½vï¿½ï¿½ï¿½Iï¿½ÈƒGï¿½ï¿½ï¿½[");
             }
             finally
             {
-                //ƒAƒvƒŠƒP[ƒVƒ‡ƒ“‚ğI—¹‚·‚é
+                //ï¿½Aï¿½vï¿½ï¿½ï¿½Pï¿½[ï¿½Vï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Iï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
                 Application.Exit();
             }
         }
@@ -98,26 +99,26 @@ namespace mml2vgmIDEx64
 
             foreach (Process checkProcess in allProcesses)
             {
-                // ©•ª©g‚ÌƒvƒƒZƒXID‚Í–³‹‚·‚é
+                // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½gï¿½Ìƒvï¿½ï¿½ï¿½Zï¿½XIDï¿½Í–ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
                 if (checkProcess.Id != curProcess.Id)
                 {
-                    // ƒvƒƒZƒX‚Ìƒtƒ‹ƒpƒX–¼‚ğ”äŠr‚µ‚Ä“¯‚¶ƒAƒvƒŠƒP[ƒVƒ‡ƒ“‚©ŒŸØ
+                    // ï¿½vï¿½ï¿½ï¿½Zï¿½Xï¿½Ìƒtï¿½ï¿½ï¿½pï¿½Xï¿½ï¿½ï¿½ï¿½ï¿½rï¿½ï¿½ï¿½Ä“ï¿½ï¿½ï¿½ï¿½Aï¿½vï¿½ï¿½ï¿½Pï¿½[ï¿½Vï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
                     if (string.Compare(
                         checkProcess.MainModule.FileName,
                         curProcess.MainModule.FileName, true) == 0)
                     {
-                        // “¯‚¶ƒtƒ‹ƒpƒX–¼‚ÌƒvƒƒZƒX‚ğæ“¾
+                        // ï¿½ï¿½ï¿½ï¿½ï¿½tï¿½ï¿½ï¿½pï¿½Xï¿½ï¿½ï¿½Ìƒvï¿½ï¿½ï¿½Zï¿½Xï¿½ï¿½ï¿½æ“¾
                         return checkProcess;
                     }
                 }
             }
 
-            // “¯‚¶ƒAƒvƒŠƒP[ƒVƒ‡ƒ“‚ÌƒvƒƒZƒX‚ªŒ©‚Â‚©‚ç‚È‚¢I
+            // ï¿½ï¿½ï¿½ï¿½ï¿½Aï¿½vï¿½ï¿½ï¿½Pï¿½[ï¿½Vï¿½ï¿½ï¿½ï¿½ï¿½Ìƒvï¿½ï¿½ï¿½Zï¿½Xï¿½ï¿½ï¿½ï¿½ï¿½Â‚ï¿½ï¿½ï¿½È‚ï¿½ï¿½I
             return null;
         }
 
 
-        //SendMessage‚Å‘—‚é\‘¢‘ÌiUnicode•¶š—ñ‘—M‚ÉÅ“K‰»‚µ‚½ƒpƒ^[ƒ“j
+        //SendMessageï¿½Å‘ï¿½ï¿½ï¿½\ï¿½ï¿½ï¿½ÌiUnicodeï¿½ï¿½ï¿½ï¿½ï¿½ñ‘—Mï¿½ÉÅ“Kï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½pï¿½^ï¿½[ï¿½ï¿½ï¿½j
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
         public struct COPYDATASTRUCT
         {
@@ -127,20 +128,20 @@ namespace mml2vgmIDEx64
             public string lpData;
         }
 
-        //SendMessageiƒf[ƒ^“]‘—j
+        //SendMessageï¿½iï¿½fï¿½[ï¿½^ï¿½]ï¿½ï¿½ï¿½j
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         public static extern int SendMessage(IntPtr hWnd, int Msg, IntPtr wParam, ref COPYDATASTRUCT lParam);
         public const int WM_COPYDATA = 0x004A;
         public const int WM_PASTE = 0x0302;
 
-        //SendMessage‚ğg‚Á‚ÄƒvƒƒZƒXŠÔ’ÊM‚Å•¶š—ñ‚ğ“n‚·
+        //SendMessageï¿½ï¿½ï¿½gï¿½ï¿½ï¿½Äƒvï¿½ï¿½ï¿½Zï¿½Xï¿½Ô’ÊMï¿½Å•ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½nï¿½ï¿½
         public static void SendString(IntPtr targetWindowHandle, string str)
         {
             COPYDATASTRUCT cds = new COPYDATASTRUCT();
             cds.dwData = IntPtr.Zero;
             cds.lpData = str;
             cds.cbData = str.Length * sizeof(char);
-            //óM‘¤‚Å‚ÍlpData‚Ì•¶š—ñ‚ğ(cbData/2)‚Ì’·‚³‚Åstring.Substring()‚·‚é
+            //ï¿½ï¿½Mï¿½ï¿½ï¿½Å‚ï¿½lpDataï¿½Ì•ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½(cbData/2)ï¿½Ì’ï¿½ï¿½ï¿½ï¿½ï¿½string.Substring()ï¿½ï¿½ï¿½ï¿½
 
             IntPtr myWindowHandle = Process.GetCurrentProcess().MainWindowHandle;
             SendMessage(targetWindowHandle, WM_COPYDATA, myWindowHandle, ref cds);
