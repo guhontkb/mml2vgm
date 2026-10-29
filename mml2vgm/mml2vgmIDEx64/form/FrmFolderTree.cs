@@ -16,6 +16,8 @@ namespace mml2vgmIDEx64
     {
         private static readonly Color FileListHeaderBackColor = Color.FromArgb(45, 45, 48);
         private static readonly Color FileListHeaderForeColor = Color.FromArgb(241, 241, 241);
+        private static readonly Color FileListInactiveSelectionBackColor = Color.FromArgb(72, 72, 76);
+        private static readonly Color FileListInactiveSelectionForeColor = Color.FromArgb(210, 210, 210);
         private static readonly HashSet<string> AudioFileExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             ".wav", ".wave", ".mp3", ".mp2", ".ogg", ".flac", ".aif", ".aiff", ".wma", ".m4a", ".aac", ".ape", ".opus"
@@ -1115,11 +1117,46 @@ namespace mml2vgmIDEx64
 
         private void LvFileList_DrawItem(object sender, DrawListViewItemEventArgs e)
         {
+            if (e.Item.Selected && !lvFileList.Focused)
+            {
+                using (SolidBrush backgroundBrush = new SolidBrush(FileListInactiveSelectionBackColor))
+                {
+                    e.Graphics.FillRectangle(backgroundBrush, e.Bounds);
+                }
+                return;
+            }
+
             e.DrawDefault = true;
         }
 
         private void LvFileList_DrawSubItem(object sender, DrawListViewSubItemEventArgs e)
         {
+            if (e.Item.Selected && !lvFileList.Focused)
+            {
+                using (SolidBrush backgroundBrush = new SolidBrush(FileListInactiveSelectionBackColor))
+                {
+                    e.Graphics.FillRectangle(backgroundBrush, e.Bounds);
+                }
+
+                TextFormatFlags alignment = e.Header.TextAlign == HorizontalAlignment.Right
+                    ? TextFormatFlags.Right
+                    : e.Header.TextAlign == HorizontalAlignment.Center ? TextFormatFlags.HorizontalCenter : TextFormatFlags.Left;
+
+                Rectangle textBounds = e.Bounds;
+                if (e.ColumnIndex == 0 && e.Item.ImageList != null && e.Item.ImageIndex >= 0 && e.Item.ImageIndex < e.Item.ImageList.Images.Count)
+                {
+                    Image icon = e.Item.ImageList.Images[e.Item.ImageIndex];
+                    int iconY = e.Bounds.Top + Math.Max(0, (e.Bounds.Height - icon.Height) / 2);
+                    e.Graphics.DrawImage(icon, e.Bounds.Left + 2, iconY, icon.Width, icon.Height);
+                    textBounds = Rectangle.FromLTRB(e.Bounds.Left + icon.Width + 6, e.Bounds.Top, e.Bounds.Right, e.Bounds.Bottom);
+                }
+
+                TextRenderer.DrawText(e.Graphics, e.SubItem.Text, e.SubItem.Font,
+                    textBounds, FileListInactiveSelectionForeColor,
+                    alignment | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
+                return;
+            }
+
             e.DrawDefault = true;
         }
 
