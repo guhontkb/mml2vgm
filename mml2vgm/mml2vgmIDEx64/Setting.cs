@@ -2082,6 +2082,12 @@ namespace mml2vgmIDEx64
             public float TextFontSize { get => _TextFontSize; set => _TextFontSize = value; }
             private FontStyle _TextFontStyle = FontStyle.Regular;
             public FontStyle TextFontStyle { get => _TextFontStyle; set => _TextFontStyle = value; }
+            private string _FolderFontName = "Segoe UI";
+            public string FolderFontName { get => _FolderFontName; set => _FolderFontName = value; }
+            private float _FolderFontSize = 9.0f;
+            public float FolderFontSize { get => _FolderFontSize; set => _FolderFontSize = value; }
+            private FontStyle _FolderFontStyle = FontStyle.Regular;
+            public FontStyle FolderFontStyle { get => _FolderFontStyle; set => _FolderFontStyle = value; }
             public int TabWidth { get => _TabWidth; set => _TabWidth = value; }
             private int _TabWidth = 8;
             private string[] _GwiFileHistory = null;
@@ -2159,6 +2165,9 @@ namespace mml2vgmIDEx64
                 other.TextFontName = this.TextFontName;
                 other.TextFontSize = this.TextFontSize;
                 other.TextFontStyle = this.TextFontStyle;
+                other.FolderFontName = this.FolderFontName;
+                other.FolderFontSize = this.FolderFontSize;
+                other.FolderFontStyle = this.FolderFontStyle;
                 other.GwiFileHistory = this.GwiFileHistory;
                 other.LastOpenedFiles = this.LastOpenedFiles;
                 other.LogWarning = this.LogWarning;

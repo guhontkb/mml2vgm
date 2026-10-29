@@ -24,6 +24,11 @@ namespace mml2vgmIDEx64
         private Label lblSoundEnginePath;
         private TextBox tbSoundEnginePath;
         private Button btnSoundEnginePath;
+        private GroupBox gbFolderFont;
+        private Label lblFolderFontName;
+        private Label lblFolderFontSize;
+        private Label lblFolderFontStyle;
+        private Button btFolderFont;
 
 
         public FrmSetting(Setting setting)
@@ -62,6 +67,11 @@ namespace mml2vgmIDEx64
             lblSoundEnginePath = new Label();
             tbSoundEnginePath = new TextBox();
             btnSoundEnginePath = new Button();
+            gbFolderFont = new GroupBox();
+            lblFolderFontName = new Label();
+            lblFolderFontSize = new Label();
+            lblFolderFontStyle = new Label();
+            btFolderFont = new Button();
 
             tpFolder.SuspendLayout();
 
@@ -105,6 +115,7 @@ namespace mml2vgmIDEx64
             tpFolder.Controls.Add(lblSoundEnginePath);
             tpFolder.Controls.Add(tbSoundEnginePath);
             tpFolder.Controls.Add(btnSoundEnginePath);
+            tpFolder.Controls.Add(gbFolderFont);
 
             lblSoundEnginePath.AutoSize = true;
             lblSoundEnginePath.Location = new System.Drawing.Point(8, 52);
@@ -130,6 +141,79 @@ namespace mml2vgmIDEx64
             btnSoundEnginePath.Text = "...";
             btnSoundEnginePath.UseVisualStyleBackColor = true;
             btnSoundEnginePath.Click += btnSoundEnginePath_Click;
+
+            gbFolderFont.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            gbFolderFont.Location = new System.Drawing.Point(8, 84);
+            gbFolderFont.Margin = new Padding(4);
+            gbFolderFont.Name = "gbFolderFont";
+            gbFolderFont.Padding = new Padding(4);
+            gbFolderFont.Size = new System.Drawing.Size(496, 106);
+            gbFolderFont.TabIndex = 6;
+            gbFolderFont.TabStop = false;
+            gbFolderFont.Text = "フォルダービューのフォント";
+
+            Label lblFolderFontNameCaption = new Label();
+            lblFolderFontNameCaption.AutoSize = true;
+            lblFolderFontNameCaption.Location = new System.Drawing.Point(8, 23);
+            lblFolderFontNameCaption.Name = "lblFolderFontNameCaption";
+            lblFolderFontNameCaption.Size = new System.Drawing.Size(38, 15);
+            lblFolderFontNameCaption.TabIndex = 0;
+            lblFolderFontNameCaption.Text = "Name";
+
+            Label lblFolderFontSizeCaption = new Label();
+            lblFolderFontSizeCaption.AutoSize = true;
+            lblFolderFontSizeCaption.Location = new System.Drawing.Point(8, 50);
+            lblFolderFontSizeCaption.Name = "lblFolderFontSizeCaption";
+            lblFolderFontSizeCaption.Size = new System.Drawing.Size(27, 15);
+            lblFolderFontSizeCaption.TabIndex = 1;
+            lblFolderFontSizeCaption.Text = "Size";
+
+            Label lblFolderFontStyleCaption = new Label();
+            lblFolderFontStyleCaption.AutoSize = true;
+            lblFolderFontStyleCaption.Location = new System.Drawing.Point(8, 77);
+            lblFolderFontStyleCaption.Name = "lblFolderFontStyleCaption";
+            lblFolderFontStyleCaption.Size = new System.Drawing.Size(32, 15);
+            lblFolderFontStyleCaption.TabIndex = 2;
+            lblFolderFontStyleCaption.Text = "Style";
+
+            lblFolderFontName.AutoSize = true;
+            lblFolderFontName.Location = new System.Drawing.Point(72, 23);
+            lblFolderFontName.Name = "lblFolderFontName";
+            lblFolderFontName.Size = new System.Drawing.Size(54, 15);
+            lblFolderFontName.TabIndex = 3;
+            lblFolderFontName.Text = "Segoe UI";
+
+            lblFolderFontSize.AutoSize = true;
+            lblFolderFontSize.Location = new System.Drawing.Point(72, 50);
+            lblFolderFontSize.Name = "lblFolderFontSize";
+            lblFolderFontSize.Size = new System.Drawing.Size(13, 15);
+            lblFolderFontSize.TabIndex = 4;
+            lblFolderFontSize.Text = "9";
+
+            lblFolderFontStyle.AutoSize = true;
+            lblFolderFontStyle.Location = new System.Drawing.Point(72, 77);
+            lblFolderFontStyle.Name = "lblFolderFontStyle";
+            lblFolderFontStyle.Size = new System.Drawing.Size(47, 15);
+            lblFolderFontStyle.TabIndex = 5;
+            lblFolderFontStyle.Text = "Regular";
+
+            btFolderFont.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btFolderFont.Location = new System.Drawing.Point(461, 69);
+            btFolderFont.Margin = new Padding(4);
+            btFolderFont.Name = "btFolderFont";
+            btFolderFont.Size = new System.Drawing.Size(27, 29);
+            btFolderFont.TabIndex = 6;
+            btFolderFont.Text = "...";
+            btFolderFont.UseVisualStyleBackColor = true;
+            btFolderFont.Click += BtFolderFont_Click;
+
+            gbFolderFont.Controls.Add(lblFolderFontNameCaption);
+            gbFolderFont.Controls.Add(lblFolderFontSizeCaption);
+            gbFolderFont.Controls.Add(lblFolderFontStyleCaption);
+            gbFolderFont.Controls.Add(lblFolderFontName);
+            gbFolderFont.Controls.Add(lblFolderFontSize);
+            gbFolderFont.Controls.Add(lblFolderFontStyle);
+            gbFolderFont.Controls.Add(btFolderFont);
 
             int editorTabIndex = tcSetting.TabPages.IndexOf(tpEditor);
             if (editorTabIndex >= 0)
@@ -620,6 +704,9 @@ namespace mml2vgmIDEx64
             lblFontName.Text = setting.other.TextFontName;
             lblFontSize.Text = setting.other.TextFontSize.ToString();
             lblFontStyle.Text = setting.other.TextFontStyle.ToString();
+            lblFolderFontName.Text = setting.other.FolderFontName;
+            lblFolderFontSize.Text = setting.other.FolderFontSize.ToString();
+            lblFolderFontStyle.Text = setting.other.FolderFontStyle.ToString();
             cbLogWarning.Checked = setting.other.LogWarning;
             cbPlayDeviceCB.Checked = setting.other.PlayDeviceCB;
             cbSinWave.Checked = setting.other.sinWaveGen;
@@ -1508,6 +1595,13 @@ namespace mml2vgmIDEx64
                 lblFontStyle.Text.ToUpper() == "BOLD" ? System.Drawing.FontStyle.Bold : (
                 lblFontStyle.Text.ToUpper() == "ITALIC" ? System.Drawing.FontStyle.Italic : (
                 lblFontStyle.Text.ToUpper() == "STRIKEOUT" ? System.Drawing.FontStyle.Strikeout : System.Drawing.FontStyle.Underline)));
+            setting.other.FolderFontName = lblFolderFontName.Text;
+            setting.other.FolderFontSize = float.Parse(lblFolderFontSize.Text);
+            setting.other.FolderFontStyle =
+                lblFolderFontStyle.Text.ToUpper() == "REGULAR" ? System.Drawing.FontStyle.Regular : (
+                lblFolderFontStyle.Text.ToUpper() == "BOLD" ? System.Drawing.FontStyle.Bold : (
+                lblFolderFontStyle.Text.ToUpper() == "ITALIC" ? System.Drawing.FontStyle.Italic : (
+                lblFolderFontStyle.Text.ToUpper() == "STRIKEOUT" ? System.Drawing.FontStyle.Strikeout : System.Drawing.FontStyle.Underline)));
 
             setting.Debug_DispFrameCounter = cbDispFrameCounter.Checked;
             setting.HiyorimiMode = cbHiyorimiMode.Checked;
@@ -2585,6 +2679,27 @@ namespace mml2vgmIDEx64
                 lblFontStyle.Text = fd.Font.Style.ToString();
                 lblFontStyle.Font = fd.Font;
 
+            }
+        }
+
+        private void BtFolderFont_Click(object sender, EventArgs e)
+        {
+            FontDialog fd = new FontDialog();
+            try
+            {
+                fd.Font = new System.Drawing.Font(setting.other.FolderFontName, setting.other.FolderFontSize, setting.other.FolderFontStyle);
+            }
+            catch { }
+
+            DialogResult dr = fd.ShowDialog();
+            if (dr == System.Windows.Forms.DialogResult.OK)
+            {
+                lblFolderFontName.Text = fd.Font.Name;
+                lblFolderFontName.Font = fd.Font;
+                lblFolderFontSize.Text = fd.Font.Size.ToString();
+                lblFolderFontSize.Font = fd.Font;
+                lblFolderFontStyle.Text = fd.Font.Style.ToString();
+                lblFolderFontStyle.Font = fd.Font;
             }
         }
 

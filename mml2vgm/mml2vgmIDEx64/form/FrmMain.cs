@@ -525,6 +525,25 @@ namespace mml2vgmIDEx64
 
         }
 
+        private void TsmiOpenSettingFolder_Click(object sender, EventArgs e)
+        {
+            string folderPath = Common.settingFilePath;
+            if (string.IsNullOrWhiteSpace(folderPath)) folderPath = Common.GetApplicationDataFolder(true);
+
+            try
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = folderPath,
+                    UseShellExecute = true
+                });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this, ex.Message, "設定保存フォルダを開けません", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
         public void TsmiSaveFile_Click(object sender, EventArgs e)
         {
             DockContent dc = (DockContent)GetActiveDockContent();
@@ -3541,6 +3560,7 @@ namespace mml2vgmIDEx64
 
             this.setting = setting;
             this.setting.Save();
+            frmFolderTree?.ApplyFolderTextFont();
 
             Log.ForcedWrite("設定が変更されたため、再度Audio初期化処理開始");
 

@@ -54,6 +54,18 @@ namespace mml2vgmIDEx64
             cmsMenu.Opening += CmsMenu_Opening;
 
             Common.SetDoubleBuffered(tvFolderTree);
+            ApplyFolderTextFont();
+        }
+
+        public void ApplyFolderTextFont()
+        {
+            Setting currentSetting = parentGetSetting?.Invoke() ?? setting;
+            Font folderFont = new Font(
+                currentSetting.other.FolderFontName,
+                currentSetting.other.FolderFontSize,
+                currentSetting.other.FolderFontStyle);
+            tvFolderTree.Font = folderFont;
+            lvFileList.Font = folderFont;
         }
 
         private void FrmFolderTree_FormClosing(object sender, FormClosingEventArgs e)
@@ -1224,8 +1236,8 @@ namespace mml2vgmIDEx64
                         if (int.TryParse(text.Replace(" bit", string.Empty), out int bitsPerSample)) return bitsPerSample;
                         break;
                     case 6:
-                        if (text == "モノラル") return 1;
-                        if (text == "ステレオ") return 2;
+                        if (text == "Mono" || text == "モノラル") return 1;
+                        if (text == "Stereo" || text == "ステレオ") return 2;
                         if (int.TryParse(text.Replace(" ch", string.Empty), out int channels)) return channels;
                         break;
                 }
@@ -1259,8 +1271,8 @@ namespace mml2vgmIDEx64
                     waveInfo[1] = reader.WaveFormat.SampleRate.ToString("N0");
                     waveInfo[2] = string.Format("{0} bit", reader.WaveFormat.BitsPerSample);
                     waveInfo[3] = reader.WaveFormat.Channels == 1
-                        ? "モノラル"
-                        : reader.WaveFormat.Channels == 2 ? "ステレオ" : string.Format("{0} ch", reader.WaveFormat.Channels);
+                        ? "Mono"
+                        : reader.WaveFormat.Channels == 2 ? "Stereo" : string.Format("{0} ch", reader.WaveFormat.Channels);
                 }
             }
             catch (Exception)

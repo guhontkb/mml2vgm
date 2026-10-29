@@ -215,39 +215,39 @@ namespace mml2vgmIDEx64
             //
             // columnHeaderName
             //
-            columnHeaderName.Text = "名前";
+            columnHeaderName.Text = "Name";
             columnHeaderName.Width = 180;
             //
             // columnHeaderLastWriteTime
             //
-            columnHeaderLastWriteTime.Text = "更新日時";
+            columnHeaderLastWriteTime.Text = "Last Write Time";
             columnHeaderLastWriteTime.Width = 140;
             //
             // columnHeaderSize
             //
-            columnHeaderSize.Text = "サイズ";
+            columnHeaderSize.Text = "Size";
             columnHeaderSize.TextAlign = HorizontalAlignment.Right;
             columnHeaderSize.Width = 100;
             //
             // columnHeaderDuration
             //
-            columnHeaderDuration.Text = "再生時間";
+            columnHeaderDuration.Text = "Duration";
             columnHeaderDuration.Width = 90;
             //
             // columnHeaderSampleRate
             //
-            columnHeaderSampleRate.Text = "サンプリングレート";
+            columnHeaderSampleRate.Text = "Rate";
             columnHeaderSampleRate.TextAlign = HorizontalAlignment.Right;
             columnHeaderSampleRate.Width = 130;
             //
             // columnHeaderBitsPerSample
             //
-            columnHeaderBitsPerSample.Text = "ビット数";
+            columnHeaderBitsPerSample.Text = "Depth";
             columnHeaderBitsPerSample.Width = 80;
             //
             // columnHeaderChannels
             //
-            columnHeaderChannels.Text = "チャンネル";
+            columnHeaderChannels.Text = "Channels";
             columnHeaderChannels.Width = 100;
             //
             // columnHeaderHeaderFill
