@@ -51,6 +51,7 @@ namespace mml2vgmIDEx64
             this.zoom = zoom;
 
             InitializeComponent();
+            Common.ApplyDarkScrollBarTheme(this);
             pbScreen.MouseWheel += new MouseEventHandler(this.pbScreen_MouseWheel);
 
             this.newParam = newParam;

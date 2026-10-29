@@ -15,6 +15,7 @@ namespace mml2vgmIDEx64.form
         public FrmLoopTimes()
         {
             InitializeComponent();
+            Common.ApplyDarkScrollBarTheme(this);
         }
 
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]

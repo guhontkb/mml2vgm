@@ -49,6 +49,7 @@ namespace mml2vgmIDEx64
         public FrmEditor(Setting setting, EnmMmlFileFormat fmt)//, FrmSien sien)
         {
             InitializeComponent();
+            Common.ApplyDarkScrollBarTheme(this);
             this.setting = setting;
             IHighlighter ih = null;
             if (setting.other.HilightOn)
@@ -80,6 +81,7 @@ namespace mml2vgmIDEx64
         private void setHighlighterCommon(IHighlighter highlighter)
         {
             azukiControl = new AzukiControl();
+            Common.ApplyDarkScrollBarTheme(azukiControl);
             azukiControl.Font = new Font(setting.other.TextFontName, setting.other.TextFontSize, setting.other.TextFontStyle);
             azukiControl.Dock = DockStyle.Fill;
             azukiControl.ShowsIconBar = true;

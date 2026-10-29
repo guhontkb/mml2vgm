@@ -12,6 +12,7 @@ namespace mml2vgmIDEx64
         public FrmLog(Setting setting, ThemeBase theme)
         {
             InitializeComponent();
+            Common.ApplyDarkScrollBarTheme(this);
             this.tbLog.BackColor = Color.FromArgb(setting.ColorScheme.Log_BackColor);
             this.tbLog.ForeColor = Color.FromArgb(setting.ColorScheme.Log_ForeColor);
             theme.ApplyTo(toolStrip1);

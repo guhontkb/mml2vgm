@@ -66,6 +66,7 @@ namespace mml2vgmIDEx64
         public FrmPartCounter(Setting setting)
         {
             InitializeComponent();
+            Common.ApplyDarkScrollBarTheme(this);
             this.setting = setting;
             comparer=new PartRowComparer(SortOrder.Ascending);
 

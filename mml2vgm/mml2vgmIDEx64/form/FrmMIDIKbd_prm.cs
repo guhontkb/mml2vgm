@@ -16,6 +16,7 @@ namespace mml2vgmIDEx64
         public FrmMIDIKbd_prm(Setting setting)
         {
             InitializeComponent();
+            Common.ApplyDarkScrollBarTheme(this);
             this.setting = setting;
 
             Common.SetBFColor(this, setting);

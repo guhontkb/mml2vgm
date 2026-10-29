@@ -11,6 +11,7 @@ namespace mml2vgmIDEx64.form
         public FrmSearchBox(Setting setting)
         {
             InitializeComponent();
+            mml2vgmIDEx64.Common.ApplyDarkScrollBarTheme(this);
             this.setting = setting;
             DialogResult = DialogResult.Cancel;
             this.BackColor = Color.FromArgb(setting.ColorScheme.SearchBox_BackColor);

@@ -14,10 +14,16 @@ namespace mml2vgmIDEx64
 {
     public partial class FrmFolderTree : WeifenLuo.WinFormsUI.Docking.DockContent
     {
-        private static readonly Color FileListHeaderBackColor = Color.FromArgb(45, 45, 48);
-        private static readonly Color FileListHeaderForeColor = Color.FromArgb(241, 241, 241);
+        private static readonly Color FileListHeaderBackColor = Color.FromArgb(80, 80, 160);
+        private static readonly Color FileListHeaderForeColor = Color.FromArgb(230, 255, 255);
+        private static readonly Color FolderTreeSplitterColor = Color.FromArgb(60, 60, 72);
+        private static readonly Color FileListActiveSelectionBackColor = Color.FromArgb(89, 89, 121);
+        private static readonly Color FileListActiveSelectionForeColor = Color.FromArgb(241, 241, 241);
+        private static readonly Color FileListHotBackColor = Color.FromArgb(62, 62, 80);
+        private static readonly Color FileListHotForeColor = Color.FromArgb(225, 225, 225);
         private static readonly Color FileListInactiveSelectionBackColor = Color.FromArgb(72, 72, 76);
         private static readonly Color FileListInactiveSelectionForeColor = Color.FromArgb(210, 210, 210);
+        private static readonly Color FileListHeaderSortGlyphColor = Color.White;
         private static readonly HashSet<string> AudioFileExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             ".wav", ".wave", ".mp3", ".mp2", ".ogg", ".flac", ".aif", ".aiff", ".wma", ".m4a", ".aac", ".ape", ".opus"
@@ -46,6 +52,7 @@ namespace mml2vgmIDEx64
                 (int)(tvFolderTree.HotColor.B * 1.3));
             lvFileList.BackColor = Color.FromArgb(setting.ColorScheme.FolderTree_BackColor);
             lvFileList.ForeColor = Color.FromArgb(setting.ColorScheme.FolderTree_ForeColor);
+            splitContainer1.BackColor = FolderTreeSplitterColor;
 
             tvFolderTree.TreeViewNodeSorter = new NodeSorter();
 
@@ -54,6 +61,7 @@ namespace mml2vgmIDEx64
             cmsMenu.Opening += CmsMenu_Opening;
 
             Common.SetDoubleBuffered(tvFolderTree);
+            Common.ApplyDarkScrollBarTheme(this);
             ApplyFolderTextFont();
         }
 
@@ -1122,16 +1130,64 @@ namespace mml2vgmIDEx64
             TextFormatFlags alignment = e.Header.TextAlign == HorizontalAlignment.Right
                 ? TextFormatFlags.Right
                 : e.Header.TextAlign == HorizontalAlignment.Center ? TextFormatFlags.HorizontalCenter : TextFormatFlags.Left;
+            bool hasSortIcon = (fileListSortColumn == e.ColumnIndex && e.ColumnIndex != columnHeaderHeaderFill.Index);
+            Rectangle textBounds = Rectangle.Inflate(e.Bounds, -6, 0);
+            if (hasSortIcon)
+            {
+                textBounds.Width = Math.Max(0, textBounds.Width - 14);
+            }
             TextRenderer.DrawText(e.Graphics, e.Header.Text, e.Font,
-                Rectangle.Inflate(e.Bounds, -6, 0), FileListHeaderForeColor,
+                textBounds, FileListHeaderForeColor,
                 alignment | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
+
+            if (hasSortIcon)
+            {
+                DrawFileListSortGlyph(e.Graphics, e.Bounds, fileListSortAscending);
+            }
+        }
+
+        private static void DrawFileListSortGlyph(Graphics graphics, Rectangle bounds, bool ascending)
+        {
+            int glyphWidth = 8;
+            int glyphHeight = 6;
+            int glyphX = bounds.Right - glyphWidth - 6;
+            int glyphY = bounds.Top + (bounds.Height - glyphHeight) / 2;
+
+            Point[] points = ascending
+                ? new[]
+                {
+                    new Point(glyphX, glyphY + glyphHeight),
+                    new Point(glyphX + glyphWidth, glyphY + glyphHeight),
+                    new Point(glyphX + glyphWidth / 2, glyphY)
+                }
+                : new[]
+                {
+                    new Point(glyphX, glyphY),
+                    new Point(glyphX + glyphWidth, glyphY),
+                    new Point(glyphX + glyphWidth / 2, glyphY + glyphHeight)
+                };
+
+            using (SolidBrush brush = new SolidBrush(FileListHeaderSortGlyphColor))
+            {
+                graphics.FillPolygon(brush, points);
+            }
         }
 
         private void LvFileList_DrawItem(object sender, DrawListViewItemEventArgs e)
         {
-            if (e.Item.Selected && !lvFileList.Focused)
+            if (e.Item.Selected)
             {
-                using (SolidBrush backgroundBrush = new SolidBrush(FileListInactiveSelectionBackColor))
+                Color backColor = lvFileList.Focused ? FileListActiveSelectionBackColor : FileListInactiveSelectionBackColor;
+                using (SolidBrush backgroundBrush = new SolidBrush(backColor))
+                {
+                    e.Graphics.FillRectangle(backgroundBrush, e.Bounds);
+                }
+                return;
+            }
+
+            if ((e.State & ListViewItemStates.Hot) != 0)
+            {
+                using (SolidBrush backgroundBrush = new SolidBrush(FileListHotBackColor))
                 {
                     e.Graphics.FillRectangle(backgroundBrush, e.Bounds);
                 }
@@ -1143,9 +1199,11 @@ namespace mml2vgmIDEx64
 
         private void LvFileList_DrawSubItem(object sender, DrawListViewSubItemEventArgs e)
         {
-            if (e.Item.Selected && !lvFileList.Focused)
+            if (e.Item.Selected)
             {
-                using (SolidBrush backgroundBrush = new SolidBrush(FileListInactiveSelectionBackColor))
+                Color backColor = lvFileList.Focused ? FileListActiveSelectionBackColor : FileListInactiveSelectionBackColor;
+                Color foreColor = lvFileList.Focused ? FileListActiveSelectionForeColor : FileListInactiveSelectionForeColor;
+                using (SolidBrush backgroundBrush = new SolidBrush(backColor))
                 {
                     e.Graphics.FillRectangle(backgroundBrush, e.Bounds);
                 }
@@ -1164,7 +1222,33 @@ namespace mml2vgmIDEx64
                 }
 
                 TextRenderer.DrawText(e.Graphics, e.SubItem.Text, e.SubItem.Font,
-                    textBounds, FileListInactiveSelectionForeColor,
+                    textBounds, foreColor,
+                    alignment | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
+                return;
+            }
+
+            if ((e.ItemState & ListViewItemStates.Hot) != 0)
+            {
+                using (SolidBrush backgroundBrush = new SolidBrush(FileListHotBackColor))
+                {
+                    e.Graphics.FillRectangle(backgroundBrush, e.Bounds);
+                }
+
+                TextFormatFlags alignment = e.Header.TextAlign == HorizontalAlignment.Right
+                    ? TextFormatFlags.Right
+                    : e.Header.TextAlign == HorizontalAlignment.Center ? TextFormatFlags.HorizontalCenter : TextFormatFlags.Left;
+
+                Rectangle textBounds = e.Bounds;
+                if (e.ColumnIndex == 0 && e.Item.ImageList != null && e.Item.ImageIndex >= 0 && e.Item.ImageIndex < e.Item.ImageList.Images.Count)
+                {
+                    Image icon = e.Item.ImageList.Images[e.Item.ImageIndex];
+                    int iconY = e.Bounds.Top + Math.Max(0, (e.Bounds.Height - icon.Height) / 2);
+                    e.Graphics.DrawImage(icon, e.Bounds.Left + 2, iconY, icon.Width, icon.Height);
+                    textBounds = Rectangle.FromLTRB(e.Bounds.Left + icon.Width + 6, e.Bounds.Top, e.Bounds.Right, e.Bounds.Bottom);
+                }
+
+                TextRenderer.DrawText(e.Graphics, e.SubItem.Text, e.SubItem.Font,
+                    textBounds, FileListHotForeColor,
                     alignment | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
                 return;
             }

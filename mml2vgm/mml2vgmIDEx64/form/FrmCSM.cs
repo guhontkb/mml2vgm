@@ -23,11 +23,13 @@ namespace mml2vgmIDEx64.form
         public FrmCSM()
         {
             InitializeComponent();
+            mml2vgmIDEx64.Common.ApplyDarkScrollBarTheme(this);
         }
 
         public FrmCSM(Action<Form> removeForm, FrmEditor dc)
         {
             InitializeComponent();
+            mml2vgmIDEx64.Common.ApplyDarkScrollBarTheme(this);
             this.removeForm = removeForm;
 
             if (dc == null) return;

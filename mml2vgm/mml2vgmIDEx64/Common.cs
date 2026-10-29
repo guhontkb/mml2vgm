@@ -9,11 +9,61 @@ using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System.Collections;
+using System.Runtime.CompilerServices;
 
 namespace mml2vgmIDEx64
 {
     public static class Common
     {
+        private const string DarkModeExplorerTheme = "DarkMode_Explorer";
+        private const string LightModeExplorerTheme = "Explorer";
+        private const long ObjectIdVScroll = unchecked((long)0xFFFFFFFB);
+        private const long ObjectIdHScroll = unchecked((long)0xFFFFFFFA);
+        private const uint StateSystemInvisible = 0x00008000;
+        private static readonly ConditionalWeakTable<Control, ScrollBarThemeState> ScrollBarThemeStates = new();
+
+        public enum ScrollBarThemeMode
+        {
+            Dark = 0,
+            Standard = 1,
+            Custom = 2
+        }
+
+        private sealed class ScrollBarThemeState
+        {
+            public string ThemeName { get; set; } = DarkModeExplorerTheme;
+            public bool UseCustomColors { get; set; } = false;
+            public Color CustomThumbColor { get; set; } = Color.FromArgb(100, 140, 220);
+            public Color CustomTrackColor { get; set; } = Color.FromArgb(45, 60, 95);
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct RECT
+        {
+            public int Left;
+            public int Top;
+            public int Right;
+            public int Bottom;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct SCROLLBARINFO
+        {
+            public int cbSize;
+            public RECT rcScrollBar;
+            public int dxyLineButton;
+            public int xyThumbTop;
+            public int xyThumbBottom;
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 6)]
+            public uint[] rgstate;
+        }
+
+        [DllImport("uxtheme.dll", CharSet = CharSet.Unicode)]
+        private static extern int SetWindowTheme(IntPtr hWnd, string pszSubAppName, string pszSubIdList);
+
+        [DllImport("user32.dll")]
+        private static extern bool GetScrollBarInfo(IntPtr hwnd, long idObject, ref SCROLLBARINFO psbi);
+
         public const int DEV_WaveOut = 0;
         public const int DEV_DirectSound = 1;
         public const int DEV_WasapiOut = 2;
@@ -35,6 +85,213 @@ namespace mml2vgmIDEx64
                null,
                control,
                new object[] { true });
+        }
+
+        public static void ApplyDarkScrollBarTheme(Control root)
+        {
+            ApplyScrollBarTheme(root, true);
+        }
+
+        public static void ApplyScrollBarTheme(Control root, bool useDarkTheme)
+        {
+            ScrollBarThemeMode mode = useDarkTheme ? ScrollBarThemeMode.Dark : ScrollBarThemeMode.Standard;
+            ApplyScrollBarTheme(root, mode, Color.Empty, Color.Empty);
+        }
+
+        public static void ApplyScrollBarTheme(Control root, ScrollBarThemeMode mode, Color customThumbColor, Color customTrackColor)
+        {
+            if (!OperatingSystem.IsWindows() || root == null) return;
+            bool useCustomColors = mode == ScrollBarThemeMode.Custom;
+            string themeName = mode == ScrollBarThemeMode.Dark ? DarkModeExplorerTheme : LightModeExplorerTheme;
+            Color thumbColor = useCustomColors && customThumbColor != Color.Empty
+                ? customThumbColor
+                : Color.FromArgb(100, 140, 220);
+            Color trackColor = useCustomColors && customTrackColor != Color.Empty
+                ? customTrackColor
+                : Color.FromArgb(45, 60, 95);
+
+            ApplyScrollBarThemeCore(root, themeName, useCustomColors, thumbColor, trackColor);
+        }
+
+        private static void ApplyScrollBarThemeCore(Control control, string themeName, bool useCustomColors, Color customThumbColor, Color customTrackColor)
+        {
+            ScrollBarThemeState state = EnsureScrollBarThemeState(control);
+            state.ThemeName = themeName;
+            state.UseCustomColors = useCustomColors;
+            state.CustomThumbColor = customThumbColor;
+            state.CustomTrackColor = customTrackColor;
+
+            if (RequiresDarkScrollBarTheme(control))
+            {
+                control.HandleCreated -= DarkScrollBarTarget_HandleCreated;
+                control.HandleCreated += DarkScrollBarTarget_HandleCreated;
+                control.Layout -= DarkScrollBarTarget_Layout;
+                control.Layout += DarkScrollBarTarget_Layout;
+                control.Paint -= DarkScrollBarTarget_Paint;
+                control.Paint += DarkScrollBarTarget_Paint;
+                control.Resize -= DarkScrollBarTarget_Resize;
+                control.Resize += DarkScrollBarTarget_Resize;
+                control.MouseWheel -= DarkScrollBarTarget_MouseWheel;
+                control.MouseWheel += DarkScrollBarTarget_MouseWheel;
+                ApplyScrollBarThemeToHandle(control);
+            }
+
+            control.ControlAdded -= DarkScrollBarTarget_ControlAdded;
+            control.ControlAdded += DarkScrollBarTarget_ControlAdded;
+
+            foreach (Control child in control.Controls)
+            {
+                ApplyScrollBarThemeCore(child, themeName, useCustomColors, customThumbColor, customTrackColor);
+            }
+        }
+
+        private static bool RequiresDarkScrollBarTheme(Control control)
+        {
+            bool isScrollableTextBox = control is TextBox textBox
+                && textBox.Multiline
+                && textBox.ScrollBars != ScrollBars.None;
+
+            bool isScrollableRichTextBox = control is RichTextBox richTextBox
+                && richTextBox.ScrollBars != RichTextBoxScrollBars.None;
+
+            return control is TreeView
+                || control is ListView
+                || isScrollableTextBox
+                || isScrollableRichTextBox
+                || control is DataGridView
+                || control is PropertyGrid
+                || control is ScrollableControl scrollableControl && control is not Form && scrollableControl.AutoScroll
+                || control.GetType().FullName == "Sgry.Azuki.WinForms.AzukiControl";
+        }
+
+        private static void DarkScrollBarTarget_ControlAdded(object sender, ControlEventArgs e)
+        {
+            if (e.Control == null) return;
+            ScrollBarThemeState state = sender is Control control
+                ? EnsureScrollBarThemeState(control)
+                : new ScrollBarThemeState();
+            ApplyScrollBarThemeCore(e.Control, state.ThemeName, state.UseCustomColors, state.CustomThumbColor, state.CustomTrackColor);
+        }
+
+        private static void DarkScrollBarTarget_HandleCreated(object sender, EventArgs e)
+        {
+            if (sender is not Control control) return;
+            ApplyScrollBarThemeToHandle(control);
+        }
+
+        private static void DarkScrollBarTarget_Layout(object sender, LayoutEventArgs e)
+        {
+            if (sender is not Control control) return;
+            ApplyScrollBarThemeToHandle(control);
+        }
+
+        private static void DarkScrollBarTarget_Paint(object sender, PaintEventArgs e)
+        {
+            if (sender is not Control control) return;
+            ApplyScrollBarThemeToHandle(control);
+        }
+
+        private static void DarkScrollBarTarget_Resize(object sender, EventArgs e)
+        {
+            if (sender is not Control control) return;
+            ApplyScrollBarThemeToHandle(control);
+        }
+
+        private static void DarkScrollBarTarget_MouseWheel(object sender, MouseEventArgs e)
+        {
+            if (sender is not Control control) return;
+            ApplyScrollBarThemeToHandle(control);
+        }
+
+        private static void ApplyScrollBarThemeToHandle(Control control)
+        {
+            if (!control.IsHandleCreated) return;
+            ScrollBarThemeState state = EnsureScrollBarThemeState(control);
+            string themeName = state.ThemeName;
+            SetWindowTheme(control.Handle, themeName, null);
+            if (state.UseCustomColors)
+            {
+                DrawCustomScrollBars(control, state.CustomThumbColor, state.CustomTrackColor);
+            }
+        }
+
+        private static ScrollBarThemeState EnsureScrollBarThemeState(Control control)
+        {
+            return ScrollBarThemeStates.GetValue(control, _ => new ScrollBarThemeState());
+        }
+
+        private static void DrawCustomScrollBars(Control control, Color thumbColor, Color trackColor)
+        {
+            if (!control.Visible || control.Width <= 0 || control.Height <= 0) return;
+
+            Color borderColor = BlendColor(thumbColor, Color.Black, 0.70f);
+
+            using Graphics g = Graphics.FromHwnd(control.Handle);
+            DrawCustomScrollBar(control, g, ObjectIdVScroll, true, trackColor, thumbColor, borderColor);
+            DrawCustomScrollBar(control, g, ObjectIdHScroll, false, trackColor, thumbColor, borderColor);
+        }
+
+        private static void DrawCustomScrollBar(Control control, Graphics g, long objectId, bool isVertical, Color trackColor, Color thumbColor, Color borderColor)
+        {
+            SCROLLBARINFO info = new SCROLLBARINFO
+            {
+                cbSize = Marshal.SizeOf<SCROLLBARINFO>(),
+                rgstate = new uint[6]
+            };
+
+            if (!GetScrollBarInfo(control.Handle, objectId, ref info)) return;
+            if ((info.rgstate[0] & StateSystemInvisible) != 0) return;
+
+            Rectangle trackRect = ToClientRectangle(control, info.rcScrollBar);
+            if (trackRect.Width <= 0 || trackRect.Height <= 0) return;
+
+            using SolidBrush trackBrush = new SolidBrush(trackColor);
+            using SolidBrush thumbBrush = new SolidBrush(thumbColor);
+            using Pen borderPen = new Pen(borderColor);
+            g.FillRectangle(trackBrush, trackRect);
+            g.DrawRectangle(borderPen, trackRect.Left, trackRect.Top, trackRect.Width - 1, trackRect.Height - 1);
+
+            Rectangle thumbRect = GetThumbRectangle(control, trackRect, info.xyThumbTop, info.xyThumbBottom, isVertical);
+            if (thumbRect.Width <= 0 || thumbRect.Height <= 0) return;
+
+            g.FillRectangle(thumbBrush, thumbRect);
+            g.DrawRectangle(borderPen, thumbRect.Left, thumbRect.Top, thumbRect.Width - 1, thumbRect.Height - 1);
+        }
+
+        private static Rectangle ToClientRectangle(Control control, RECT rect)
+        {
+            Point lt = control.PointToClient(new Point(rect.Left, rect.Top));
+            Point rb = control.PointToClient(new Point(rect.Right, rect.Bottom));
+            return Rectangle.FromLTRB(lt.X, lt.Y, rb.X, rb.Y);
+        }
+
+        private static Rectangle GetThumbRectangle(Control control, Rectangle trackRect, int thumbTop, int thumbBottom, bool isVertical)
+        {
+            Point thumbStart;
+            Point thumbEnd;
+            if (isVertical)
+            {
+                thumbStart = control.PointToClient(new Point(trackRect.Left, thumbTop));
+                thumbEnd = control.PointToClient(new Point(trackRect.Left, thumbBottom));
+                int top = Math.Max(trackRect.Top + 1, thumbStart.Y);
+                int bottom = Math.Min(trackRect.Bottom - 1, thumbEnd.Y + 1);
+                return Rectangle.FromLTRB(trackRect.Left + 1, top, trackRect.Right - 1, bottom);
+            }
+
+            thumbStart = control.PointToClient(new Point(thumbTop, trackRect.Top));
+            thumbEnd = control.PointToClient(new Point(thumbBottom, trackRect.Top));
+            int left = Math.Max(trackRect.Left + 1, thumbStart.X);
+            int right = Math.Min(trackRect.Right - 1, thumbEnd.X + 1);
+            return Rectangle.FromLTRB(left, trackRect.Top + 1, right, trackRect.Bottom - 1);
+        }
+
+        private static Color BlendColor(Color baseColor, Color overlayColor, float ratio)
+        {
+            ratio = Math.Clamp(ratio, 0f, 1f);
+            int r = (int)(baseColor.R * (1f - ratio) + overlayColor.R * ratio);
+            int g = (int)(baseColor.G * (1f - ratio) + overlayColor.G * ratio);
+            int b = (int)(baseColor.B * (1f - ratio) + overlayColor.B * ratio);
+            return Color.FromArgb(r, g, b);
         }
 
         public static string AssemblyTitle

@@ -23,6 +23,7 @@ namespace mml2vgmIDEx64
         public FrmSien(FrmMain parent,Setting setting)
         {
             InitializeComponent();
+            Common.ApplyDarkScrollBarTheme(this);
             ss = new SienSearch(System.IO.Path.Combine(Common.GetApplicationFolder(), "mmlSien.json"));
             this.setting = setting;
             this.parent = parent;

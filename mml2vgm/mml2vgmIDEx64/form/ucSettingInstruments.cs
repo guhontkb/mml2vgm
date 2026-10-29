@@ -8,6 +8,7 @@ namespace mml2vgmIDEx64
         public ucSettingInstruments()
         {
             InitializeComponent();
+            Common.ApplyDarkScrollBarTheme(this);
         }
 
         private void cbSendWait_CheckedChanged(object sender, EventArgs e)

@@ -22,6 +22,7 @@ namespace mml2vgmIDEx64.form
         public FrmReplaceBox(Setting setting, FrmEditor frmEditor)
         {
             InitializeComponent();
+            mml2vgmIDEx64.Common.ApplyDarkScrollBarTheme(this);
             DialogResult = DialogResult.Cancel;
             this.BackColor = Color.FromArgb(setting.ColorScheme.SearchBox_BackColor);
             this.ForeColor = Color.FromArgb(setting.ColorScheme.SearchBox_ForeColor);

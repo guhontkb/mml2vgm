@@ -3526,6 +3526,12 @@ namespace mml2vgmIDEx64
             frmLyrics.parentUpdate = UpdateControl;
             frmSien.parentUpdate = UpdateControl;
 
+            Common.ApplyScrollBarTheme(
+                this,
+                (Common.ScrollBarThemeMode)Math.Max(0, Math.Min(2, setting.other.MainScreenScrollBarThemeMode)),
+                Color.FromArgb(setting.other.MainScreenScrollBarCustomColorArgb),
+                Color.FromArgb(setting.other.MainScreenScrollBarCustomTrackColorArgb)
+            );
             statusStrip1.BackColor = Color.FromArgb(setting.ColorScheme.StatusStripBack_Normal);
 
         }
@@ -3561,6 +3567,12 @@ namespace mml2vgmIDEx64
             this.setting = setting;
             this.setting.Save();
             frmFolderTree?.ApplyFolderTextFont();
+            Common.ApplyScrollBarTheme(
+                this,
+                (Common.ScrollBarThemeMode)Math.Max(0, Math.Min(2, this.setting.other.MainScreenScrollBarThemeMode)),
+                Color.FromArgb(this.setting.other.MainScreenScrollBarCustomColorArgb),
+                Color.FromArgb(this.setting.other.MainScreenScrollBarCustomTrackColorArgb)
+            );
 
             Log.ForcedWrite("設定が変更されたため、再度Audio初期化処理開始");
 

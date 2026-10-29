@@ -76,6 +76,7 @@ namespace mml2vgmIDEx64
                 if (setting.midiKbd.Octave == 0) setting.midiKbd.Octave = 4;
 
                 InitializeComponent();
+                Common.ApplyDarkScrollBarTheme(this);
 
                 this.newParam = newParam;
                 frameBuffer.Add(pbScreen, Resources.planeMIDIKB, null, zoom);

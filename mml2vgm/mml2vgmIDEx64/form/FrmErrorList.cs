@@ -16,6 +16,7 @@ namespace mml2vgmIDEx64
         public FrmErrorList(Setting setting)
         {
             InitializeComponent();
+            Common.ApplyDarkScrollBarTheme(this);
             this.dataGridView1.BackgroundColor = Color.FromArgb(setting.ColorScheme.ErrorList_BackColor);
             this.dataGridView1.DefaultCellStyle.BackColor = Color.FromArgb(setting.ColorScheme.ErrorList_BackColor);
             this.dataGridView1.ForeColor = Color.FromArgb(setting.ColorScheme.ErrorList_ForeColor);

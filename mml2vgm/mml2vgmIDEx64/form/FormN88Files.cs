@@ -17,6 +17,7 @@ namespace mml2vgmIDEx64.form
         public FormN88Files()
         {
             InitializeComponent();
+            mml2vgmIDEx64.Common.ApplyDarkScrollBarTheme(this);
         }
 
         private void dgvFiles_CellDoubleClick(object sender, DataGridViewCellEventArgs e)

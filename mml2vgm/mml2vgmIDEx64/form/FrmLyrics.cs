@@ -22,6 +22,7 @@ namespace mml2vgmIDEx64
         public FrmLyrics(Setting setting, ThemeBase theme)
         {
             InitializeComponent();
+            Common.ApplyDarkScrollBarTheme(this);
             rtbLyrics.BackColor = Color.FromArgb(setting.ColorScheme.Log_BackColor);
             rtbLyrics.ForeColor = Color.FromArgb(setting.ColorScheme.Log_ForeColor);
             culColor = Color.FromArgb(setting.ColorScheme.Log_ForeColor);

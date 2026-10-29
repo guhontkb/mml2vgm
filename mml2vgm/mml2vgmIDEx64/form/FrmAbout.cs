@@ -10,6 +10,7 @@ namespace mml2vgmIDEx64
         public FrmAbout()
         {
             InitializeComponent();
+            Common.ApplyDarkScrollBarTheme(this);
             this.Text = String.Format("{0} のバージョン情報", AssemblyTitle);
             this.labelProductName.Text = AssemblyProduct;
             this.labelVersion.Text = String.Format("バージョン {0}", AssemblyVersion);

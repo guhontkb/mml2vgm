@@ -15,6 +15,7 @@ namespace mml2vgmIDEx64.form
         public FrmProgress()
         {
             InitializeComponent();
+            mml2vgmIDEx64.Common.ApplyDarkScrollBarTheme(this);
         }
 
         private void btnAbort_Click(object sender, EventArgs e)

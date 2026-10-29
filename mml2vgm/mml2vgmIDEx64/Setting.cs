@@ -2136,6 +2136,10 @@ namespace mml2vgmIDEx64
             public bool UseHistoryBackUp { get; set; } = false;
             public int HistoryBackUpKeepFileCount { get; set; } = 5;
             public bool DispWarningMessage { get; set; } = false;
+            public bool MainScreenUseDarkScrollBar { get; set; } = true;
+            public int MainScreenScrollBarThemeMode { get; set; } = 0;
+            public int MainScreenScrollBarCustomColorArgb { get; set; } = Color.FromArgb(100, 140, 220).ToArgb();
+            public int MainScreenScrollBarCustomTrackColorArgb { get; set; } = Color.FromArgb(45, 60, 95).ToArgb();
 
             public Other Copy()
             {
@@ -2193,6 +2197,10 @@ namespace mml2vgmIDEx64
                 other.UseHistoryBackUp = this.UseHistoryBackUp;
                 other.HistoryBackUpKeepFileCount = this.HistoryBackUpKeepFileCount;
                 other.DispWarningMessage = this.DispWarningMessage;
+                other.MainScreenUseDarkScrollBar = this.MainScreenUseDarkScrollBar;
+                other.MainScreenScrollBarThemeMode = this.MainScreenScrollBarThemeMode;
+                other.MainScreenScrollBarCustomColorArgb = this.MainScreenScrollBarCustomColorArgb;
+                other.MainScreenScrollBarCustomTrackColorArgb = this.MainScreenScrollBarCustomTrackColorArgb;
 
                 return other;
             }

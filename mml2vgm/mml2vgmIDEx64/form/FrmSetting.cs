@@ -29,6 +29,15 @@ namespace mml2vgmIDEx64
         private Label lblFolderFontSize;
         private Label lblFolderFontStyle;
         private Button btFolderFont;
+        private Label lblMainScrollBarColor;
+        private ComboBox cmbMainScrollBarColor;
+        private Label lblMainScrollBarCustomThumbColor;
+        private Label lblMainScrollBarCustomTrackColor;
+        private Button btnMainScrollBarCustomThumbColor;
+        private Panel pnlMainScrollBarCustomThumbColor;
+        private Button btnMainScrollBarCustomTrackColor;
+        private Panel pnlMainScrollBarCustomTrackColor;
+        private ColorDialog cdMainScrollBarCustomColor;
 
 
         public FrmSetting(Setting setting)
@@ -36,7 +45,9 @@ namespace mml2vgmIDEx64
             this.setting = setting.Copy();
 
             InitializeComponent();
+            Common.ApplyDarkScrollBarTheme(this);
             InitializeFolderTab();
+            InitializeMainScrollBarColorSetting();
 
             dgv = new DataGridView[] {
                 dgvMIDIoutListA,dgvMIDIoutListB,dgvMIDIoutListC,dgvMIDIoutListD
@@ -56,6 +67,133 @@ namespace mml2vgmIDEx64
             tbcMIDIoutList.TabPages.Remove(tabPage2);
             tbcMIDIoutList.TabPages.Remove(tabPage3);
             tbcMIDIoutList.TabPages.Remove(tabPage4);
+        }
+
+        private void InitializeMainScrollBarColorSetting()
+        {
+            lblMainScrollBarColor = new Label();
+            cmbMainScrollBarColor = new ComboBox();
+            lblMainScrollBarCustomThumbColor = new Label();
+            lblMainScrollBarCustomTrackColor = new Label();
+            btnMainScrollBarCustomThumbColor = new Button();
+            pnlMainScrollBarCustomThumbColor = new Panel();
+            btnMainScrollBarCustomTrackColor = new Button();
+            pnlMainScrollBarCustomTrackColor = new Panel();
+            cdMainScrollBarCustomColor = new ColorDialog();
+
+            lblMainScrollBarColor.AutoSize = true;
+            lblMainScrollBarColor.Location = new System.Drawing.Point(8, 337);
+            lblMainScrollBarColor.Margin = new Padding(4, 0, 4, 0);
+            lblMainScrollBarColor.Name = "lblMainScrollBarColor";
+            lblMainScrollBarColor.Size = new System.Drawing.Size(179, 15);
+            lblMainScrollBarColor.Text = "メイン画面スクロールバー色設定";
+
+            cmbMainScrollBarColor.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbMainScrollBarColor.FormattingEnabled = true;
+            cmbMainScrollBarColor.Location = new System.Drawing.Point(8, 356);
+            cmbMainScrollBarColor.Margin = new Padding(4);
+            cmbMainScrollBarColor.Name = "cmbMainScrollBarColor";
+            cmbMainScrollBarColor.Size = new System.Drawing.Size(246, 23);
+            cmbMainScrollBarColor.Items.AddRange(new object[]
+            {
+                "ダーク",
+                "標準(OS既定)",
+                "カスタム(RGB指定)"
+            });
+            cmbMainScrollBarColor.SelectedIndexChanged += cmbMainScrollBarColor_SelectedIndexChanged;
+
+            lblMainScrollBarCustomThumbColor.AutoSize = true;
+            lblMainScrollBarCustomThumbColor.Location = new System.Drawing.Point(8, 386);
+            lblMainScrollBarCustomThumbColor.Margin = new Padding(4, 0, 4, 0);
+            lblMainScrollBarCustomThumbColor.Name = "lblMainScrollBarCustomThumbColor";
+            lblMainScrollBarCustomThumbColor.Size = new System.Drawing.Size(53, 15);
+            lblMainScrollBarCustomThumbColor.Text = "つまみ色";
+
+            btnMainScrollBarCustomThumbColor.Location = new System.Drawing.Point(70, 382);
+            btnMainScrollBarCustomThumbColor.Margin = new Padding(4);
+            btnMainScrollBarCustomThumbColor.Name = "btnMainScrollBarCustomThumbColor";
+            btnMainScrollBarCustomThumbColor.Size = new System.Drawing.Size(100, 23);
+            btnMainScrollBarCustomThumbColor.Text = "色を選択...";
+            btnMainScrollBarCustomThumbColor.UseVisualStyleBackColor = true;
+            btnMainScrollBarCustomThumbColor.Click += btnMainScrollBarCustomThumbColor_Click;
+
+            pnlMainScrollBarCustomThumbColor.BorderStyle = BorderStyle.FixedSingle;
+            pnlMainScrollBarCustomThumbColor.Location = new System.Drawing.Point(177, 382);
+            pnlMainScrollBarCustomThumbColor.Margin = new Padding(4);
+            pnlMainScrollBarCustomThumbColor.Name = "pnlMainScrollBarCustomThumbColor";
+            pnlMainScrollBarCustomThumbColor.Size = new System.Drawing.Size(86, 23);
+            pnlMainScrollBarCustomThumbColor.BackColor = System.Drawing.Color.FromArgb(100, 140, 220);
+
+            lblMainScrollBarCustomTrackColor.AutoSize = true;
+            lblMainScrollBarCustomTrackColor.Location = new System.Drawing.Point(271, 386);
+            lblMainScrollBarCustomTrackColor.Margin = new Padding(4, 0, 4, 0);
+            lblMainScrollBarCustomTrackColor.Name = "lblMainScrollBarCustomTrackColor";
+            lblMainScrollBarCustomTrackColor.Size = new System.Drawing.Size(47, 15);
+            lblMainScrollBarCustomTrackColor.Text = "トラック色";
+
+            btnMainScrollBarCustomTrackColor.Location = new System.Drawing.Point(326, 382);
+            btnMainScrollBarCustomTrackColor.Margin = new Padding(4);
+            btnMainScrollBarCustomTrackColor.Name = "btnMainScrollBarCustomTrackColor";
+            btnMainScrollBarCustomTrackColor.Size = new System.Drawing.Size(100, 23);
+            btnMainScrollBarCustomTrackColor.Text = "色を選択...";
+            btnMainScrollBarCustomTrackColor.UseVisualStyleBackColor = true;
+            btnMainScrollBarCustomTrackColor.Click += btnMainScrollBarCustomTrackColor_Click;
+
+            pnlMainScrollBarCustomTrackColor.BorderStyle = BorderStyle.FixedSingle;
+            pnlMainScrollBarCustomTrackColor.Location = new System.Drawing.Point(433, 382);
+            pnlMainScrollBarCustomTrackColor.Margin = new Padding(4);
+            pnlMainScrollBarCustomTrackColor.Name = "pnlMainScrollBarCustomTrackColor";
+            pnlMainScrollBarCustomTrackColor.Size = new System.Drawing.Size(71, 23);
+            pnlMainScrollBarCustomTrackColor.BackColor = System.Drawing.Color.FromArgb(45, 60, 95);
+
+            cdMainScrollBarCustomColor.FullOpen = true;
+
+            tpOther2.Controls.Add(lblMainScrollBarColor);
+            tpOther2.Controls.Add(cmbMainScrollBarColor);
+            tpOther2.Controls.Add(lblMainScrollBarCustomThumbColor);
+            tpOther2.Controls.Add(btnMainScrollBarCustomThumbColor);
+            tpOther2.Controls.Add(pnlMainScrollBarCustomThumbColor);
+            tpOther2.Controls.Add(lblMainScrollBarCustomTrackColor);
+            tpOther2.Controls.Add(btnMainScrollBarCustomTrackColor);
+            tpOther2.Controls.Add(pnlMainScrollBarCustomTrackColor);
+            tpOther2.Controls.SetChildIndex(pnlMainScrollBarCustomTrackColor, 0);
+            tpOther2.Controls.SetChildIndex(btnMainScrollBarCustomTrackColor, 0);
+            tpOther2.Controls.SetChildIndex(lblMainScrollBarCustomTrackColor, 0);
+            tpOther2.Controls.SetChildIndex(pnlMainScrollBarCustomThumbColor, 0);
+            tpOther2.Controls.SetChildIndex(btnMainScrollBarCustomThumbColor, 0);
+            tpOther2.Controls.SetChildIndex(lblMainScrollBarCustomThumbColor, 0);
+            tpOther2.Controls.SetChildIndex(cmbMainScrollBarColor, 0);
+            tpOther2.Controls.SetChildIndex(lblMainScrollBarColor, 0);
+        }
+
+        private void cmbMainScrollBarColor_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            UpdateMainScrollBarCustomColorUiState();
+        }
+
+        private void btnMainScrollBarCustomThumbColor_Click(object sender, EventArgs e)
+        {
+            cdMainScrollBarCustomColor.Color = pnlMainScrollBarCustomThumbColor.BackColor;
+            if (cdMainScrollBarCustomColor.ShowDialog(this) != DialogResult.OK) return;
+            pnlMainScrollBarCustomThumbColor.BackColor = cdMainScrollBarCustomColor.Color;
+        }
+
+        private void btnMainScrollBarCustomTrackColor_Click(object sender, EventArgs e)
+        {
+            cdMainScrollBarCustomColor.Color = pnlMainScrollBarCustomTrackColor.BackColor;
+            if (cdMainScrollBarCustomColor.ShowDialog(this) != DialogResult.OK) return;
+            pnlMainScrollBarCustomTrackColor.BackColor = cdMainScrollBarCustomColor.Color;
+        }
+
+        private void UpdateMainScrollBarCustomColorUiState()
+        {
+            bool isCustom = cmbMainScrollBarColor.SelectedIndex == 2;
+            lblMainScrollBarCustomThumbColor.Enabled = isCustom;
+            btnMainScrollBarCustomThumbColor.Enabled = isCustom;
+            pnlMainScrollBarCustomThumbColor.Enabled = isCustom;
+            lblMainScrollBarCustomTrackColor.Enabled = isCustom;
+            btnMainScrollBarCustomTrackColor.Enabled = isCustom;
+            pnlMainScrollBarCustomTrackColor.Enabled = isCustom;
         }
 
         private void InitializeFolderTab()
@@ -716,6 +854,15 @@ namespace mml2vgmIDEx64
             cbUseHistoryBackUp.Checked = setting.other.UseHistoryBackUp;
             tbUseHistoryBackUp.Text = setting.other.HistoryBackUpKeepFileCount.ToString();
             tbTABWidth.Text = setting.other.TabWidth.ToString();
+            int scrollBarThemeMode = setting.other.MainScreenScrollBarThemeMode;
+            if (scrollBarThemeMode < 0 || scrollBarThemeMode > 2)
+            {
+                scrollBarThemeMode = setting.other.MainScreenUseDarkScrollBar ? 0 : 1;
+            }
+            cmbMainScrollBarColor.SelectedIndex = scrollBarThemeMode;
+            pnlMainScrollBarCustomThumbColor.BackColor = System.Drawing.Color.FromArgb(setting.other.MainScreenScrollBarCustomColorArgb);
+            pnlMainScrollBarCustomTrackColor.BackColor = System.Drawing.Color.FromArgb(setting.other.MainScreenScrollBarCustomTrackColorArgb);
+            UpdateMainScrollBarCustomColorUiState();
 
             cbUseMIDIExport.Checked = setting.midiExport.UseMIDIExport;
             gbMIDIExport.Enabled = cbUseMIDIExport.Checked;
@@ -1630,6 +1777,12 @@ namespace mml2vgmIDEx64
             {
                 setting.other.TabWidth = Math.Max(Math.Min(i, 100), 1);
             }
+            int selectedScrollBarThemeMode = cmbMainScrollBarColor.SelectedIndex;
+            if (selectedScrollBarThemeMode < 0 || selectedScrollBarThemeMode > 2) selectedScrollBarThemeMode = 0;
+            setting.other.MainScreenScrollBarThemeMode = selectedScrollBarThemeMode;
+            setting.other.MainScreenUseDarkScrollBar = selectedScrollBarThemeMode != 1;
+            setting.other.MainScreenScrollBarCustomColorArgb = pnlMainScrollBarCustomThumbColor.BackColor.ToArgb();
+            setting.other.MainScreenScrollBarCustomTrackColorArgb = pnlMainScrollBarCustomTrackColor.BackColor.ToArgb();
 
             setting.midiExport.UseMIDIExport = cbUseMIDIExport.Checked;
             setting.midiExport.ExportPath = tbMIDIOutputPath.Text;

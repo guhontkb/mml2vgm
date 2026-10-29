@@ -13,6 +13,7 @@ namespace mml2vgmIDEx64
         public FrmInputBox(Setting setting)
         {
             InitializeComponent();
+            Common.ApplyDarkScrollBarTheme(this);
             this.setting = setting;
 
             Common.SetBFColor(this, setting);
