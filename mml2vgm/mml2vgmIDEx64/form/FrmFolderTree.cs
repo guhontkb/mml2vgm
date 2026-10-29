@@ -16,6 +16,10 @@ namespace mml2vgmIDEx64
     {
         private static readonly Color FileListHeaderBackColor = Color.FromArgb(45, 45, 48);
         private static readonly Color FileListHeaderForeColor = Color.FromArgb(241, 241, 241);
+        private static readonly HashSet<string> AudioFileExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ".wav", ".wave", ".mp3", ".mp2", ".ogg", ".flac", ".aif", ".aiff", ".wma", ".m4a", ".aac", ".ape", ".opus"
+        };
         public Action parentUpdate = null;
         public Action<string[]> parentExecFile = null;
         public Action<string[]> parentDeleteFile = null;
@@ -29,6 +33,7 @@ namespace mml2vgmIDEx64
         public FrmFolderTree(Setting setting, DockPanel dockPanel)
         {
             InitializeComponent();
+            AddFileIconVariants();
             this.setting = setting;
             this.tvFolderTree.BackColor = Color.FromArgb(setting.ColorScheme.FolderTree_BackColor);
             this.tvFolderTree.ForeColor = Color.FromArgb(setting.ColorScheme.FolderTree_ForeColor);
@@ -965,7 +970,7 @@ namespace mml2vgmIDEx64
                 {
                     if (!IsFileVisible(file)) continue;
 
-                    ListViewItem item = new ListViewItem(file.Name, 0);
+                    ListViewItem item = new ListViewItem(file.Name, GetFileIconIndex(file.Extension));
                     item.SubItems.Add(file.LastWriteTime.ToString("yyyy/MM/dd HH:mm:ss"));
                     item.SubItems.Add(file.Length.ToString("N0") + " bytes");
                     string[] waveInfo = GetWaveInfo(file.FullName);
@@ -997,6 +1002,46 @@ namespace mml2vgmIDEx64
                     if (lvFileList.CanFocus) lvFileList.Focus();
                 }
             }
+        }
+
+        private int GetFileIconIndex(string extension)
+        {
+            if (extension.Equals(".gwi", StringComparison.OrdinalIgnoreCase)) return 2;
+            return AudioFileExtensions.Contains(extension) ? 0 : 3;
+        }
+
+        private void AddFileIconVariants()
+        {
+            using (Bitmap source = new Bitmap(imgList.Images[0]))
+            using (Bitmap gwiIcon = RecolorFileIconFrame(source, Color.FromArgb(255, 105, 180)))
+            using (Bitmap otherIcon = RecolorFileIconFrame(source, Color.FromArgb(150, 150, 150)))
+            {
+                imgList.Images.Add("FileGwi.png", gwiIcon);
+                imgList.Images.Add("FileOther.png", otherIcon);
+            }
+        }
+
+        private static Bitmap RecolorFileIconFrame(Bitmap source, Color frameColor)
+        {
+            Bitmap icon = new Bitmap(source.Width, source.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            for (int y = 0; y < source.Height; y++)
+            {
+                for (int x = 0; x < source.Width; x++)
+                {
+                    Color pixel = source.GetPixel(x, y);
+                    float hue = pixel.GetHue();
+                    if (pixel.A > 0 && pixel.GetSaturation() > 0.2f && hue >= 155f && hue <= 255f)
+                    {
+                        float intensity = Math.Max(pixel.R, Math.Max(pixel.G, pixel.B)) / 255f;
+                        pixel = Color.FromArgb(pixel.A,
+                            (int)(frameColor.R * intensity),
+                            (int)(frameColor.G * intensity),
+                            (int)(frameColor.B * intensity));
+                    }
+                    icon.SetPixel(x, y, pixel);
+                }
+            }
+            return icon;
         }
 
         private void LvFileList_ColumnClick(object sender, ColumnClickEventArgs e)
