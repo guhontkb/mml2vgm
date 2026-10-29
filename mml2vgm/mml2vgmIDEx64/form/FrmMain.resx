@@ -422,6 +422,12 @@
   <data name="TsmiOpenFolder.Text" xml:space="preserve">
     <value>open &amp;Folder</value>
   </data>
+  <data name="TsmiOpenSettingFolder.Size" type="System.Drawing.Size, System.Drawing">
+    <value>201, 22</value>
+  </data>
+  <data name="TsmiOpenSettingFolder.Text" xml:space="preserve">
+    <value>Open Settings Folder</value>
+  </data>
   <data name="TsmiUndo.ShortcutKeyDisplayString" xml:space="preserve">
     <value>Ctrl+Z</value>
   </data>

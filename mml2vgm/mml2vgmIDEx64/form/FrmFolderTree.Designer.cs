@@ -220,7 +220,7 @@ namespace mml2vgmIDEx64
             //
             // columnHeaderLastWriteTime
             //
-            columnHeaderLastWriteTime.Text = "Last Write Time";
+            columnHeaderLastWriteTime.Text = "Update";
             columnHeaderLastWriteTime.Width = 140;
             //
             // columnHeaderSize

@@ -20,7 +20,7 @@ namespace mml2vgmIDEx64
             {
                 this.textBoxDescription.AppendText(Environment.NewLine);
             }
-            this.textBoxDescription.AppendText(String.Format("フォーク版{0}ビルド日時: {1}", Environment.NewLine, AssemblyBuildDate));
+            this.textBoxDescription.AppendText(String.Format("分家改造版{0}ビルド日時: {1}", Environment.NewLine, AssemblyBuildDate));
         }
 
         #region アセンブリ属性アクセサー

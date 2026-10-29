@@ -193,6 +193,12 @@
   <data name="TsmiOpenFolder.Text" xml:space="preserve">
     <value>フォルダーを開く(&amp;F)</value>
   </data>
+  <data name="TsmiOpenSettingFolder.Size" type="System.Drawing.Size, System.Drawing">
+    <value>201, 22</value>
+  </data>
+  <data name="TsmiOpenSettingFolder.Text" xml:space="preserve">
+    <value>設定保存フォルダを開く</value>
+  </data>
   <data name="tsmiGwiFileHistory.Size" type="System.Drawing.Size, System.Drawing">
     <value>201, 22</value>
   </data>
