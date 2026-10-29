@@ -32,7 +32,7 @@ namespace mml2vgmIDEx64
                     }
 
                     //����Ȃ������ꍇ�́A���łɋN�����Ă���Ɣ��f���ďI��
-                    MessageBox.Show("���d�N���͂ł��܂���B");
+                    MessageBox.Show("二重起動はできません。");
                     return;
                 }
 
