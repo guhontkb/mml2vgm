@@ -4786,7 +4786,8 @@ namespace mml2vgmIDEx64
             if (mea.Button == MouseButtons.Right) return;
 
             ToolStripMenuItem tsmi = (ToolStripMenuItem)sender;
-            Tuple<int, string, string[], string> tpl = (Tuple<int, string, string[], string>)((ToolStripMenuItem)sender).Tag;
+            Tuple<int, string, string[], string, string> tpl
+                = (Tuple<int, string, string[], string, string>)((ToolStripMenuItem)sender).Tag;
             string path = tpl.Item4;
             if (string.IsNullOrEmpty(path) || path[0] != '+') return;
             path = path.Substring(1);
