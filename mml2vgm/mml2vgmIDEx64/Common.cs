@@ -57,7 +57,7 @@ namespace mml2vgmIDEx64
         public static string GetApplicationDataFolder(bool make = false)
         {
             string fullPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            fullPath = System.IO.Path.Combine(fullPath, "KumaApp", AssemblyTitle);
+            fullPath = System.IO.Path.Combine(fullPath, "KumaApp", AssemblyTitle + "custom");
             if (!System.IO.Directory.Exists(fullPath)) System.IO.Directory.CreateDirectory(fullPath);
 
             return fullPath;
@@ -412,15 +412,15 @@ namespace mml2vgmIDEx64
                     , prm[op * 11 + 5], prm[op * 11 + 6], prm[op * 11 + 7], prm[op * 11 + 8]);
             }
 
-            msg = string.Format("  @{0}\r\n  {1:D03} {2:D03}\r\n", vnum, prm[45], prm[44]) 
-                + msg 
+            msg = string.Format("  @{0}\r\n  {1:D03} {2:D03}\r\n", vnum, prm[45], prm[44])
+                + msg
                 + "\r\n";
 
             return msg;
         }
 
         private static List<int> GetVoiceParamFromVoiceStr(string v,out string vnum)
-        { 
+        {
             List<int> prm = new List<int>();
             vnum = "";
 
@@ -433,7 +433,7 @@ namespace mml2vgmIDEx64
             vs[0] = vs[0].Substring(2).Trim();
             if (vs[0][0] == 'N' && vs[0].Length>1)
             {
-                vnum = vs[0].Substring(1).Trim();   
+                vnum = vs[0].Substring(1).Trim();
             }
             if (string.IsNullOrEmpty(vnum)) return null;
 
@@ -463,7 +463,7 @@ namespace mml2vgmIDEx64
         /// 参考URL：
         /// dobon.net ウィンドウのタイトルからプロセスを探す
         /// https://dobon.net/vb/dotnet/process/getprocessesbywindowtitle.html
-        /// 
+        ///
 
 
         /// <summary>
