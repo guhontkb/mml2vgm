@@ -131,9 +131,13 @@ namespace mml2vgmIDEx64
                 }
                 catch (UnauthorizedAccessException)
                 {
+                    LogFolderOperationException("TvFolderTree_BeforeExpand", null, fullpath);
                     MessageBox.Show("アクセスが拒否されました。", "権限不足", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                    LogFolderOperationException("TvFolderTree_BeforeExpand", ex, fullpath);
+                }
             }
         }
 
@@ -476,12 +480,17 @@ namespace mml2vgmIDEx64
                 }
                 catch (FileNotFoundException fe)
                 {
-                    Log.ForcedWrite(fe);
+                    LogFolderOperationException("CopyFile_DragDrop", fe, fileOrFolder);
                     lstFail.Add(string.Format("'{0}'", fileOrFolder));
                 }
                 catch (DirectoryNotFoundException de)
                 {
-                    Log.ForcedWrite(de);
+                    LogFolderOperationException("CopyFile_DragDrop", de, fileOrFolder);
+                    lstFail.Add(string.Format("'{0}'", fileOrFolder));
+                }
+                catch (Exception ex)
+                {
+                    LogFolderOperationException("CopyFile_DragDrop", ex, fileOrFolder);
                     lstFail.Add(string.Format("'{0}'", fileOrFolder));
                 }
             }
@@ -640,9 +649,13 @@ namespace mml2vgmIDEx64
             }
             catch (UnauthorizedAccessException)
             {
+                LogFolderOperationException("refreshAddCheck", null, fullpath);
                 MessageBox.Show("アクセスが拒否されました。", "権限不足", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-            catch { }
+            catch (Exception ex)
+            {
+                LogFolderOperationException("refreshAddCheck", ex, fullpath);
+            }
 
         }
 
@@ -1029,10 +1042,16 @@ namespace mml2vgmIDEx64
             }
             catch (UnauthorizedAccessException)
             {
+                LogFolderOperationException("UpdateFileList", null, node?.FullPath);
                 MessageBox.Show("アクセスが拒否されました。", "権限不足", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             catch (DirectoryNotFoundException)
             {
+                LogFolderOperationException("UpdateFileList", null, node?.FullPath);
+            }
+            catch (Exception ex)
+            {
+                LogFolderOperationException("UpdateFileList", ex, node?.FullPath);
             }
             finally
             {
@@ -1170,6 +1189,22 @@ namespace mml2vgmIDEx64
             ColumnHeader column = lvFileList.Columns[e.ColumnIndex];
             if (column == columnHeaderHeaderFill) return;
             if (column.Width > 0) fileListColumnDisplayWidths[column] = column.Width;
+        }
+
+        private void LvFileList_ColumnReordered(object sender, ColumnReorderedEventArgs e)
+        {
+            BeginInvoke((MethodInvoker)EnsureHeaderFillColumnAtEnd);
+        }
+
+        private void EnsureHeaderFillColumnAtEnd()
+        {
+            if (IsDisposed || !lvFileList.IsHandleCreated) return;
+
+            int lastIndex = lvFileList.Columns.Count - 1;
+            if (lastIndex < 0) return;
+            if (columnHeaderHeaderFill.DisplayIndex == lastIndex) return;
+
+            columnHeaderHeaderFill.DisplayIndex = lastIndex;
         }
 
         private void LvFileList_SizeChanged(object sender, EventArgs e)
@@ -1450,8 +1485,9 @@ namespace mml2vgmIDEx64
                         : reader.WaveFormat.Channels == 2 ? "Stereo" : string.Format("{0} ch", reader.WaveFormat.Channels);
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                LogFolderOperationException("GetWaveInfo", ex, filePath);
             }
 
             return waveInfo;
@@ -1630,10 +1666,20 @@ namespace mml2vgmIDEx64
         private int GetFileListColumnIndex(int x)
         {
             int left = 0;
-            for (int i = 0; i < lvFileList.Columns.Count; i++)
+            ColumnHeader[] orderedColumns = new ColumnHeader[lvFileList.Columns.Count];
+            foreach (ColumnHeader column in lvFileList.Columns)
             {
-                int width = lvFileList.Columns[i].Width;
-                if (x >= left && x < left + width) return i;
+                int displayIndex = column.DisplayIndex;
+                if (displayIndex < 0 || displayIndex >= orderedColumns.Length) continue;
+                orderedColumns[displayIndex] = column;
+            }
+
+            for (int i = 0; i < orderedColumns.Length; i++)
+            {
+                ColumnHeader column = orderedColumns[i];
+                if (column == null) continue;
+                int width = column.Width;
+                if (x >= left && x < left + width) return column.Index;
                 left += width;
             }
 
@@ -1678,6 +1724,45 @@ namespace mml2vgmIDEx64
 
             int width = fileListColumnDisplayWidths.ContainsKey(column) ? fileListColumnDisplayWidths[column] : 80;
             column.Width = Math.Max(1, width);
+        }
+
+        private static void LogFolderOperationException(string operation, Exception ex, string target)
+        {
+            string safeTarget = string.IsNullOrWhiteSpace(target) ? "(unknown)" : target;
+            (string operationId, string operationName) = GetFolderOperationLogInfo(operation);
+            if (ex == null)
+            {
+                Log.ForcedWrite("【フォルダー操作異常】ID={0} 操作={1} 対象=[{2}] 例外情報=なし", operationId, operationName, safeTarget);
+                return;
+            }
+
+            Log.ForcedWrite(
+                "【フォルダー操作異常】ID={0} 操作={1} 対象=[{2}] 例外種別={3} メッセージ={4}",
+                operationId,
+                operationName,
+                safeTarget,
+                ex.GetType().Name,
+                ex.Message);
+            if (ex != null) Log.ForcedWrite(ex);
+        }
+
+        private static (string operationId, string operationName) GetFolderOperationLogInfo(string operation)
+        {
+            switch (operation)
+            {
+                case "TvFolderTree_BeforeExpand":
+                    return ("FT-001", "ツリー展開");
+                case "refreshAddCheck":
+                    return ("FT-002", "ツリー再読込");
+                case "CopyFile_DragDrop":
+                    return ("FT-003", "ドラッグ&ドロップコピー/移動");
+                case "UpdateFileList":
+                    return ("FT-004", "ファイル一覧更新");
+                case "GetWaveInfo":
+                    return ("FT-005", "WAV情報取得");
+                default:
+                    return ("FT-999", string.IsNullOrWhiteSpace(operation) ? "不明な操作" : operation);
+            }
         }
 
         [DllImport("user32.dll", CharSet = CharSet.Auto)]

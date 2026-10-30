@@ -196,6 +196,7 @@ namespace mml2vgmIDEx64
             lvFileList.Dock = DockStyle.Fill;
             lvFileList.FullRowSelect = true;
             lvFileList.HideSelection = false;
+            lvFileList.AllowColumnReorder = true;
             lvFileList.Location = new Point(0, 0);
             lvFileList.MultiSelect = true;
             lvFileList.Name = "lvFileList";
@@ -204,6 +205,7 @@ namespace mml2vgmIDEx64
             lvFileList.UseCompatibleStateImageBehavior = false;
             lvFileList.View = View.Details;
             lvFileList.ColumnClick += LvFileList_ColumnClick;
+            lvFileList.ColumnReordered += LvFileList_ColumnReordered;
             lvFileList.ColumnWidthChanging += LvFileList_ColumnWidthChanging;
             lvFileList.DrawColumnHeader += LvFileList_DrawColumnHeader;
             lvFileList.DrawItem += LvFileList_DrawItem;
