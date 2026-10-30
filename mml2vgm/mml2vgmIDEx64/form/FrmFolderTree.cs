@@ -503,6 +503,12 @@ namespace mml2vgmIDEx64
         /// </summary>
         public static void CopyDirectory(string sourceDirName, string destDirName)
         {
+            string sourcePath = Path.TrimEndingDirectorySeparator(Path.GetFullPath(sourceDirName));
+            string destPath = Path.TrimEndingDirectorySeparator(Path.GetFullPath(destDirName));
+            if (destPath.Equals(sourcePath, StringComparison.OrdinalIgnoreCase)
+                || destPath.StartsWith(sourcePath + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
+                throw new InvalidOperationException("コピー元のフォルダ内にコピーすることはできません。");
+
             //コピー先のディレクトリがないときは作る
             if (!Directory.Exists(destDirName))
             {
@@ -559,7 +565,7 @@ namespace mml2vgmIDEx64
                 refreshAddCheck(tvFolderTree.Nodes[0]);
             }
             tvFolderTree.Sort();
-            tvFolderTree.ExpandAll();
+            if (tvFolderTree.Nodes.Count > 0) tvFolderTree.Nodes[0].Expand();
             UpdateFileList(tvFolderTree.SelectedNode ?? (tvFolderTree.Nodes.Count > 0 ? tvFolderTree.Nodes[0] : null));
         }
 
