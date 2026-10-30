@@ -2190,7 +2190,7 @@ namespace mml2vgmIDEx64
                                 }
                             }
                         }
-                        catch 
+                        catch
                         {
                             ;
                         }
@@ -2775,8 +2775,8 @@ namespace mml2vgmIDEx64
 
             //int p = tbcMIDIoutList.SelectedIndex;
             //dgv[p].Rows.Add(
-            //    -999 
-            //    , true 
+            //    -999
+            //    , true
             //    , s.fileName
             //    , s.effectName
             //    , "GM"

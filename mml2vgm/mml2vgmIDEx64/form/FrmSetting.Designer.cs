@@ -793,8 +793,8 @@ namespace mml2vgmIDEx64
             tcSetting.Controls.Add(tpMIDIKBD);
             tcSetting.Controls.Add(tpKeyBoard);
             tcSetting.Controls.Add(tpBalance);
-            tcSetting.Controls.Add(tpMMLParameter);
             tcSetting.Controls.Add(tpEditor);
+            tcSetting.Controls.Add(tpMMLParameter);
             tcSetting.Controls.Add(tpOther2);
             tcSetting.Controls.Add(tpOther);
             tcSetting.Controls.Add(tpOmake);
@@ -4548,7 +4548,7 @@ namespace mml2vgmIDEx64
             tpMMLParameter.Name = "tpMMLParameter";
             tpMMLParameter.Size = new Size(518, 510);
             tpMMLParameter.TabIndex = 16;
-            tpMMLParameter.Text = "MMLParameter";
+            tpMMLParameter.Text = "Part counter";
             tpMMLParameter.UseVisualStyleBackColor = true;
             // 
             // cbDispInstrumentName

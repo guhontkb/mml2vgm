@@ -438,7 +438,7 @@
     <value>139, 22</value>
   </data>
   <data name="tsmiOption.Text" xml:space="preserve">
-    <value>オプション(&amp;O)_</value>
+    <value>オプション(&amp;O)</value>
   </data>
   <data name="ツールTToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
     <value>60, 20</value>
