@@ -2078,6 +2078,20 @@ namespace mml2vgmIDEx64
                     _Opacity = Common.Range(_Opacity, 10, 100);
                 }
             }
+            private int _MainScreenBackgroundOpacity = 100;
+            public int MainScreenBackgroundOpacity
+            {
+                get
+                {
+                    _MainScreenBackgroundOpacity = Common.Range(_MainScreenBackgroundOpacity, 0, 100);
+                    return _MainScreenBackgroundOpacity;
+                }
+                set
+                {
+                    _MainScreenBackgroundOpacity = value;
+                    _MainScreenBackgroundOpacity = Common.Range(_MainScreenBackgroundOpacity, 0, 100);
+                }
+            }
             private string _TextFontName = "Consolas";
             public string TextFontName { get => _TextFontName; set => _TextFontName = value; }
             private float _TextFontSize = 12.0f;
@@ -2142,6 +2156,10 @@ namespace mml2vgmIDEx64
             public int MainScreenScrollBarThemeMode { get; set; } = 0;
             public int MainScreenScrollBarCustomColorArgb { get; set; } = Color.FromArgb(100, 140, 220).ToArgb();
             public int MainScreenScrollBarCustomTrackColorArgb { get; set; } = Color.FromArgb(45, 60, 95).ToArgb();
+            public int MainScreenBackgroundColorArgb { get; set; } = Color.FromArgb(40, 29, 59).ToArgb();
+            public bool MainScreenWallpaperEnabled { get; set; } = false;
+            public string MainScreenWallpaperPath { get; set; } = "";
+            public int MainScreenWallpaperLayout { get; set; } = (int)ImageLayout.Zoom;
 
             public Other Copy()
             {
@@ -2169,6 +2187,7 @@ namespace mml2vgmIDEx64
                 other.EmptyPlayList = this.EmptyPlayList;
                 other.ChangeEnterCode = this.ChangeEnterCode;
                 other.Opacity = this.Opacity;
+                other.MainScreenBackgroundOpacity = this.MainScreenBackgroundOpacity;
                 other.TextFontName = this.TextFontName;
                 other.TextFontSize = this.TextFontSize;
                 other.TextFontStyle = this.TextFontStyle;
@@ -2204,6 +2223,10 @@ namespace mml2vgmIDEx64
                 other.MainScreenScrollBarThemeMode = this.MainScreenScrollBarThemeMode;
                 other.MainScreenScrollBarCustomColorArgb = this.MainScreenScrollBarCustomColorArgb;
                 other.MainScreenScrollBarCustomTrackColorArgb = this.MainScreenScrollBarCustomTrackColorArgb;
+                other.MainScreenBackgroundColorArgb = this.MainScreenBackgroundColorArgb;
+                other.MainScreenWallpaperEnabled = this.MainScreenWallpaperEnabled;
+                other.MainScreenWallpaperPath = this.MainScreenWallpaperPath;
+                other.MainScreenWallpaperLayout = this.MainScreenWallpaperLayout;
 
                 return other;
             }

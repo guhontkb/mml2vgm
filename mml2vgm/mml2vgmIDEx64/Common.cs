@@ -102,7 +102,7 @@ namespace mml2vgmIDEx64
         {
             if (!OperatingSystem.IsWindows() || root == null) return;
             bool useCustomColors = mode == ScrollBarThemeMode.Custom;
-            string themeName = mode == ScrollBarThemeMode.Dark ? DarkModeExplorerTheme : LightModeExplorerTheme;
+            string themeName = mode == ScrollBarThemeMode.Standard ? LightModeExplorerTheme : DarkModeExplorerTheme;
             Color thumbColor = useCustomColors && customThumbColor != Color.Empty
                 ? customThumbColor
                 : Color.FromArgb(100, 140, 220);
@@ -156,6 +156,7 @@ namespace mml2vgmIDEx64
 
             return control is TreeView
                 || control is ListView
+                || control is ScrollBar
                 || isScrollableTextBox
                 || isScrollableRichTextBox
                 || control is DataGridView
@@ -209,6 +210,21 @@ namespace mml2vgmIDEx64
             ScrollBarThemeState state = EnsureScrollBarThemeState(control);
             string themeName = state.ThemeName;
             SetWindowTheme(control.Handle, themeName, null);
+            if (control is ScrollBar scrollBar)
+            {
+                if (state.UseCustomColors)
+                {
+                    scrollBar.BackColor = state.CustomTrackColor;
+                    scrollBar.ForeColor = state.CustomThumbColor;
+                }
+                else
+                {
+                    scrollBar.ResetBackColor();
+                    scrollBar.ResetForeColor();
+                }
+                scrollBar.Invalidate();
+                return;
+            }
             if (state.UseCustomColors)
             {
                 DrawCustomScrollBars(control, state.CustomThumbColor, state.CustomTrackColor);

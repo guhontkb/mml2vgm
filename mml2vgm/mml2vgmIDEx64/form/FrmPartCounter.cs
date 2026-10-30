@@ -86,9 +86,13 @@ namespace mml2vgmIDEx64
             comparer=new PartRowComparer(SortOrder.Ascending);
 
             dgvPartCounter.BackgroundColor = Color.FromArgb(setting.ColorScheme.PartCounter_BackColor);
-            dgvPartCounter.DefaultCellStyle.BackColor = Color.FromArgb(setting.ColorScheme.PartCounter_BackColor);
+            dgvPartCounter.DefaultCellStyle.BackColor = dgvPartCounter.BackgroundColor;
             //dgvPartCounter.DefaultCellStyle.SelectionBackColor = Color.Empty;
             dgvPartCounter.ForeColor = Color.FromArgb(setting.ColorScheme.PartCounter_ForeColor);
+            dgvPartCounter.GridColor = dgvPartCounter.ForeColor;
+            dgvPartCounter.CellBorderStyle = DataGridViewCellBorderStyle.Single;
+            dgvPartCounter.DefaultCellStyle.SelectionBackColor = Color.Empty;
+            dgvPartCounter.DefaultCellStyle.SelectionForeColor = Color.Empty;
             EnableDoubleBuffering(dgvPartCounter);
             dgvPartCounter.AllowDrop = true;
             dgvPartCounter.MouseDown += DgvPartCounter_MouseDown;
@@ -622,7 +626,7 @@ namespace mml2vgmIDEx64
 
                 Color rowBackColor = isSolo
                     ? Color.FromArgb(setting.ColorScheme.PartCounter_SOLOROW_BackColor)
-                    : Color.FromArgb(setting.ColorScheme.PartCounter_BackColor);
+                    : dgvPartCounter.BackgroundColor;
 
                 foreach (DataGridViewCell cell in row.Cells)
                 {
@@ -863,6 +867,16 @@ namespace mml2vgmIDEx64
         {
             timer.Enabled = false;
             mmlParams = null;
+        }
+
+        public void ApplyColorSetting(Setting setting)
+        {
+            if (setting == null) return;
+
+            this.setting = setting;
+            ApplyBaseRowColors();
+            ApplyFocusColors();
+            dgvPartCounter.Invalidate();
         }
 
         /// <summary>
@@ -1289,14 +1303,9 @@ namespace mml2vgmIDEx64
                 {
                     foreach(DataGridViewCell cell in row.Cells)
                     {
-                        if (ms.solo)
-                        {
-                            cell.Style.BackColor = Color.FromArgb(setting.ColorScheme.PartCounter_SOLOROW_BackColor);
-                        }
-                        else
-                        {
-                            cell.Style.BackColor = Color.FromArgb(setting.ColorScheme.PartCounter_BackColor);
-                        }
+                        cell.Style.BackColor = ms.solo
+                            ? Color.FromArgb(setting.ColorScheme.PartCounter_SOLOROW_BackColor)
+                            : dgvPartCounter.BackgroundColor;
                     }
                 }
                 row.Cells[dgvPartCounter.Columns["ClmSolo"].Index].Value = ms.solo ? "S" : "";

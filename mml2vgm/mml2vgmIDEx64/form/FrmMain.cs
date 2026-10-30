@@ -28,6 +28,7 @@ namespace mml2vgmIDEx64
         public FrmLog frmLog = null;
         private FrmPartCounter frmPartCounter = null;
         private FrmFolderTree frmFolderTree = null;
+        private Document lastFolderTreeDocument = null;
         private FrmErrorList frmErrorList = null;
         private FrmLyrics frmLyrics = null;
         private frmDebug frmDebug = null;
@@ -86,6 +87,8 @@ namespace mml2vgmIDEx64
         private string getScriptsPath;
         private TreeNode getScriptsTn;
         private SimpleMIDIKbd simpleMidiKbd;
+        private Image mainWallpaperImage = null;
+        private readonly Dictionary<Control, Color> panelBaseBackColors = new Dictionary<Control, Color>();
 
 
 
@@ -895,7 +898,30 @@ namespace mml2vgmIDEx64
             Audio.Close();
 
             FrmSetting frmSetting = new FrmSetting(setting);
+            int beforeOpacity = setting.other.Opacity;
+            int beforeBackgroundOpacity = setting.other.MainScreenBackgroundOpacity;
+            frmSetting.MainScrollBarColorPreviewChanged = (thumbColor, trackColor) =>
+            {
+                Common.ApplyScrollBarTheme(this, Common.ScrollBarThemeMode.Custom, thumbColor, trackColor);
+                foreach (Form frm in FormBox)
+                {
+                    ApplyConfiguredScrollBarTheme(frm, thumbColor, trackColor);
+                }
+            };
+            frmSetting.MainBackgroundAppearancePreviewChanged = (backgroundColor, backgroundOpacity, wallpaperEnabled, wallpaperPath, wallpaperLayout) =>
+            {
+                ApplyMainBackgroundAppearance(backgroundColor, backgroundOpacity, wallpaperEnabled, wallpaperPath, wallpaperLayout);
+            };
+            frmSetting.WindowOpacityPreviewChanged = opacity =>
+            {
+                ApplyWindowOpacity(opacity, frmSetting);
+            };
             DialogResult res = frmSetting.ShowDialog();
+            if (res != DialogResult.OK)
+            {
+                ApplyWindowOpacity(beforeOpacity);
+                ApplyBackgroundOpacity(beforeBackgroundOpacity, frmSetting);
+            }
             //if (res != DialogResult.OK)
             //{
             //    return;
@@ -1652,6 +1678,9 @@ namespace mml2vgmIDEx64
             frmFolderTree.basePath = path1;
 
             FormBox.Add(dc.editor);
+            ApplyConfiguredScrollBarTheme(dc.editor);
+            ApplyBackgroundOpacity(setting.other.MainScreenBackgroundOpacity);
+            ApplyMainBackgroundColor();
             DocumentBox.Add(dc);
             AddGwiFileHistory(fileName);
             UpdateGwiFileHistory();
@@ -1687,6 +1716,9 @@ namespace mml2vgmIDEx64
             frmFolderTree.basePath = path1;
 
             FormBox.Add(dc.editor);
+            ApplyConfiguredScrollBarTheme(dc.editor);
+            ApplyBackgroundOpacity(setting.other.MainScreenBackgroundOpacity);
+            ApplyMainBackgroundColor();
             DocumentBox.Add(dc);
         }
 
@@ -2110,6 +2142,9 @@ namespace mml2vgmIDEx64
                 frmFolderTree.basePath = path1;
 
                 FormBox.Add(dc.editor);
+                ApplyConfiguredScrollBarTheme(dc.editor);
+                ApplyBackgroundOpacity(setting.other.MainScreenBackgroundOpacity);
+                ApplyMainBackgroundColor();
                 DocumentBox.Add(dc);
                 //AddGwiFileHistory(fileName);
                 //UpdateGwiFileHistory();
@@ -3280,6 +3315,8 @@ namespace mml2vgmIDEx64
 
             if (d != null)
             {
+                bool refreshFolderTree = !ReferenceEquals(lastFolderTreeDocument, d);
+
                 //メニューの有効無効を切り替え
                 if (d.isNew)
                 {
@@ -3304,8 +3341,11 @@ namespace mml2vgmIDEx64
                     frmFolderTree.basePath = path1;
                     frmFolderTree.tvFolderTree.Nodes.Clear();
                     frmFolderTree.tvFolderTree.Nodes.Add(d.gwiTree);
-                    frmFolderTree.refresh();
+                    refreshFolderTree = true;
                 }
+
+                if (refreshFolderTree) frmFolderTree.refresh();
+                lastFolderTreeDocument = d;
 
                 this.Text = string.Format("{0} - {1}", appName, d.editor.Text);
             }
@@ -3315,6 +3355,7 @@ namespace mml2vgmIDEx64
                 TsmiSaveAs.Enabled = false;
                 TsmiUndo.Enabled = false;
                 TsmiRedo.Enabled = false;
+                lastFolderTreeDocument = null;
 
                 this.Text = appName;
             }
@@ -3611,10 +3652,16 @@ namespace mml2vgmIDEx64
 
             Common.ApplyScrollBarTheme(
                 this,
-                (Common.ScrollBarThemeMode)Math.Max(0, Math.Min(2, setting.other.MainScreenScrollBarThemeMode)),
+                Common.ScrollBarThemeMode.Custom,
                 Color.FromArgb(setting.other.MainScreenScrollBarCustomColorArgb),
                 Color.FromArgb(setting.other.MainScreenScrollBarCustomTrackColorArgb)
             );
+            ApplyBackgroundOpacity(setting.other.MainScreenBackgroundOpacity);
+            foreach (Form frm in FormBox)
+            {
+                ApplyConfiguredScrollBarTheme(frm);
+            }
+            ApplyMainBackgroundColor();
             statusStrip1.BackColor = Color.FromArgb(setting.ColorScheme.StatusStripBack_Normal);
 
         }
@@ -3649,13 +3696,21 @@ namespace mml2vgmIDEx64
 
             this.setting = setting;
             this.setting.Save();
+            ApplyWindowOpacity(this.setting.other.Opacity);
+            ApplyBackgroundOpacity(this.setting.other.MainScreenBackgroundOpacity);
             frmFolderTree?.ApplyFolderTextFont();
             Common.ApplyScrollBarTheme(
                 this,
-                (Common.ScrollBarThemeMode)Math.Max(0, Math.Min(2, this.setting.other.MainScreenScrollBarThemeMode)),
+                Common.ScrollBarThemeMode.Custom,
                 Color.FromArgb(this.setting.other.MainScreenScrollBarCustomColorArgb),
                 Color.FromArgb(this.setting.other.MainScreenScrollBarCustomTrackColorArgb)
             );
+            foreach (Form frm in FormBox)
+            {
+                ApplyConfiguredScrollBarTheme(frm);
+            }
+            ApplyMainBackgroundColor();
+            frmPartCounter?.ApplyColorSetting(this.setting);
 
             Log.ForcedWrite("設定が変更されたため、再度Audio初期化処理開始");
 
@@ -3696,12 +3751,217 @@ namespace mml2vgmIDEx64
 
         }
 
+        private void ApplyWindowOpacity(int opacity, Form excludeForm = null)
+        {
+            double opacityRate = Math.Max(10, Math.Min(opacity, 100)) / 100.0;
+
+            if (this != excludeForm && !this.IsDisposed) this.Opacity = opacityRate;
+
+            if (frmMixer != null && !frmMixer.IsDisposed && frmMixer != excludeForm)
+            {
+                frmMixer.Opacity = opacityRate;
+            }
+
+            if (frmMIDIKbd != null && !frmMIDIKbd.IsDisposed && frmMIDIKbd != excludeForm)
+            {
+                frmMIDIKbd.Opacity = opacityRate;
+            }
+        }
+
+        private void ApplyBackgroundOpacity(int opacity, Form excludeForm = null)
+        {
+            double opacityRate = Math.Max(0, Math.Min(opacity, 100)) / 100.0;
+            Color backgroundColor = Color.FromArgb(setting.other.MainScreenBackgroundColorArgb);
+
+            foreach (Form frm in FormBox)
+            {
+                if (frm == null || frm.IsDisposed || frm == excludeForm || ReferenceEquals(frm, this)) continue;
+                ApplyBackgroundOpacityToControl(frm, backgroundColor, opacityRate);
+            }
+
+            if (dpMain != null && !dpMain.IsDisposed)
+            {
+                ApplyBackgroundOpacityToControl(dpMain, backgroundColor, opacityRate);
+            }
+        }
+
+        private void ApplyBackgroundOpacityToControl(Control control, Color backgroundColor, double opacityRate)
+        {
+            if (control == null || control.IsDisposed) return;
+            if (control is MenuStrip || control is StatusStrip || control is ToolStrip) return;
+
+            if (!panelBaseBackColors.ContainsKey(control))
+            {
+                panelBaseBackColors[control] = control.BackColor;
+            }
+
+            Color baseColor = panelBaseBackColors[control];
+            if (!IsTransparentColor(baseColor))
+            {
+                Color blendedColor = BlendColor(baseColor, backgroundColor, opacityRate);
+                control.BackColor = blendedColor;
+
+                if (control is DataGridView dgv)
+                {
+                    dgv.BackgroundColor = blendedColor;
+                    dgv.DefaultCellStyle.BackColor = blendedColor;
+                    dgv.RowsDefaultCellStyle.BackColor = blendedColor;
+                    dgv.AlternatingRowsDefaultCellStyle.BackColor = blendedColor;
+                    dgv.RowTemplate.DefaultCellStyle.BackColor = blendedColor;
+                    double gridBlendRate = Math.Min(opacityRate, 0.55);
+                    dgv.GridColor = BlendColor(Color.White, backgroundColor, gridBlendRate);
+                }
+            }
+
+            foreach (Control child in control.Controls)
+            {
+                ApplyBackgroundOpacityToControl(child, backgroundColor, opacityRate);
+            }
+        }
+
+        private static bool IsTransparentColor(Color color)
+        {
+            return color == Color.Transparent || color.A == 0;
+        }
+
+        private void ApplyConfiguredScrollBarTheme(Control root)
+        {
+            if (setting == null) return;
+            ApplyConfiguredScrollBarTheme(
+                root,
+                Color.FromArgb(setting.other.MainScreenScrollBarCustomColorArgb),
+                Color.FromArgb(setting.other.MainScreenScrollBarCustomTrackColorArgb)
+            );
+        }
+
+        private static void ApplyConfiguredScrollBarTheme(Control root, Color thumbColor, Color trackColor)
+        {
+            if (root == null) return;
+            Common.ApplyScrollBarTheme(
+                root,
+                Common.ScrollBarThemeMode.Custom,
+                thumbColor,
+                trackColor
+            );
+        }
+
+        private void ApplyMainBackgroundColor()
+        {
+            if (setting == null) return;
+            ApplyMainBackgroundAppearance(
+                Color.FromArgb(setting.other.MainScreenBackgroundColorArgb),
+                setting.other.MainScreenBackgroundOpacity,
+                setting.other.MainScreenWallpaperEnabled,
+                setting.other.MainScreenWallpaperPath,
+                GetWallpaperLayoutFromSetting(setting.other.MainScreenWallpaperLayout)
+            );
+        }
+
+        private void ApplyMainBackgroundColor(Color backgroundColor)
+        {
+            bool wallpaperEnabled = setting != null && setting.other.MainScreenWallpaperEnabled;
+            string wallpaperPath = setting?.other.MainScreenWallpaperPath ?? "";
+            ImageLayout wallpaperLayout = GetWallpaperLayoutFromSetting(setting?.other.MainScreenWallpaperLayout ?? (int)ImageLayout.Zoom);
+            ApplyMainBackgroundAppearance(
+                backgroundColor,
+                setting?.other.MainScreenBackgroundOpacity ?? 100,
+                wallpaperEnabled,
+                wallpaperPath,
+                wallpaperLayout
+            );
+        }
+
+        private void ApplyMainBackgroundAppearance(Color backgroundColor, int backgroundOpacity, bool wallpaperEnabled, string wallpaperPath, ImageLayout wallpaperLayout)
+        {
+            Image oldImage = UpdateMainWallpaperImage(wallpaperEnabled, wallpaperPath);
+
+            foreach (Form frm in FormBox)
+            {
+                if (frm == null || frm.IsDisposed) continue;
+                ApplyMainBackgroundColorToControl(frm, backgroundColor, mainWallpaperImage, wallpaperLayout);
+            }
+
+            if (dpMain != null && !dpMain.IsDisposed)
+            {
+                dpMain.BackColor = backgroundColor;
+                dpMain.BackgroundImage = mainWallpaperImage;
+                dpMain.BackgroundImageLayout = wallpaperLayout;
+            }
+            this.BackColor = backgroundColor;
+
+            ApplyBackgroundOpacity(backgroundOpacity);
+
+            oldImage?.Dispose();
+        }
+
+        private Image UpdateMainWallpaperImage(bool wallpaperEnabled, string wallpaperPath)
+        {
+            Image nextImage = null;
+
+            if (wallpaperEnabled && !string.IsNullOrWhiteSpace(wallpaperPath) && File.Exists(wallpaperPath))
+            {
+                try
+                {
+                    using (Image image = Image.FromFile(wallpaperPath))
+                    {
+                        nextImage = new Bitmap(image);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log.ForcedWrite(ex);
+                }
+            }
+
+            Image oldImage = mainWallpaperImage;
+            mainWallpaperImage = nextImage;
+            return oldImage;
+        }
+
+        private static ImageLayout GetWallpaperLayoutFromSetting(int layout)
+        {
+            return layout switch
+            {
+                (int)ImageLayout.Tile => ImageLayout.Tile,
+                (int)ImageLayout.Center => ImageLayout.Center,
+                (int)ImageLayout.Stretch => ImageLayout.Stretch,
+                (int)ImageLayout.Zoom => ImageLayout.Zoom,
+                _ => ImageLayout.Zoom
+            };
+        }
+
+        private static void ApplyMainBackgroundColorToControl(Control control, Color backgroundColor, Image wallpaperImage, ImageLayout wallpaperLayout)
+        {
+            if (control == null) return;
+
+            if (control is Form || control is DockPanel)
+            {
+                control.BackColor = backgroundColor;
+                control.BackgroundImage = wallpaperImage;
+                control.BackgroundImageLayout = wallpaperLayout;
+            }
+        }
+
+        private static Color BlendColor(Color background, Color foreground, double foregroundRate)
+        {
+            foregroundRate = Math.Max(0.0, Math.Min(1.0, foregroundRate));
+            double backgroundRate = 1.0 - foregroundRate;
+
+            int r = (int)(background.R * backgroundRate + foreground.R * foregroundRate);
+            int g = (int)(background.G * backgroundRate + foreground.G * foregroundRate);
+            int b = (int)(background.B * backgroundRate + foreground.B * foregroundRate);
+
+            return Color.FromArgb(r, g, b);
+        }
+
         public void Finish()
         {
             try
             {
 
                 Log.ForcedWrite("終了処理開始");
+                mainWallpaperImage?.Dispose();
+                mainWallpaperImage = null;
 
                 if (failFast)
                 {
@@ -4273,6 +4533,7 @@ namespace mml2vgmIDEx64
 
         private void CheckRemoteMemory()
         {
+            if (mmfFMVoicePool == null) return;
             String msg = mmfFMVoicePool.GetMessage();
             if (string.IsNullOrEmpty(msg)) return;
 
@@ -4699,7 +4960,7 @@ namespace mml2vgmIDEx64
             }
 
 
-            this.Opacity = setting.other.Opacity / 100.0;
+            ApplyWindowOpacity(setting.other.Opacity);
 
             //if (setting.location.RMixer != System.Drawing.Rectangle.Empty)
             {
@@ -5240,6 +5501,9 @@ namespace mml2vgmIDEx64
             frmFolderTree.basePath = path1;
 
             FormBox.Add(dc.editor);
+            ApplyConfiguredScrollBarTheme(dc.editor);
+            ApplyBackgroundOpacity(setting.other.MainScreenBackgroundOpacity);
+            ApplyMainBackgroundColor();
             DocumentBox.Add(dc);
             AddGwiFileHistory(fileName);
             UpdateGwiFileHistory();
@@ -5286,6 +5550,9 @@ namespace mml2vgmIDEx64
                 frmFolderTree.basePath = path1;
 
                 FormBox.Add(dc.editor);
+                ApplyConfiguredScrollBarTheme(dc.editor);
+                ApplyBackgroundOpacity(setting.other.MainScreenBackgroundOpacity);
+                ApplyMainBackgroundColor();
                 DocumentBox.Add(dc);
                 AddGwiFileHistory(fileName);
                 UpdateGwiFileHistory();

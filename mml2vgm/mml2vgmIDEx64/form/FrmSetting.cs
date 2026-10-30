@@ -34,16 +34,41 @@ namespace mml2vgmIDEx64
         private Label lblFolderFontStyle;
         private Button btFolderFont;
         private Label lblMainScrollBarColor;
-        private ComboBox cmbMainScrollBarColor;
         private Label lblMainScrollBarCustomThumbColor;
         private Label lblMainScrollBarCustomTrackColor;
+        private Label lblMainBackgroundColor;
         private Button btnMainScrollBarCustomThumbColor;
         private Panel pnlMainScrollBarCustomThumbColor;
         private Button btnMainScrollBarCustomTrackColor;
         private Panel pnlMainScrollBarCustomTrackColor;
+        private Button btnMainScrollBarResetDefault;
+        private Button btnMainBackgroundCustomColor;
+        private Panel pnlMainBackgroundCustomColor;
+        private Button btnMainBackgroundResetDefault;
         private ColorDialog cdMainScrollBarCustomColor;
-
-
+        private Label lblMainBackgroundOpacity;
+        private TrackBar tbMainBackgroundOpacity;
+        private CheckBox cbMainWallpaperEnabled;
+        private Label lblMainWallpaperPath;
+        private TextBox tbMainWallpaperPath;
+        private Button btnMainWallpaperPath;
+        private Label lblMainWallpaperLayout;
+        private ComboBox cmbMainWallpaperLayout;
+        private static readonly System.Drawing.Color DefaultMainScrollBarThumbColor = System.Drawing.Color.FromArgb(100, 140, 220);
+        private static readonly System.Drawing.Color DefaultMainScrollBarTrackColor = System.Drawing.Color.FromArgb(45, 60, 95);
+        private static readonly System.Drawing.Color DefaultMainBackgroundColor = System.Drawing.Color.FromArgb(40, 29, 59);
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public Action<System.Drawing.Color, System.Drawing.Color> MainScrollBarColorPreviewChanged { get; set; }
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public Action<System.Drawing.Color> MainBackgroundColorPreviewChanged { get; set; }
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public Action<System.Drawing.Color, int, bool, string, ImageLayout> MainBackgroundAppearancePreviewChanged { get; set; }
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public Action<int> WindowOpacityPreviewChanged { get; set; }
         public FrmSetting(Setting setting)
         {
             this.setting = setting.Copy();
@@ -54,6 +79,9 @@ namespace mml2vgmIDEx64
             InitializeColorTab();
             InitializeMDPlayerPathSetting();
             InitializeMainScrollBarColorSetting();
+            InitializeWindowOpacitySetting();
+            InitializeMainBackgroundOpacitySetting();
+            InitializeMainWallpaperSetting();
 
             dgv = new DataGridView[] {
                 dgvMIDIoutListA,dgvMIDIoutListB,dgvMIDIoutListC,dgvMIDIoutListD
@@ -109,13 +137,17 @@ namespace mml2vgmIDEx64
         private void InitializeMainScrollBarColorSetting()
         {
             lblMainScrollBarColor = new Label();
-            cmbMainScrollBarColor = new ComboBox();
             lblMainScrollBarCustomThumbColor = new Label();
             lblMainScrollBarCustomTrackColor = new Label();
+            lblMainBackgroundColor = new Label();
             btnMainScrollBarCustomThumbColor = new Button();
             pnlMainScrollBarCustomThumbColor = new Panel();
             btnMainScrollBarCustomTrackColor = new Button();
             pnlMainScrollBarCustomTrackColor = new Panel();
+            btnMainScrollBarResetDefault = new Button();
+            btnMainBackgroundCustomColor = new Button();
+            pnlMainBackgroundCustomColor = new Panel();
+            btnMainBackgroundResetDefault = new Button();
             cdMainScrollBarCustomColor = new ColorDialog();
 
             lblMainScrollBarColor.AutoSize = true;
@@ -123,30 +155,16 @@ namespace mml2vgmIDEx64
             lblMainScrollBarColor.Margin = new Padding(4, 0, 4, 0);
             lblMainScrollBarColor.Name = "lblMainScrollBarColor";
             lblMainScrollBarColor.Size = new System.Drawing.Size(179, 15);
-            lblMainScrollBarColor.Text = "メイン画面スクロールバー色設定";
-
-            cmbMainScrollBarColor.DropDownStyle = ComboBoxStyle.DropDownList;
-            cmbMainScrollBarColor.FormattingEnabled = true;
-            cmbMainScrollBarColor.Location = new System.Drawing.Point(8, 39);
-            cmbMainScrollBarColor.Margin = new Padding(4);
-            cmbMainScrollBarColor.Name = "cmbMainScrollBarColor";
-            cmbMainScrollBarColor.Size = new System.Drawing.Size(246, 23);
-            cmbMainScrollBarColor.Items.AddRange(new object[]
-            {
-                "ダーク",
-                "標準(OS既定)",
-                "カスタム(RGB指定)"
-            });
-            cmbMainScrollBarColor.SelectedIndexChanged += cmbMainScrollBarColor_SelectedIndexChanged;
+            lblMainScrollBarColor.Text = "スクロールバー";
 
             lblMainScrollBarCustomThumbColor.AutoSize = true;
-            lblMainScrollBarCustomThumbColor.Location = new System.Drawing.Point(8, 75);
+            lblMainScrollBarCustomThumbColor.Location = new System.Drawing.Point(8, 43);
             lblMainScrollBarCustomThumbColor.Margin = new Padding(4, 0, 4, 0);
             lblMainScrollBarCustomThumbColor.Name = "lblMainScrollBarCustomThumbColor";
             lblMainScrollBarCustomThumbColor.Size = new System.Drawing.Size(53, 15);
             lblMainScrollBarCustomThumbColor.Text = "つまみ色";
 
-            btnMainScrollBarCustomThumbColor.Location = new System.Drawing.Point(70, 71);
+            btnMainScrollBarCustomThumbColor.Location = new System.Drawing.Point(70, 39);
             btnMainScrollBarCustomThumbColor.Margin = new Padding(4);
             btnMainScrollBarCustomThumbColor.Name = "btnMainScrollBarCustomThumbColor";
             btnMainScrollBarCustomThumbColor.Size = new System.Drawing.Size(100, 23);
@@ -155,20 +173,20 @@ namespace mml2vgmIDEx64
             btnMainScrollBarCustomThumbColor.Click += btnMainScrollBarCustomThumbColor_Click;
 
             pnlMainScrollBarCustomThumbColor.BorderStyle = BorderStyle.FixedSingle;
-            pnlMainScrollBarCustomThumbColor.Location = new System.Drawing.Point(177, 71);
+            pnlMainScrollBarCustomThumbColor.Location = new System.Drawing.Point(177, 39);
             pnlMainScrollBarCustomThumbColor.Margin = new Padding(4);
             pnlMainScrollBarCustomThumbColor.Name = "pnlMainScrollBarCustomThumbColor";
             pnlMainScrollBarCustomThumbColor.Size = new System.Drawing.Size(86, 23);
-            pnlMainScrollBarCustomThumbColor.BackColor = System.Drawing.Color.FromArgb(100, 140, 220);
+            pnlMainScrollBarCustomThumbColor.BackColor = DefaultMainScrollBarThumbColor;
 
             lblMainScrollBarCustomTrackColor.AutoSize = true;
-            lblMainScrollBarCustomTrackColor.Location = new System.Drawing.Point(271, 75);
+            lblMainScrollBarCustomTrackColor.Location = new System.Drawing.Point(271, 43);
             lblMainScrollBarCustomTrackColor.Margin = new Padding(4, 0, 4, 0);
             lblMainScrollBarCustomTrackColor.Name = "lblMainScrollBarCustomTrackColor";
             lblMainScrollBarCustomTrackColor.Size = new System.Drawing.Size(47, 15);
             lblMainScrollBarCustomTrackColor.Text = "トラック色";
 
-            btnMainScrollBarCustomTrackColor.Location = new System.Drawing.Point(326, 71);
+            btnMainScrollBarCustomTrackColor.Location = new System.Drawing.Point(326, 39);
             btnMainScrollBarCustomTrackColor.Margin = new Padding(4);
             btnMainScrollBarCustomTrackColor.Name = "btnMainScrollBarCustomTrackColor";
             btnMainScrollBarCustomTrackColor.Size = new System.Drawing.Size(100, 23);
@@ -177,35 +195,68 @@ namespace mml2vgmIDEx64
             btnMainScrollBarCustomTrackColor.Click += btnMainScrollBarCustomTrackColor_Click;
 
             pnlMainScrollBarCustomTrackColor.BorderStyle = BorderStyle.FixedSingle;
-            pnlMainScrollBarCustomTrackColor.Location = new System.Drawing.Point(433, 71);
+            pnlMainScrollBarCustomTrackColor.Location = new System.Drawing.Point(433, 39);
             pnlMainScrollBarCustomTrackColor.Margin = new Padding(4);
             pnlMainScrollBarCustomTrackColor.Name = "pnlMainScrollBarCustomTrackColor";
             pnlMainScrollBarCustomTrackColor.Size = new System.Drawing.Size(71, 23);
-            pnlMainScrollBarCustomTrackColor.BackColor = System.Drawing.Color.FromArgb(45, 60, 95);
+            pnlMainScrollBarCustomTrackColor.BackColor = DefaultMainScrollBarTrackColor;
+
+            btnMainScrollBarResetDefault.Location = new System.Drawing.Point(8, 70);
+            btnMainScrollBarResetDefault.Margin = new Padding(4);
+            btnMainScrollBarResetDefault.Name = "btnMainScrollBarResetDefault";
+            btnMainScrollBarResetDefault.Size = new System.Drawing.Size(160, 23);
+            btnMainScrollBarResetDefault.Text = "デフォルトカラーにリセット";
+            btnMainScrollBarResetDefault.UseVisualStyleBackColor = true;
+            btnMainScrollBarResetDefault.Click += btnMainScrollBarResetDefault_Click;
+
+            lblMainBackgroundColor.AutoSize = true;
+            lblMainBackgroundColor.Location = new System.Drawing.Point(8, 120);
+            lblMainBackgroundColor.Margin = new Padding(4, 0, 4, 0);
+            lblMainBackgroundColor.Name = "lblMainBackgroundColor";
+            lblMainBackgroundColor.Size = new System.Drawing.Size(67, 15);
+            lblMainBackgroundColor.Text = "背景色設定";
+
+            btnMainBackgroundCustomColor.Location = new System.Drawing.Point(8, 141);
+            btnMainBackgroundCustomColor.Margin = new Padding(4);
+            btnMainBackgroundCustomColor.Name = "btnMainBackgroundCustomColor";
+            btnMainBackgroundCustomColor.Size = new System.Drawing.Size(160, 23);
+            btnMainBackgroundCustomColor.Text = "カスタムカラー設定...";
+            btnMainBackgroundCustomColor.UseVisualStyleBackColor = true;
+            btnMainBackgroundCustomColor.Click += btnMainBackgroundCustomColor_Click;
+
+            pnlMainBackgroundCustomColor.BorderStyle = BorderStyle.FixedSingle;
+            pnlMainBackgroundCustomColor.Location = new System.Drawing.Point(177, 141);
+            pnlMainBackgroundCustomColor.Margin = new Padding(4);
+            pnlMainBackgroundCustomColor.Name = "pnlMainBackgroundCustomColor";
+            pnlMainBackgroundCustomColor.Size = new System.Drawing.Size(86, 23);
+            pnlMainBackgroundCustomColor.BackColor = DefaultMainBackgroundColor;
+
+            btnMainBackgroundResetDefault.Location = new System.Drawing.Point(8, 172);
+            btnMainBackgroundResetDefault.Margin = new Padding(4);
+            btnMainBackgroundResetDefault.Name = "btnMainBackgroundResetDefault";
+            btnMainBackgroundResetDefault.Size = new System.Drawing.Size(160, 23);
+            btnMainBackgroundResetDefault.Text = "デフォルトカラーにリセット";
+            btnMainBackgroundResetDefault.UseVisualStyleBackColor = true;
+            btnMainBackgroundResetDefault.Click += btnMainBackgroundResetDefault_Click;
 
             cdMainScrollBarCustomColor.FullOpen = true;
 
-            tpColor.Controls.Add(lblMainScrollBarColor);
-            tpColor.Controls.Add(cmbMainScrollBarColor);
-            tpColor.Controls.Add(lblMainScrollBarCustomThumbColor);
-            tpColor.Controls.Add(btnMainScrollBarCustomThumbColor);
-            tpColor.Controls.Add(pnlMainScrollBarCustomThumbColor);
-            tpColor.Controls.Add(lblMainScrollBarCustomTrackColor);
-            tpColor.Controls.Add(btnMainScrollBarCustomTrackColor);
-            tpColor.Controls.Add(pnlMainScrollBarCustomTrackColor);
-            tpColor.Controls.SetChildIndex(pnlMainScrollBarCustomTrackColor, 0);
-            tpColor.Controls.SetChildIndex(btnMainScrollBarCustomTrackColor, 0);
-            tpColor.Controls.SetChildIndex(lblMainScrollBarCustomTrackColor, 0);
-            tpColor.Controls.SetChildIndex(pnlMainScrollBarCustomThumbColor, 0);
-            tpColor.Controls.SetChildIndex(btnMainScrollBarCustomThumbColor, 0);
-            tpColor.Controls.SetChildIndex(lblMainScrollBarCustomThumbColor, 0);
-            tpColor.Controls.SetChildIndex(cmbMainScrollBarColor, 0);
-            tpColor.Controls.SetChildIndex(lblMainScrollBarColor, 0);
-        }
-
-        private void cmbMainScrollBarColor_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            UpdateMainScrollBarCustomColorUiState();
+            lblMainScrollBarColor.Visible = false;
+            lblMainScrollBarCustomThumbColor.Visible = false;
+            btnMainScrollBarCustomThumbColor.Visible = false;
+            pnlMainScrollBarCustomThumbColor.Visible = false;
+            lblMainScrollBarCustomTrackColor.Visible = false;
+            btnMainScrollBarCustomTrackColor.Visible = false;
+            pnlMainScrollBarCustomTrackColor.Visible = false;
+            btnMainScrollBarResetDefault.Visible = false;
+            tpColor.Controls.Add(lblMainBackgroundColor);
+            tpColor.Controls.Add(btnMainBackgroundCustomColor);
+            tpColor.Controls.Add(pnlMainBackgroundCustomColor);
+            tpColor.Controls.Add(btnMainBackgroundResetDefault);
+            tpColor.Controls.SetChildIndex(btnMainBackgroundResetDefault, 0);
+            tpColor.Controls.SetChildIndex(pnlMainBackgroundCustomColor, 0);
+            tpColor.Controls.SetChildIndex(btnMainBackgroundCustomColor, 0);
+            tpColor.Controls.SetChildIndex(lblMainBackgroundColor, 0);
         }
 
         private void btnMainScrollBarCustomThumbColor_Click(object sender, EventArgs e)
@@ -213,6 +264,7 @@ namespace mml2vgmIDEx64
             cdMainScrollBarCustomColor.Color = pnlMainScrollBarCustomThumbColor.BackColor;
             if (cdMainScrollBarCustomColor.ShowDialog(this) != DialogResult.OK) return;
             pnlMainScrollBarCustomThumbColor.BackColor = cdMainScrollBarCustomColor.Color;
+            RaiseMainScrollBarColorPreviewChanged();
         }
 
         private void btnMainScrollBarCustomTrackColor_Click(object sender, EventArgs e)
@@ -220,17 +272,48 @@ namespace mml2vgmIDEx64
             cdMainScrollBarCustomColor.Color = pnlMainScrollBarCustomTrackColor.BackColor;
             if (cdMainScrollBarCustomColor.ShowDialog(this) != DialogResult.OK) return;
             pnlMainScrollBarCustomTrackColor.BackColor = cdMainScrollBarCustomColor.Color;
+            RaiseMainScrollBarColorPreviewChanged();
         }
 
-        private void UpdateMainScrollBarCustomColorUiState()
+        private void btnMainScrollBarResetDefault_Click(object sender, EventArgs e)
         {
-            bool isCustom = cmbMainScrollBarColor.SelectedIndex == 2;
-            lblMainScrollBarCustomThumbColor.Enabled = isCustom;
-            btnMainScrollBarCustomThumbColor.Enabled = isCustom;
-            pnlMainScrollBarCustomThumbColor.Enabled = isCustom;
-            lblMainScrollBarCustomTrackColor.Enabled = isCustom;
-            btnMainScrollBarCustomTrackColor.Enabled = isCustom;
-            pnlMainScrollBarCustomTrackColor.Enabled = isCustom;
+            pnlMainScrollBarCustomThumbColor.BackColor = DefaultMainScrollBarThumbColor;
+            pnlMainScrollBarCustomTrackColor.BackColor = DefaultMainScrollBarTrackColor;
+            RaiseMainScrollBarColorPreviewChanged();
+        }
+
+        private void RaiseMainScrollBarColorPreviewChanged()
+        {
+            MainScrollBarColorPreviewChanged?.Invoke(
+                pnlMainScrollBarCustomThumbColor.BackColor,
+                pnlMainScrollBarCustomTrackColor.BackColor
+            );
+        }
+
+        private void btnMainBackgroundCustomColor_Click(object sender, EventArgs e)
+        {
+            cdMainScrollBarCustomColor.Color = pnlMainBackgroundCustomColor.BackColor;
+            if (cdMainScrollBarCustomColor.ShowDialog(this) != DialogResult.OK) return;
+            pnlMainBackgroundCustomColor.BackColor = cdMainScrollBarCustomColor.Color;
+            RaiseMainBackgroundColorPreviewChanged();
+        }
+
+        private void btnMainBackgroundResetDefault_Click(object sender, EventArgs e)
+        {
+            pnlMainBackgroundCustomColor.BackColor = DefaultMainBackgroundColor;
+            RaiseMainBackgroundColorPreviewChanged();
+        }
+
+        private void RaiseMainBackgroundColorPreviewChanged()
+        {
+            MainBackgroundColorPreviewChanged?.Invoke(pnlMainBackgroundCustomColor.BackColor);
+            MainBackgroundAppearancePreviewChanged?.Invoke(
+                pnlMainBackgroundCustomColor.BackColor,
+                tbMainBackgroundOpacity.Value,
+                cbMainWallpaperEnabled.Checked,
+                tbMainWallpaperPath.Text,
+                GetSelectedWallpaperLayout()
+            );
         }
 
         private void InitializeFolderTab()
@@ -427,6 +510,134 @@ namespace mml2vgmIDEx64
             {
                 tcSetting.TabPages.Add(tpColor);
             }
+        }
+
+        private void InitializeWindowOpacitySetting()
+        {
+            tpEditor.Controls.Remove(tbOpacity);
+            tpEditor.Controls.Remove(label52);
+
+            label52.Location = new System.Drawing.Point(8, 16);
+            tbOpacity.Location = new System.Drawing.Point(123, 0);
+
+            tpColor.Controls.Add(label52);
+            tpColor.Controls.Add(tbOpacity);
+            tpColor.Controls.SetChildIndex(tbOpacity, 0);
+            tpColor.Controls.SetChildIndex(label52, 0);
+        }
+
+        private void InitializeMainBackgroundOpacitySetting()
+        {
+            lblMainBackgroundOpacity = new Label
+            {
+                AutoSize = true,
+                Location = new System.Drawing.Point(8, 72),
+                Margin = new Padding(4, 0, 4, 0),
+                Name = "lblMainBackgroundOpacity",
+                Size = new System.Drawing.Size(85, 15),
+                Text = "背景色不透明度"
+            };
+
+            tbMainBackgroundOpacity = new TrackBar
+            {
+                Location = new System.Drawing.Point(123, 52),
+                Margin = new Padding(4),
+                Maximum = 100,
+                Minimum = 0,
+                Name = "tbMainBackgroundOpacity",
+                Size = new System.Drawing.Size(167, 45),
+                TickFrequency = 10,
+                TickStyle = TickStyle.Both,
+                Value = 100
+            };
+            tbMainBackgroundOpacity.Scroll += tbMainBackgroundOpacity_Scroll;
+
+            tpColor.Controls.Add(lblMainBackgroundOpacity);
+            tpColor.Controls.Add(tbMainBackgroundOpacity);
+            tpColor.Controls.SetChildIndex(tbMainBackgroundOpacity, 0);
+            tpColor.Controls.SetChildIndex(lblMainBackgroundOpacity, 0);
+        }
+
+        private void InitializeMainWallpaperSetting()
+        {
+            cbMainWallpaperEnabled = new CheckBox
+            {
+                AutoSize = true,
+                Location = new System.Drawing.Point(8, 126),
+                Name = "cbMainWallpaperEnabled",
+                Size = new System.Drawing.Size(135, 19),
+                Text = "壁紙を表示する",
+                UseVisualStyleBackColor = true
+            };
+            cbMainWallpaperEnabled.CheckedChanged += cbMainWallpaperEnabled_CheckedChanged;
+
+            lblMainWallpaperPath = new Label
+            {
+                AutoSize = true,
+                Location = new System.Drawing.Point(8, 153),
+                Name = "lblMainWallpaperPath",
+                Size = new System.Drawing.Size(42, 15),
+                Text = "画像パス"
+            };
+
+            tbMainWallpaperPath = new TextBox
+            {
+                Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
+                Location = new System.Drawing.Point(74, 150),
+                Name = "tbMainWallpaperPath",
+                Size = new System.Drawing.Size(390, 23)
+            };
+            tbMainWallpaperPath.TextChanged += tbMainWallpaperPath_TextChanged;
+
+            btnMainWallpaperPath = new Button
+            {
+                Anchor = AnchorStyles.Top | AnchorStyles.Right,
+                Location = new System.Drawing.Point(472, 150),
+                Name = "btnMainWallpaperPath",
+                Size = new System.Drawing.Size(32, 23),
+                Text = "...",
+                UseVisualStyleBackColor = true
+            };
+            btnMainWallpaperPath.Click += btnMainWallpaperPath_Click;
+
+            lblMainWallpaperLayout = new Label
+            {
+                AutoSize = true,
+                Location = new System.Drawing.Point(8, 183),
+                Name = "lblMainWallpaperLayout",
+                Size = new System.Drawing.Size(55, 15),
+                Text = "表示形式"
+            };
+
+            cmbMainWallpaperLayout = new ComboBox
+            {
+                DropDownStyle = ComboBoxStyle.DropDownList,
+                FormattingEnabled = true,
+                Location = new System.Drawing.Point(74, 180),
+                Name = "cmbMainWallpaperLayout",
+                Size = new System.Drawing.Size(153, 23)
+            };
+            cmbMainWallpaperLayout.Items.AddRange(new object[] { "タイル", "中央", "拡大", "縮小(Zoom)" });
+            cmbMainWallpaperLayout.SelectedIndexChanged += cmbMainWallpaperLayout_SelectedIndexChanged;
+
+            lblMainBackgroundColor.Location = new System.Drawing.Point(8, 224);
+            btnMainBackgroundCustomColor.Location = new System.Drawing.Point(8, 245);
+            pnlMainBackgroundCustomColor.Location = new System.Drawing.Point(177, 245);
+            btnMainBackgroundResetDefault.Location = new System.Drawing.Point(8, 276);
+
+            tpColor.Controls.Add(cbMainWallpaperEnabled);
+            tpColor.Controls.Add(lblMainWallpaperPath);
+            tpColor.Controls.Add(tbMainWallpaperPath);
+            tpColor.Controls.Add(btnMainWallpaperPath);
+            tpColor.Controls.Add(lblMainWallpaperLayout);
+            tpColor.Controls.Add(cmbMainWallpaperLayout);
+
+            tpColor.Controls.SetChildIndex(cmbMainWallpaperLayout, 0);
+            tpColor.Controls.SetChildIndex(lblMainWallpaperLayout, 0);
+            tpColor.Controls.SetChildIndex(btnMainWallpaperPath, 0);
+            tpColor.Controls.SetChildIndex(tbMainWallpaperPath, 0);
+            tpColor.Controls.SetChildIndex(lblMainWallpaperPath, 0);
+            tpColor.Controls.SetChildIndex(cbMainWallpaperEnabled, 0);
         }
 
         public void Init()
@@ -902,6 +1113,7 @@ namespace mml2vgmIDEx64
             cbEmptyPlayList.Checked = setting.other.EmptyPlayList;
             cbChangeEnterCode.Checked = setting.other.ChangeEnterCode;
             tbOpacity.Value = setting.other.Opacity;
+            tbMainBackgroundOpacity.Value = setting.other.MainScreenBackgroundOpacity;
             lblFontName.Text = setting.other.TextFontName;
             lblFontSize.Text = setting.other.TextFontSize.ToString();
             lblFontStyle.Text = setting.other.TextFontStyle.ToString();
@@ -917,15 +1129,13 @@ namespace mml2vgmIDEx64
             cbUseHistoryBackUp.Checked = setting.other.UseHistoryBackUp;
             tbUseHistoryBackUp.Text = setting.other.HistoryBackUpKeepFileCount.ToString();
             tbTABWidth.Text = setting.other.TabWidth.ToString();
-            int scrollBarThemeMode = setting.other.MainScreenScrollBarThemeMode;
-            if (scrollBarThemeMode < 0 || scrollBarThemeMode > 2)
-            {
-                scrollBarThemeMode = setting.other.MainScreenUseDarkScrollBar ? 0 : 1;
-            }
-            cmbMainScrollBarColor.SelectedIndex = scrollBarThemeMode;
             pnlMainScrollBarCustomThumbColor.BackColor = System.Drawing.Color.FromArgb(setting.other.MainScreenScrollBarCustomColorArgb);
             pnlMainScrollBarCustomTrackColor.BackColor = System.Drawing.Color.FromArgb(setting.other.MainScreenScrollBarCustomTrackColorArgb);
-            UpdateMainScrollBarCustomColorUiState();
+            pnlMainBackgroundCustomColor.BackColor = System.Drawing.Color.FromArgb(setting.other.MainScreenBackgroundColorArgb);
+            cbMainWallpaperEnabled.Checked = setting.other.MainScreenWallpaperEnabled;
+            tbMainWallpaperPath.Text = setting.other.MainScreenWallpaperPath;
+            SetWallpaperLayoutSelection((ImageLayout)Math.Max(0, Math.Min(setting.other.MainScreenWallpaperLayout, 3)));
+            UpdateMainWallpaperControlState();
 
             cbUseMIDIExport.Checked = setting.midiExport.UseMIDIExport;
             gbMIDIExport.Enabled = cbUseMIDIExport.Checked;
@@ -1799,6 +2009,10 @@ namespace mml2vgmIDEx64
             setting.other.EmptyPlayList = cbEmptyPlayList.Checked;
             setting.other.ChangeEnterCode = cbChangeEnterCode.Checked;
             setting.other.Opacity = tbOpacity.Value;
+            setting.other.MainScreenBackgroundOpacity = tbMainBackgroundOpacity.Value;
+            setting.other.MainScreenWallpaperEnabled = cbMainWallpaperEnabled.Checked;
+            setting.other.MainScreenWallpaperPath = tbMainWallpaperPath.Text;
+            setting.other.MainScreenWallpaperLayout = (int)GetSelectedWallpaperLayout();
             setting.other.TextFontName = lblFontName.Text;
             setting.other.TextFontSize = float.Parse(lblFontSize.Text);
             setting.other.TextFontStyle =
@@ -1841,12 +2055,11 @@ namespace mml2vgmIDEx64
             {
                 setting.other.TabWidth = Math.Max(Math.Min(i, 100), 1);
             }
-            int selectedScrollBarThemeMode = cmbMainScrollBarColor.SelectedIndex;
-            if (selectedScrollBarThemeMode < 0 || selectedScrollBarThemeMode > 2) selectedScrollBarThemeMode = 0;
-            setting.other.MainScreenScrollBarThemeMode = selectedScrollBarThemeMode;
-            setting.other.MainScreenUseDarkScrollBar = selectedScrollBarThemeMode != 1;
+            setting.other.MainScreenScrollBarThemeMode = (int)Common.ScrollBarThemeMode.Custom;
+            setting.other.MainScreenUseDarkScrollBar = true;
             setting.other.MainScreenScrollBarCustomColorArgb = pnlMainScrollBarCustomThumbColor.BackColor.ToArgb();
             setting.other.MainScreenScrollBarCustomTrackColorArgb = pnlMainScrollBarCustomTrackColor.BackColor.ToArgb();
+            setting.other.MainScreenBackgroundColorArgb = pnlMainBackgroundCustomColor.BackColor.ToArgb();
 
             setting.midiExport.UseMIDIExport = cbUseMIDIExport.Checked;
             setting.midiExport.ExportPath = tbMIDIOutputPath.Text;
@@ -2871,7 +3084,6 @@ namespace mml2vgmIDEx64
 
         private void frmSetting_Load(object sender, EventArgs e)
         {
-            this.Opacity = setting.other.Opacity / 100.0;
         }
 
         private void cbUseKeyBoardHook_CheckedChanged(object sender, EventArgs e)
@@ -2901,7 +3113,89 @@ namespace mml2vgmIDEx64
 
         private void tbOpacity_Scroll(object sender, EventArgs e)
         {
-            this.Opacity = tbOpacity.Value / 100.0;
+            WindowOpacityPreviewChanged?.Invoke(tbOpacity.Value);
+        }
+
+        private void tbMainBackgroundOpacity_Scroll(object sender, EventArgs e)
+        {
+            RaiseMainBackgroundColorPreviewChanged();
+        }
+
+        private void cbMainWallpaperEnabled_CheckedChanged(object sender, EventArgs e)
+        {
+            UpdateMainWallpaperControlState();
+            RaiseMainBackgroundColorPreviewChanged();
+        }
+
+        private void tbMainWallpaperPath_TextChanged(object sender, EventArgs e)
+        {
+            RaiseMainBackgroundColorPreviewChanged();
+        }
+
+        private void cmbMainWallpaperLayout_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            RaiseMainBackgroundColorPreviewChanged();
+        }
+
+        private void btnMainWallpaperPath_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Filter = "画像ファイル(*.bmp;*.jpg;*.jpeg;*.png;*.gif)|*.bmp;*.jpg;*.jpeg;*.png;*.gif|すべてのファイル(*.*)|*.*";
+            ofd.Title = "壁紙画像を選択してください";
+            ofd.RestoreDirectory = true;
+            ofd.CheckPathExists = true;
+            ofd.Multiselect = false;
+
+            if (File.Exists(tbMainWallpaperPath.Text))
+            {
+                ofd.FileName = tbMainWallpaperPath.Text;
+            }
+            else if (!string.IsNullOrWhiteSpace(setting.other.DefaultDataPath) && Directory.Exists(setting.other.DefaultDataPath))
+            {
+                ofd.InitialDirectory = setting.other.DefaultDataPath;
+            }
+
+            if (ofd.ShowDialog(this) != DialogResult.OK)
+            {
+                return;
+            }
+
+            tbMainWallpaperPath.Text = ofd.FileName;
+            RaiseMainBackgroundColorPreviewChanged();
+        }
+
+        private void UpdateMainWallpaperControlState()
+        {
+            bool enabled = cbMainWallpaperEnabled.Checked;
+            tbMainWallpaperPath.Enabled = enabled;
+            btnMainWallpaperPath.Enabled = enabled;
+            cmbMainWallpaperLayout.Enabled = enabled;
+            lblMainWallpaperPath.Enabled = enabled;
+            lblMainWallpaperLayout.Enabled = enabled;
+        }
+
+        private ImageLayout GetSelectedWallpaperLayout()
+        {
+            return cmbMainWallpaperLayout.SelectedIndex switch
+            {
+                0 => ImageLayout.Tile,
+                1 => ImageLayout.Center,
+                2 => ImageLayout.Stretch,
+                3 => ImageLayout.Zoom,
+                _ => ImageLayout.Zoom
+            };
+        }
+
+        private void SetWallpaperLayoutSelection(ImageLayout layout)
+        {
+            cmbMainWallpaperLayout.SelectedIndex = layout switch
+            {
+                ImageLayout.Tile => 0,
+                ImageLayout.Center => 1,
+                ImageLayout.Stretch => 2,
+                ImageLayout.Zoom => 3,
+                _ => 3
+            };
         }
 
         private void BtFont_Click(object sender, EventArgs e)
