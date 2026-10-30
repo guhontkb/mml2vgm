@@ -5,6 +5,7 @@ using System.Drawing;
 using System.IO;
 using System.Globalization;
 using System.Text.RegularExpressions;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using WeifenLuo.WinFormsUI.Docking;
 using System.ComponentModel;
@@ -38,6 +39,14 @@ namespace mml2vgmIDEx64
         private bool fileListSortAscending = true;
         private FileSizeDisplayUnit fileSizeDisplayUnit = FileSizeDisplayUnit.Byte;
         private readonly Setting setting;
+        private readonly ContextMenuStrip cmsFileListHeaderMenu = new ContextMenuStrip();
+        private readonly Dictionary<ColumnHeader, int> fileListColumnDisplayWidths = new Dictionary<ColumnHeader, int>();
+        private const string FileListHeaderMenuShowAllText = "Show all";
+        private IntPtr lvFileListHeaderHandle = IntPtr.Zero;
+        private FileListHeaderNativeWindow lvFileListHeaderWindow = null;
+        private const int LVM_FIRST = 0x1000;
+        private const int LVM_GETHEADER = LVM_FIRST + 31;
+        private const int WM_CONTEXTMENU = 0x007B;
 
         public FrmFolderTree(Setting setting, DockPanel dockPanel)
         {
@@ -58,8 +67,12 @@ namespace mml2vgmIDEx64
             tvFolderTree.TreeViewNodeSorter = new NodeSorter();
 
             dockPanel.Theme.ApplyTo(cmsMenu);
+            dockPanel.Theme.ApplyTo(cmsFileListHeaderMenu);
             dockPanel.Theme.ApplyTo(toolStrip1);
             cmsMenu.Opening += CmsMenu_Opening;
+            lvFileList.ColumnWidthChanged += LvFileList_ColumnWidthChanged;
+            lvFileList.HandleDestroyed += LvFileList_HandleDestroyed;
+            InitializeFileListColumnDisplayWidths();
 
             Common.SetDoubleBuffered(tvFolderTree);
             Common.ApplyDarkScrollBarTheme(this);
@@ -1150,6 +1163,15 @@ namespace mml2vgmIDEx64
             if (e.ColumnIndex == columnHeaderHeaderFill.Index) e.Cancel = true;
         }
 
+        private void LvFileList_ColumnWidthChanged(object sender, ColumnWidthChangedEventArgs e)
+        {
+            if (e.ColumnIndex < 0 || e.ColumnIndex >= lvFileList.Columns.Count) return;
+
+            ColumnHeader column = lvFileList.Columns[e.ColumnIndex];
+            if (column == columnHeaderHeaderFill) return;
+            if (column.Width > 0) fileListColumnDisplayWidths[column] = column.Width;
+        }
+
         private void LvFileList_SizeChanged(object sender, EventArgs e)
         {
             UpdateHeaderFillWidth();
@@ -1158,6 +1180,12 @@ namespace mml2vgmIDEx64
         private void LvFileList_HandleCreated(object sender, EventArgs e)
         {
             UpdateHeaderFillWidth();
+            AttachFileListHeaderWindow();
+        }
+
+        private void LvFileList_HandleDestroyed(object sender, EventArgs e)
+        {
+            DetachFileListHeaderWindow();
         }
 
         private void SplitContainer1_SizeChanged(object sender, EventArgs e)
@@ -1492,6 +1520,12 @@ namespace mml2vgmIDEx64
         private void LvFileList_MouseDown(object sender, MouseEventArgs e)
         {
             if (e.Button != MouseButtons.Right) return;
+            if (IsFileListHeaderArea(e.Location))
+            {
+                ShowFileListHeaderMenu(e.Location);
+                return;
+            }
+
             ListViewItem item = lvFileList.GetItemAt(e.X, e.Y);
             if (item == null) return;
             if (!item.Selected)
@@ -1507,6 +1541,167 @@ namespace mml2vgmIDEx64
         private void CmsMenu_Opening(object sender, CancelEventArgs e)
         {
             e.Cancel = GetSelectedFilePaths().Count == 0;
+        }
+
+        private void InitializeFileListColumnDisplayWidths()
+        {
+            foreach (ColumnHeader column in lvFileList.Columns)
+            {
+                if (column == columnHeaderHeaderFill) continue;
+                fileListColumnDisplayWidths[column] = Math.Max(1, column.Width);
+            }
+        }
+
+        private void AttachFileListHeaderWindow()
+        {
+            if (!lvFileList.IsHandleCreated) return;
+
+            IntPtr headerHandle = SendMessage(lvFileList.Handle, LVM_GETHEADER, IntPtr.Zero, IntPtr.Zero);
+            if (headerHandle == IntPtr.Zero) return;
+            if (lvFileListHeaderHandle == headerHandle && lvFileListHeaderWindow != null) return;
+
+            DetachFileListHeaderWindow();
+            lvFileListHeaderWindow = new FileListHeaderNativeWindow(this);
+            lvFileListHeaderWindow.AssignHandle(headerHandle);
+            lvFileListHeaderHandle = headerHandle;
+        }
+
+        private void DetachFileListHeaderWindow()
+        {
+            if (lvFileListHeaderWindow != null && lvFileListHeaderHandle != IntPtr.Zero)
+            {
+                lvFileListHeaderWindow.ReleaseHandle();
+            }
+            lvFileListHeaderHandle = IntPtr.Zero;
+            lvFileListHeaderWindow = null;
+        }
+
+        private bool IsFileListHeaderArea(Point location)
+        {
+            return lvFileList.View == View.Details && location.Y >= 0 && location.Y <= lvFileList.Font.Height + 8;
+        }
+
+        private void ShowFileListHeaderMenuFromCursor()
+        {
+            Point location = lvFileList.PointToClient(Cursor.Position);
+            if (location.X < 0 || location.Y < 0) return;
+
+            ShowFileListHeaderMenu(location);
+        }
+
+        private void ShowFileListHeaderMenu(Point location)
+        {
+            int columnIndex = GetFileListColumnIndex(location.X);
+            if (columnIndex < 0 || columnIndex >= lvFileList.Columns.Count) return;
+
+            ColumnHeader targetColumn = lvFileList.Columns[columnIndex];
+            if (targetColumn == columnHeaderHeaderFill) return;
+
+            cmsFileListHeaderMenu.Items.Clear();
+            if (!string.IsNullOrEmpty(targetColumn.Text) && targetColumn.Width > 0)
+            {
+                ToolStripMenuItem hideItem = new ToolStripMenuItem(string.Format(CultureInfo.CurrentCulture, "Hide {0}", targetColumn.Text));
+                hideItem.Tag = targetColumn;
+                hideItem.Click += FileListHeaderMenuItem_Click;
+                cmsFileListHeaderMenu.Items.Add(hideItem);
+            }
+
+            ToolStripMenuItem showAllItem = new ToolStripMenuItem(FileListHeaderMenuShowAllText);
+            showAllItem.Click += FileListHeaderMenuItem_Click;
+            cmsFileListHeaderMenu.Items.Add(showAllItem);
+            cmsFileListHeaderMenu.Items.Add("-");
+
+            foreach (ColumnHeader column in lvFileList.Columns)
+            {
+                if (column == targetColumn) continue;
+                if (column == columnHeaderHeaderFill) continue;
+                if (string.IsNullOrEmpty(column.Text)) continue;
+
+                ToolStripMenuItem item = new ToolStripMenuItem(column.Text);
+                item.Tag = column;
+                item.Checked = column.Width > 0;
+                item.Click += FileListHeaderMenuItem_Click;
+                cmsFileListHeaderMenu.Items.Add(item);
+            }
+
+            cmsFileListHeaderMenu.Show(lvFileList, location);
+        }
+
+        private int GetFileListColumnIndex(int x)
+        {
+            int left = 0;
+            for (int i = 0; i < lvFileList.Columns.Count; i++)
+            {
+                int width = lvFileList.Columns[i].Width;
+                if (x >= left && x < left + width) return i;
+                left += width;
+            }
+
+            return -1;
+        }
+
+        private void FileListHeaderMenuItem_Click(object sender, EventArgs e)
+        {
+            ToolStripMenuItem item = sender as ToolStripMenuItem;
+            if (item == null) return;
+
+            ColumnHeader column = item.Tag as ColumnHeader;
+            if (column != null)
+            {
+                ToggleFileListColumn(column);
+                UpdateHeaderFillWidth();
+                return;
+            }
+
+            if (item.Text == FileListHeaderMenuShowAllText)
+            {
+                foreach (ColumnHeader c in lvFileList.Columns)
+                {
+                    if (c == columnHeaderHeaderFill) continue;
+                    int width = fileListColumnDisplayWidths.ContainsKey(c) ? fileListColumnDisplayWidths[c] : Math.Max(1, c.Width);
+                    c.Width = Math.Max(1, width);
+                }
+                UpdateHeaderFillWidth();
+            }
+        }
+
+        private void ToggleFileListColumn(ColumnHeader column)
+        {
+            if (column == null || column == columnHeaderHeaderFill) return;
+
+            if (column.Width > 0)
+            {
+                fileListColumnDisplayWidths[column] = column.Width;
+                column.Width = 0;
+                return;
+            }
+
+            int width = fileListColumnDisplayWidths.ContainsKey(column) ? fileListColumnDisplayWidths[column] : 80;
+            column.Width = Math.Max(1, width);
+        }
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        private static extern IntPtr SendMessage(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam);
+
+        private sealed class FileListHeaderNativeWindow : NativeWindow
+        {
+            private readonly FrmFolderTree owner;
+
+            public FileListHeaderNativeWindow(FrmFolderTree owner)
+            {
+                this.owner = owner;
+            }
+
+            protected override void WndProc(ref Message m)
+            {
+                if (m.Msg == WM_CONTEXTMENU)
+                {
+                    owner.ShowFileListHeaderMenuFromCursor();
+                    return;
+                }
+
+                base.WndProc(ref m);
+            }
         }
 
         private void tvFolderTree_DrawNode(object sender, DrawTreeNodeEventArgs e)
