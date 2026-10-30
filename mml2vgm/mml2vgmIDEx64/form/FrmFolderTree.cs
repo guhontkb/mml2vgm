@@ -425,6 +425,31 @@ namespace mml2vgmIDEx64
             }
         }
 
+        private void TsmiShowInExplorer_MouseUp(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right) return;
+
+            List<string> selectedPaths = GetSelectedFileSystemPaths();
+            if (selectedPaths.Count < 1) return;
+
+            foreach (string selectedPath in selectedPaths)
+            {
+                try
+                {
+                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                    {
+                        FileName = "explorer.exe",
+                        Arguments = $"/select,\"{selectedPath}\"",
+                        UseShellExecute = true
+                    })?.Dispose();
+                }
+                catch (Exception ex)
+                {
+                    LogFolderOperationException("ShowInExplorer", ex, selectedPath);
+                }
+            }
+        }
+
 
 
         private void CopyFile_DragDrop(string[] source, TreeNode target, bool doDelete = false)
@@ -1514,6 +1539,18 @@ namespace mml2vgmIDEx64
             return paths;
         }
 
+        private List<string> GetSelectedFileSystemPaths()
+        {
+            List<string> paths = new List<string>();
+            foreach (ListViewItem item in lvFileList.SelectedItems)
+            {
+                if (!(item.Tag is string path)) continue;
+                if (!File.Exists(path) && !Directory.Exists(path)) continue;
+                paths.Add(path);
+            }
+            return paths;
+        }
+
         private void LvFileList_ItemActivate(object sender, EventArgs e)
         {
             if (lvFileList.SelectedItems.Count == 1
@@ -1582,7 +1619,16 @@ namespace mml2vgmIDEx64
 
         private void CmsMenu_Opening(object sender, CancelEventArgs e)
         {
-            e.Cancel = GetSelectedFilePaths().Count == 0;
+            List<string> selectedFiles = GetSelectedFilePaths();
+            List<string> selectedFileSystems = GetSelectedFileSystemPaths();
+            bool hasFile = selectedFiles.Count > 0;
+            bool hasFileSystem = selectedFileSystems.Count > 0;
+
+            TsmiOpen.Enabled = hasFile;
+            TsmiOpenSoundEngine.Enabled = hasFile;
+            TsmiDelete.Enabled = hasFile;
+            TsmiShowInExplorer.Enabled = hasFileSystem;
+            e.Cancel = !hasFileSystem;
         }
 
         private void InitializeFileListColumnDisplayWidths()
@@ -1766,6 +1812,8 @@ namespace mml2vgmIDEx64
                     return ("FT-004", "ファイル一覧更新");
                 case "GetWaveInfo":
                     return ("FT-005", "WAV情報取得");
+                case "ShowInExplorer":
+                    return ("FT-006", "エクスプローラーで表示");
                 default:
                     return ("FT-999", string.IsNullOrWhiteSpace(operation) ? "不明な操作" : operation);
             }

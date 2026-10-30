@@ -40,6 +40,7 @@ namespace mml2vgmIDEx64
             TsmiOpen = new ToolStripMenuItem();
             TsmiOpenSoundEngine = new ToolStripMenuItem();
             TsmiDelete = new ToolStripMenuItem();
+            TsmiShowInExplorer = new ToolStripMenuItem();
             toolStripSeparator1 = new ToolStripSeparator();
             tvFolderTree = new CustomControl.MultiSelectTreeView();
             toolStripContainer1 = new ToolStripContainer();
@@ -87,10 +88,10 @@ namespace mml2vgmIDEx64
             //
             // cmsMenu
             //
-            cmsMenu.Items.AddRange(new ToolStripItem[] { TsmiOpen, TsmiOpenSoundEngine, TsmiDelete, toolStripSeparator1 });
+            cmsMenu.Items.AddRange(new ToolStripItem[] { TsmiOpen, TsmiOpenSoundEngine, TsmiDelete, TsmiShowInExplorer, toolStripSeparator1 });
             cmsMenu.Name = "cmsMenu";
             cmsMenu.ShowImageMargin = false;
-            cmsMenu.Size = new Size(167, 76);
+            cmsMenu.Size = new Size(167, 98);
             //
             // TsmiOpen
             //
@@ -112,6 +113,13 @@ namespace mml2vgmIDEx64
             TsmiDelete.Size = new Size(166, 22);
             TsmiDelete.Text = "削除";
             TsmiDelete.MouseUp += TsmiDelete_MouseUp;
+            //
+            // TsmiShowInExplorer
+            //
+            TsmiShowInExplorer.Name = "TsmiShowInExplorer";
+            TsmiShowInExplorer.Size = new Size(166, 22);
+            TsmiShowInExplorer.Text = "エクスプローラーで表示する";
+            TsmiShowInExplorer.MouseUp += TsmiShowInExplorer_MouseUp;
             //
             // toolStripSeparator1
             //
@@ -399,6 +407,7 @@ namespace mml2vgmIDEx64
         private System.Windows.Forms.ToolStripMenuItem TsmiOpen;
         private System.Windows.Forms.ToolStripMenuItem TsmiOpenSoundEngine;
         private System.Windows.Forms.ToolStripMenuItem TsmiDelete;
+        private System.Windows.Forms.ToolStripMenuItem TsmiShowInExplorer;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripContainer toolStripContainer1;
         private System.Windows.Forms.SplitContainer splitContainer1;
