@@ -61,6 +61,7 @@ namespace mml2vgmIDEx64
 
         private PartRowComparer comparer;
         private bool requiresSorting=false;
+        private bool isUpdatingColumnLayout = false;
 
 
         public FrmPartCounter(Setting setting)
@@ -481,6 +482,7 @@ namespace mml2vgmIDEx64
 
         private void DgvPartCounter_CellClick(object sender, DataGridViewCellEventArgs e)
         {
+            if (e.ColumnIndex < 0) return;
             string cellName = dgvPartCounter.Columns[e.ColumnIndex].Name;
 
             if (cellName != "ClmMute" && cellName != "ClmSolo" && cellName != clmKBDAssign) return;
@@ -502,6 +504,7 @@ namespace mml2vgmIDEx64
         {
             if (e.Button != MouseButtons.Right) return;
             if (e.RowIndex != -1) return;
+            if (e.ColumnIndex < 0) return;
             if (setting == null || setting.location == null) return;
             if (setting.location.PartCounterClmInfo == null)
             {
@@ -761,6 +764,7 @@ namespace mml2vgmIDEx64
         private void SetDisplayIndex(dgvColumnInfo[] aryIndex)
         {
             dgvPartCounter.SuspendLayout();
+            isUpdatingColumnLayout = true;
             try
             {
                 if (aryIndex == null || aryIndex.Length < 1)
@@ -856,9 +860,36 @@ namespace mml2vgmIDEx64
             }
             finally
             {
+                isUpdatingColumnLayout = false;
                 dgvPartCounter.ResumeLayout();
             }
 
+        }
+
+        private void DgvPartCounter_ColumnDisplayIndexChanged(object sender, DataGridViewColumnEventArgs e)
+        {
+            if (isUpdatingColumnLayout) return;
+            BeginInvoke((System.Windows.Forms.MethodInvoker)EnsureSpacerColumnAtEnd);
+        }
+
+        private void EnsureSpacerColumnAtEnd()
+        {
+            if (IsDisposed || !dgvPartCounter.IsHandleCreated) return;
+            if (!dgvPartCounter.Columns.Contains("ClmSpacer")) return;
+
+            DataGridViewColumn spacer = dgvPartCounter.Columns["ClmSpacer"];
+            int lastDisplayIndex = dgvPartCounter.Columns.Count - 1;
+            if (spacer.DisplayIndex == lastDisplayIndex) return;
+
+            isUpdatingColumnLayout = true;
+            try
+            {
+                spacer.DisplayIndex = lastDisplayIndex;
+            }
+            finally
+            {
+                isUpdatingColumnLayout = false;
+            }
         }
 
 

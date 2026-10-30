@@ -86,6 +86,7 @@
             this.dgvPartCounter.TabIndex = 0;
             this.dgvPartCounter.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.DgvPartCounter_CellClick);
             this.dgvPartCounter.CellMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.DgvPartCounter_CellMouseClick);
+            this.dgvPartCounter.ColumnDisplayIndexChanged += new System.Windows.Forms.DataGridViewColumnEventHandler(this.DgvPartCounter_ColumnDisplayIndexChanged);
             // 
             // cmsMenu
             // 
