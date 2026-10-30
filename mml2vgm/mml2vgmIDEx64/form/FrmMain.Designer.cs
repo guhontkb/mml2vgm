@@ -118,6 +118,7 @@ namespace mml2vgmIDEx64
             tsmiJumpSoloMode = new ToolStripMenuItem();
             tsmiScript = new ToolStripMenuItem();
             ツールTToolStripMenuItem = new ToolStripMenuItem();
+            tsmiLaunchMDPlayer = new ToolStripMenuItem();
             tsmiMakeCSM = new ToolStripMenuItem();
             tsmiOption = new ToolStripMenuItem();
             TsmiHelp = new ToolStripMenuItem();
@@ -664,8 +665,15 @@ namespace mml2vgmIDEx64
             // ツールTToolStripMenuItem
             //
             resources.ApplyResources(ツールTToolStripMenuItem, "ツールTToolStripMenuItem");
-            ツールTToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { tsmiMakeCSM, tsmiOption });
+            ツールTToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { tsmiLaunchMDPlayer, tsmiMakeCSM, tsmiOption });
             ツールTToolStripMenuItem.Name = "ツールTToolStripMenuItem";
+            ツールTToolStripMenuItem.DropDownOpening += UpdateMDPlayerMenuState;
+            //
+            // tsmiLaunchMDPlayer
+            //
+            tsmiLaunchMDPlayer.Name = "tsmiLaunchMDPlayer";
+            tsmiLaunchMDPlayer.Text = "MDPlayer";
+            tsmiLaunchMDPlayer.Click += tsmiLaunchMDPlayer_Click;
             //
             // tsmiMakeCSM
             //
@@ -849,6 +857,7 @@ namespace mml2vgmIDEx64
         private System.Windows.Forms.ToolStripMenuItem tsmiExport_toMp3File;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator6;
         private System.Windows.Forms.ToolStripMenuItem TsmiReplace;
+        private System.Windows.Forms.ToolStripMenuItem tsmiLaunchMDPlayer;
         private System.Windows.Forms.ToolStripMenuItem tsmiMakeCSM;
         private System.Windows.Forms.ToolStripMenuItem tsmiExport_toDriverFormatAndPlay;
         private System.Windows.Forms.ToolStripSplitButton tssbExpAndMdp;

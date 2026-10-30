@@ -24,6 +24,9 @@ namespace mml2vgmIDEx64
         private Label lblSoundEnginePath;
         private TextBox tbSoundEnginePath;
         private Button btnSoundEnginePath;
+        private Label lblMDPlayerPath;
+        private TextBox tbMDPlayerPath;
+        private Button btnMDPlayerPath;
         private GroupBox gbFolderFont;
         private Label lblFolderFontName;
         private Label lblFolderFontSize;
@@ -47,6 +50,7 @@ namespace mml2vgmIDEx64
             InitializeComponent();
             Common.ApplyDarkScrollBarTheme(this);
             InitializeFolderTab();
+            InitializeMDPlayerPathSetting();
             InitializeMainScrollBarColorSetting();
 
             dgv = new DataGridView[] {
@@ -67,6 +71,37 @@ namespace mml2vgmIDEx64
             tbcMIDIoutList.TabPages.Remove(tabPage2);
             tbcMIDIoutList.TabPages.Remove(tabPage3);
             tbcMIDIoutList.TabPages.Remove(tabPage4);
+        }
+
+        private void InitializeMDPlayerPathSetting()
+        {
+            lblMDPlayerPath = new Label
+            {
+                AutoSize = true,
+                Location = new System.Drawing.Point(8, 434),
+                Name = "lblMDPlayerPath",
+                Text = "MDPlayer path"
+            };
+            tbMDPlayerPath = new TextBox
+            {
+                Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
+                Location = new System.Drawing.Point(104, 430),
+                Name = "tbMDPlayerPath",
+                Size = new System.Drawing.Size(360, 23)
+            };
+            btnMDPlayerPath = new Button
+            {
+                Anchor = AnchorStyles.Top | AnchorStyles.Right,
+                Location = new System.Drawing.Point(472, 430),
+                Name = "btnMDPlayerPath",
+                Size = new System.Drawing.Size(32, 23),
+                Text = "...",
+                UseVisualStyleBackColor = true
+            };
+            btnMDPlayerPath.Click += btnMDPlayerPath_Click;
+            tpOther2.Controls.Add(lblMDPlayerPath);
+            tpOther2.Controls.Add(tbMDPlayerPath);
+            tpOther2.Controls.Add(btnMDPlayerPath);
         }
 
         private void InitializeMainScrollBarColorSetting()
@@ -821,6 +856,7 @@ namespace mml2vgmIDEx64
             cbUseGetInst.Checked = setting.other.UseGetInst;
             cbUseGetInst_CheckedChanged(null, null);
             tbDataPath.Text = setting.other.DefaultDataPath;
+            tbMDPlayerPath.Text = setting.other.MDPlayerPath;
             tbSoxPath.Text = setting.other.SoxPath;
             tbSoundEnginePath.Text = setting.other.SoundEnginePath;
             //cmbInstFormat.SelectedIndex = (int)setting.other.InstFormat;
@@ -1716,6 +1752,7 @@ namespace mml2vgmIDEx64
             setting.export.AlwaysAsksForLoopCounts = cbAlwaysAskForLoopCount.Checked;
             setting.other.UseGetInst = cbUseGetInst.Checked;
             setting.other.DefaultDataPath = tbDataPath.Text;
+            setting.other.MDPlayerPath = tbMDPlayerPath.Text;
             setting.other.SoxPath = tbSoxPath.Text;
             setting.other.SoundEnginePath = tbSoundEnginePath.Text;
             //setting.other.InstFormat = (EnmInstFormat)cmbInstFormat.SelectedIndex;
@@ -2511,6 +2548,33 @@ namespace mml2vgmIDEx64
 
             IsInitialOpenFolder = false;
             tbSoundEnginePath.Text = ofd.FileName;
+        }
+
+        private void btnMDPlayerPath_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog ofd = new OpenFileDialog
+            {
+                Filter = "MDPlayer実行ファイル(*.exe)|*.exe|すべてのファイル(*.*)|*.*",
+                Title = "MDPlayerの実行ファイルを選択してください",
+                CheckPathExists = true,
+                CheckFileExists = true,
+                Multiselect = false,
+                RestoreDirectory = true
+            };
+
+            if (!string.IsNullOrWhiteSpace(tbMDPlayerPath.Text))
+            {
+                string dir = Path.GetDirectoryName(tbMDPlayerPath.Text);
+                if (!string.IsNullOrWhiteSpace(dir) && Directory.Exists(dir))
+                {
+                    ofd.InitialDirectory = dir;
+                }
+            }
+
+            if (ofd.ShowDialog(this) == DialogResult.OK)
+            {
+                tbMDPlayerPath.Text = ofd.FileName;
+            }
         }
 
         private void cbUseGetInst_CheckedChanged(object sender, EventArgs e)

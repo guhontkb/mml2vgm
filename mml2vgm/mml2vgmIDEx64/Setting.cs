@@ -1918,6 +1918,8 @@ namespace mml2vgmIDEx64
                 }
             }
 
+            public string MDPlayerPath { get; set; } = "";
+
             //private EnmInstFormat _InstFormat = EnmInstFormat.MML2VGM;
             //public EnmInstFormat InstFormat
             //{
@@ -2150,6 +2152,7 @@ namespace mml2vgmIDEx64
                 other.DefaultDataPath = this.DefaultDataPath;
                 other.SoxPath = this.SoxPath;
                 other.SoundEnginePath = this.SoundEnginePath;
+                other.MDPlayerPath = this.MDPlayerPath;
                 //other.InstFormat = this.InstFormat;
                 other.Zoom = this.Zoom;
                 other.ScreenFrameRate = this.ScreenFrameRate;

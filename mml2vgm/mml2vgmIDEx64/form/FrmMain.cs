@@ -906,6 +906,89 @@ namespace mml2vgmIDEx64
             Reinit(frmSetting.setting);
         }
 
+        private void tsmiLaunchMDPlayer_Click(object sender, EventArgs e)
+        {
+            if (IsMDPlayerRunning())
+            {
+                tsmiLaunchMDPlayer.Enabled = false;
+                return;
+            }
+
+            string path = setting.other.MDPlayerPath;
+            if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
+            {
+                MessageBox.Show(this, "オプションのOtherでMDPlayerの実行ファイルを設定してください。", "MDPlayer", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            try
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    UseShellExecute = true,
+                    FileName = path
+                })?.Dispose();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this, ex.Message, "MDPlayerの起動に失敗しました", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void UpdateMDPlayerMenuState(object sender, EventArgs e)
+        {
+            tsmiLaunchMDPlayer.Enabled = !IsMDPlayerRunning();
+        }
+
+        private bool IsMDPlayerRunning()
+        {
+            string path = setting.other.MDPlayerPath;
+            if (string.IsNullOrWhiteSpace(path)) return false;
+
+            Process[] processes = Process.GetProcessesByName(Path.GetFileNameWithoutExtension(path));
+            bool isRunning = processes.Length > 0;
+            foreach (Process process in processes)
+            {
+                process.Dispose();
+            }
+
+            return isRunning;
+        }
+
+        private bool EnsureMDPlayerRunning()
+        {
+            string path = setting.other.MDPlayerPath;
+            if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
+            {
+                MessageBox.Show(this, "オプションのOtherでMDPlayerの実行ファイルを設定してください。", "MDPlayer", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return false;
+            }
+
+            if (IsMDPlayerRunning()) return true;
+
+            try
+            {
+                using Process process = Process.Start(new ProcessStartInfo
+                {
+                    UseShellExecute = true,
+                    FileName = path,
+                    WorkingDirectory = Path.GetDirectoryName(Path.GetFullPath(path))
+                });
+                if (process == null || !process.WaitForInputIdle(10000))
+                {
+                    MessageBox.Show(this, "MDPlayerの起動を確認できませんでした。", "MDPlayerの起動に失敗しました", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this, ex.Message, "MDPlayerの起動に失敗しました", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+
+            return true;
+        }
+
         private void TsmiTutorial_Click(object sender, EventArgs e)
         {
             try
@@ -5381,6 +5464,8 @@ namespace mml2vgmIDEx64
                     MessageBox.Show("この形式のエクスポートに対応していません。", "エクスポート失敗", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
+
+                if (!EnsureMDPlayerRunning()) return;
 
                 //コンパイル実施
                 Compile(false, false, false, false, true);
