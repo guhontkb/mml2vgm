@@ -36,6 +36,7 @@ namespace mml2vgmIDEx64
         private bool useMouse;
         private int fileListSortColumn = -1;
         private bool fileListSortAscending = true;
+        private FileSizeDisplayUnit fileSizeDisplayUnit = FileSizeDisplayUnit.Byte;
         private readonly Setting setting;
 
         public FrmFolderTree(Setting setting, DockPanel dockPanel)
@@ -63,6 +64,14 @@ namespace mml2vgmIDEx64
             Common.SetDoubleBuffered(tvFolderTree);
             Common.ApplyDarkScrollBarTheme(this);
             ApplyFolderTextFont();
+            UpdateFileSizeDisplay();
+        }
+
+        private enum FileSizeDisplayUnit
+        {
+            Byte,
+            KB,
+            MB
         }
 
         public void ApplyFolderTextFont()
@@ -994,7 +1003,8 @@ namespace mml2vgmIDEx64
 
                     ListViewItem item = new ListViewItem(file.Name, GetFileIconIndex(file.Extension));
                     item.SubItems.Add(file.LastWriteTime.ToString("yyyy/MM/dd HH:mm:ss"));
-                    item.SubItems.Add(file.Length.ToString("N0") + " bytes");
+                    ListViewItem.ListViewSubItem fileSizeSubItem = item.SubItems.Add(FormatFileSize(file.Length));
+                    fileSizeSubItem.Tag = file.Length;
                     string[] waveInfo = GetWaveInfo(file.FullName);
                     foreach (string value in waveInfo)
                     {
@@ -1064,6 +1074,57 @@ namespace mml2vgmIDEx64
                 }
             }
             return icon;
+        }
+
+        private string FormatFileSize(long sizeInBytes)
+        {
+            switch (fileSizeDisplayUnit)
+            {
+                case FileSizeDisplayUnit.KB:
+                    return string.Format(CultureInfo.CurrentCulture, "{0:N1} KB", sizeInBytes / 1024d);
+                case FileSizeDisplayUnit.MB:
+                    return string.Format(CultureInfo.CurrentCulture, "{0:N2} MB", sizeInBytes / 1024d / 1024d);
+                default:
+                    return string.Format(CultureInfo.CurrentCulture, "{0:N0} bytes", sizeInBytes);
+            }
+        }
+
+        private void UpdateFileSizeDisplay()
+        {
+            switch (fileSizeDisplayUnit)
+            {
+                case FileSizeDisplayUnit.KB:
+                    tsbSizeUnit.Text = "Size: KB";
+                    columnHeaderSize.Text = "Size (KB)";
+                    break;
+                case FileSizeDisplayUnit.MB:
+                    tsbSizeUnit.Text = "Size: MB";
+                    columnHeaderSize.Text = "Size (MB)";
+                    break;
+                default:
+                    tsbSizeUnit.Text = "Size: B";
+                    columnHeaderSize.Text = "Size (B)";
+                    break;
+            }
+        }
+
+        private void TsbSizeUnit_Click(object sender, EventArgs e)
+        {
+            switch (fileSizeDisplayUnit)
+            {
+                case FileSizeDisplayUnit.Byte:
+                    fileSizeDisplayUnit = FileSizeDisplayUnit.KB;
+                    break;
+                case FileSizeDisplayUnit.KB:
+                    fileSizeDisplayUnit = FileSizeDisplayUnit.MB;
+                    break;
+                default:
+                    fileSizeDisplayUnit = FileSizeDisplayUnit.Byte;
+                    break;
+            }
+
+            UpdateFileSizeDisplay();
+            UpdateFileList(tvFolderTree.SelectedNode ?? (tvFolderTree.Nodes.Count > 0 ? tvFolderTree.Nodes[0] : null));
         }
 
         private void LvFileList_ColumnClick(object sender, ColumnClickEventArgs e)
@@ -1299,6 +1360,8 @@ namespace mml2vgmIDEx64
                             DateTimeStyles.None, out DateTime lastWriteTime)) return lastWriteTime;
                         break;
                     case 2:
+                        object sizeTag = item.SubItems[column].Tag;
+                        if (sizeTag is long sizeFromTag) return sizeFromTag;
                         if (long.TryParse(text.Replace(" bytes", string.Empty), NumberStyles.Number,
                             CultureInfo.CurrentCulture, out long size)) return size;
                         break;

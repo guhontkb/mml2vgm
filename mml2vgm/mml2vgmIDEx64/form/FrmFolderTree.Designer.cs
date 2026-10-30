@@ -55,6 +55,7 @@ namespace mml2vgmIDEx64
             columnHeaderHeaderFill = new ColumnHeader();
             toolStrip1 = new ToolStrip();
             tsbReload = new ToolStripButton();
+            tsbSizeUnit = new ToolStripButton();
             tsddbFilter = new ToolStripDropDownButton();
             tsmiFilterAll = new ToolStripMenuItem();
             toolStripSeparator2 = new ToolStripSeparator();
@@ -258,7 +259,7 @@ namespace mml2vgmIDEx64
             // toolStrip1
             //
             toolStrip1.Dock = DockStyle.None;
-            toolStrip1.Items.AddRange(new ToolStripItem[] { tsbReload, tsddbFilter });
+            toolStrip1.Items.AddRange(new ToolStripItem[] { tsbReload, tsbSizeUnit, tsddbFilter });
             toolStrip1.Location = new Point(0, 0);
             toolStrip1.Name = "toolStrip1";
             toolStrip1.Size = new Size(289, 25);
@@ -274,6 +275,15 @@ namespace mml2vgmIDEx64
             tsbReload.Size = new Size(23, 22);
             tsbReload.Text = "Reload";
             tsbReload.Click += TsbReload_Click;
+            //
+            // tsbSizeUnit
+            //
+            tsbSizeUnit.DisplayStyle = ToolStripItemDisplayStyle.Text;
+            tsbSizeUnit.Name = "tsbSizeUnit";
+            tsbSizeUnit.Size = new Size(47, 22);
+            tsbSizeUnit.Text = "Size: B";
+            tsbSizeUnit.ToolTipText = "サイズ表示単位を切り替え (Byte/KB/MB)";
+            tsbSizeUnit.Click += TsbSizeUnit_Click;
             //
             // tsddbFilter
             //
@@ -401,6 +411,7 @@ namespace mml2vgmIDEx64
         private System.Windows.Forms.ColumnHeader columnHeaderHeaderFill;
         private System.Windows.Forms.ToolStrip toolStrip1;
         private System.Windows.Forms.ToolStripButton tsbReload;
+        private System.Windows.Forms.ToolStripButton tsbSizeUnit;
         private System.Windows.Forms.ToolStripDropDownButton tsddbFilter;
         private System.Windows.Forms.ToolStripMenuItem tsmiFilterAll;
         private System.Windows.Forms.ToolStripMenuItem tsmiFilterFolder;
