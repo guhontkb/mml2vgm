@@ -62,6 +62,20 @@ namespace mml2vgmIDEx64
         private PartRowComparer comparer;
         private bool requiresSorting=false;
         private bool isUpdatingColumnLayout = false;
+        private bool isColumnHeaderDragging = false;
+        private int currentCellRowBeforeColumnDrag = -1;
+        private string currentCellColumnNameBeforeColumnDrag = null;
+        private bool isRowDragging = false;
+        private bool isManualRowOrder = false;
+        private int dragRowIndexFromMouseDown = -1;
+        private string dragCellColumnNameFromMouseDown = null;
+        private Rectangle dragRowBoxFromMouseDown = Rectangle.Empty;
+        private Color focusedCellSelectionBackColor = Color.FromArgb(100, 100, 180);
+        private Color focusedRowSelectionBackColor = Color.FromArgb(96, 96, 148);
+        private Color focusedSelectionForeColor = Color.White;
+        private int focusedRowIndex = -1;
+        private string focusedColumnName = null;
+        private bool focusedRowMode = false;
 
 
         public FrmPartCounter(Setting setting)
@@ -76,6 +90,14 @@ namespace mml2vgmIDEx64
             //dgvPartCounter.DefaultCellStyle.SelectionBackColor = Color.Empty;
             dgvPartCounter.ForeColor = Color.FromArgb(setting.ColorScheme.PartCounter_ForeColor);
             EnableDoubleBuffering(dgvPartCounter);
+            dgvPartCounter.AllowDrop = true;
+            dgvPartCounter.MouseDown += DgvPartCounter_MouseDown;
+            dgvPartCounter.MouseMove += DgvPartCounter_MouseMove;
+            dgvPartCounter.MouseUp += DgvPartCounter_MouseUp;
+            dgvPartCounter.MouseCaptureChanged += DgvPartCounter_MouseCaptureChanged;
+            dgvPartCounter.DragOver += DgvPartCounter_DragOver;
+            dgvPartCounter.DragDrop += DgvPartCounter_DragDrop;
+            dgvPartCounter.CellDoubleClick += DgvPartCounter_CellDoubleClick;
             SetDisplayIndex(setting.location.PartCounterClmInfo);
             foreach (DataGridViewColumn c in dgvPartCounter.Columns)
             {
@@ -399,12 +421,13 @@ namespace mml2vgmIDEx64
         private void Timer_Tick(object sender, EventArgs e)
         {
             if (mmlParams == null) return;
+            if (isColumnHeaderDragging || isRowDragging) return;
 
 
             dgvPartCounter.SuspendLayout();
 
             //行ソート
-            if (requiresSorting)
+            if (!isManualRowOrder && requiresSorting)
             {
                 dgvPartCounter.Sort(comparer);
                 requiresSorting = false;
@@ -483,6 +506,11 @@ namespace mml2vgmIDEx64
         private void DgvPartCounter_CellClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.ColumnIndex < 0) return;
+            if (e.RowIndex >= 0)
+            {
+                FocusSingleCell(e.RowIndex, e.ColumnIndex);
+            }
+
             string cellName = dgvPartCounter.Columns[e.ColumnIndex].Name;
 
             if (cellName != "ClmMute" && cellName != "ClmSolo" && cellName != clmKBDAssign) return;
@@ -498,6 +526,146 @@ namespace mml2vgmIDEx64
                     ClickKBDAssign(e.RowIndex);
                     break;
             }
+        }
+
+        private void DgvPartCounter_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0 || e.ColumnIndex < 0) return;
+            FocusRowCells(e.RowIndex, e.ColumnIndex);
+        }
+
+        private void FocusSingleCell(int rowIndex, int columnIndex)
+        {
+            if (rowIndex < 0 || rowIndex >= dgvPartCounter.Rows.Count) return;
+            if (columnIndex < 0 || columnIndex >= dgvPartCounter.Columns.Count) return;
+
+            DataGridViewCell cell = dgvPartCounter.Rows[rowIndex].Cells[columnIndex];
+            if (!cell.OwningColumn.Visible) return;
+
+            dgvPartCounter.ClearSelection();
+            dgvPartCounter.CurrentCell = cell;
+            cell.Selected = true;
+
+            focusedRowIndex = rowIndex;
+            focusedColumnName = cell.OwningColumn.Name;
+            focusedRowMode = false;
+            ApplyFocusColors();
+        }
+
+        private void FocusRowCells(int rowIndex, int columnIndex)
+        {
+            if (rowIndex < 0 || rowIndex >= dgvPartCounter.Rows.Count) return;
+            if (columnIndex < 0 || columnIndex >= dgvPartCounter.Columns.Count) return;
+
+            DataGridViewRow row = dgvPartCounter.Rows[rowIndex];
+            DataGridViewCell currentCell = row.Cells[columnIndex];
+            if (!currentCell.OwningColumn.Visible) return;
+
+            int horizontalScrollingOffset = dgvPartCounter.HorizontalScrollingOffset;
+            int firstDisplayedRowIndex = dgvPartCounter.FirstDisplayedScrollingRowIndex;
+            int firstDisplayedColumnIndex = dgvPartCounter.FirstDisplayedScrollingColumnIndex;
+
+            dgvPartCounter.ClearSelection();
+            dgvPartCounter.CurrentCell = currentCell;
+            foreach (DataGridViewCell cell in row.Cells)
+            {
+                if (!cell.OwningColumn.Visible) continue;
+                if (cell.OwningColumn.Name == "ClmSpacer") continue;
+                cell.Selected = true;
+            }
+
+            focusedRowIndex = rowIndex;
+            focusedColumnName = currentCell.OwningColumn.Name;
+            focusedRowMode = true;
+            ApplyFocusColors();
+            dgvPartCounter.CurrentCell = currentCell;
+            currentCell.Selected = true;
+            dgvPartCounter.Focus();
+
+            try
+            {
+                if (firstDisplayedRowIndex >= 0 && firstDisplayedRowIndex < dgvPartCounter.Rows.Count)
+                {
+                    dgvPartCounter.FirstDisplayedScrollingRowIndex = firstDisplayedRowIndex;
+                }
+                if (firstDisplayedColumnIndex >= 0 && firstDisplayedColumnIndex < dgvPartCounter.Columns.Count)
+                {
+                    dgvPartCounter.FirstDisplayedScrollingColumnIndex = firstDisplayedColumnIndex;
+                }
+                dgvPartCounter.HorizontalScrollingOffset = horizontalScrollingOffset;
+            }
+            catch
+            {
+            }
+        }
+
+        private void ResetSelectionColorOverrides()
+        {
+            foreach (DataGridViewRow row in dgvPartCounter.Rows)
+            {
+                foreach (DataGridViewCell cell in row.Cells)
+                {
+                    cell.Style.SelectionBackColor = Color.Empty;
+                    cell.Style.SelectionForeColor = Color.Empty;
+                }
+            }
+        }
+
+        private void ApplyBaseRowColors()
+        {
+            foreach (DataGridViewRow row in dgvPartCounter.Rows)
+            {
+                int partKey = (int)row.Cells[dgvPartCounter.Columns["ClmMuteMngKey"].Index].Value;
+                muteStatus ms = muteManager.GetStatus(partKey);
+                bool isSolo = ms != null && ms.solo;
+                bool isMute = ms != null && ms.mute;
+
+                Color rowBackColor = isSolo
+                    ? Color.FromArgb(setting.ColorScheme.PartCounter_SOLOROW_BackColor)
+                    : Color.FromArgb(setting.ColorScheme.PartCounter_BackColor);
+
+                foreach (DataGridViewCell cell in row.Cells)
+                {
+                    cell.Style.BackColor = rowBackColor;
+                    cell.Style.ForeColor = dgvPartCounter.ForeColor;
+                }
+
+                row.Cells[dgvPartCounter.Columns["ClmSolo"].Index].Style.BackColor = isSolo
+                    ? Color.FromArgb(setting.ColorScheme.PartCounter_SOLO_BackColor)
+                    : rowBackColor;
+
+                row.Cells[dgvPartCounter.Columns["ClmMute"].Index].Style.BackColor = isMute
+                    ? Color.FromArgb(setting.ColorScheme.PartCounter_MUTE_BackColor)
+                    : rowBackColor;
+            }
+        }
+
+        private void ApplyFocusColors()
+        {
+            if (focusedRowIndex < 0 || focusedRowIndex >= dgvPartCounter.Rows.Count) return;
+            if (string.IsNullOrEmpty(focusedColumnName)) return;
+            if (!dgvPartCounter.Columns.Contains(focusedColumnName)) return;
+
+            ApplyBaseRowColors();
+
+            DataGridViewRow row = dgvPartCounter.Rows[focusedRowIndex];
+            if (focusedRowMode)
+            {
+                foreach (DataGridViewCell rowCell in row.Cells)
+                {
+                    if (!rowCell.OwningColumn.Visible) continue;
+                    if (rowCell.OwningColumn.Name == "ClmSpacer") continue;
+                    rowCell.Style.BackColor = focusedRowSelectionBackColor;
+                    rowCell.Style.ForeColor = focusedSelectionForeColor;
+                }
+            }
+
+            DataGridViewColumn focusedColumn = dgvPartCounter.Columns[focusedColumnName];
+            if (!focusedColumn.Visible) return;
+
+            DataGridViewCell focusedCell = row.Cells[focusedColumn.Index];
+            focusedCell.Style.BackColor = focusedCellSelectionBackColor;
+            focusedCell.Style.ForeColor = focusedSelectionForeColor;
         }
 
         private void DgvPartCounter_CellMouseClick(object sender, DataGridViewCellMouseEventArgs e)
@@ -594,6 +762,13 @@ namespace mml2vgmIDEx64
             CacheMuteSolo();
 
             dgvPartCounter.Rows.Clear();
+            isManualRowOrder = false;
+            dragRowIndexFromMouseDown = -1;
+            dragCellColumnNameFromMouseDown = null;
+            dragRowBoxFromMouseDown = Rectangle.Empty;
+            focusedRowIndex = -1;
+            focusedColumnName = null;
+            focusedRowMode = false;
             //SoloMode = false;
         }
 
@@ -675,6 +850,7 @@ namespace mml2vgmIDEx64
 
             dgvPartCounter.Rows.Add(r);
             SetMute(r);
+            requiresSorting = true;
         }
 
         public void Start(MMLParameter.Manager mmlParams)
@@ -872,6 +1048,180 @@ namespace mml2vgmIDEx64
             BeginInvoke((System.Windows.Forms.MethodInvoker)EnsureSpacerColumnAtEnd);
         }
 
+        private void DgvPartCounter_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button != MouseButtons.Left) return;
+            DataGridView.HitTestInfo hit = dgvPartCounter.HitTest(e.X, e.Y);
+            isColumnHeaderDragging = hit.Type == DataGridViewHitTestType.ColumnHeader;
+            if (isColumnHeaderDragging)
+            {
+                CaptureCurrentCellForColumnDrag();
+            }
+
+            dragRowIndexFromMouseDown = -1;
+            dragCellColumnNameFromMouseDown = null;
+            dragRowBoxFromMouseDown = Rectangle.Empty;
+
+            if (isColumnHeaderDragging) return;
+            if (hit.Type != DataGridViewHitTestType.Cell || hit.RowIndex < 0 || hit.ColumnIndex < 0) return;
+
+            string columnName = dgvPartCounter.Columns[hit.ColumnIndex].Name;
+            if (!CanStartRowDrag(columnName)) return;
+
+            dragRowIndexFromMouseDown = hit.RowIndex;
+            dragCellColumnNameFromMouseDown = columnName;
+            Size dragSize = SystemInformation.DragSize;
+            dragRowBoxFromMouseDown = new Rectangle(
+                new Point(e.X - (dragSize.Width / 2), e.Y - (dragSize.Height / 2)),
+                dragSize
+            );
+        }
+
+        private bool CanStartRowDrag(string columnName)
+        {
+            if (columnName == "ClmMute") return false;
+            if (columnName == "ClmSolo") return false;
+            if (columnName == clmKBDAssign) return false;
+
+            return true;
+        }
+
+        private void DgvPartCounter_MouseMove(object sender, MouseEventArgs e)
+        {
+            if ((e.Button & MouseButtons.Left) != MouseButtons.Left) return;
+            if (dragRowIndexFromMouseDown < 0) return;
+            if (dragRowBoxFromMouseDown != Rectangle.Empty && dragRowBoxFromMouseDown.Contains(e.Location)) return;
+            if (dragRowIndexFromMouseDown >= dgvPartCounter.Rows.Count) return;
+
+            try
+            {
+                isRowDragging = true;
+                dgvPartCounter.DoDragDrop(dgvPartCounter.Rows[dragRowIndexFromMouseDown], DragDropEffects.Move);
+            }
+            finally
+            {
+                isRowDragging = false;
+                dragRowIndexFromMouseDown = -1;
+                dragCellColumnNameFromMouseDown = null;
+                dragRowBoxFromMouseDown = Rectangle.Empty;
+            }
+        }
+
+        private void DgvPartCounter_MouseUp(object sender, MouseEventArgs e)
+        {
+            bool wasColumnHeaderDragging = isColumnHeaderDragging;
+            isColumnHeaderDragging = false;
+            dragRowIndexFromMouseDown = -1;
+            dragCellColumnNameFromMouseDown = null;
+            dragRowBoxFromMouseDown = Rectangle.Empty;
+
+            if (wasColumnHeaderDragging)
+            {
+                BeginInvoke((System.Windows.Forms.MethodInvoker)RestoreCurrentCellAfterColumnDrag);
+            }
+        }
+
+        private void DgvPartCounter_MouseCaptureChanged(object sender, EventArgs e)
+        {
+            if (!Control.MouseButtons.HasFlag(MouseButtons.Left))
+            {
+                bool wasColumnHeaderDragging = isColumnHeaderDragging;
+                isColumnHeaderDragging = false;
+                dragRowIndexFromMouseDown = -1;
+                dragCellColumnNameFromMouseDown = null;
+                dragRowBoxFromMouseDown = Rectangle.Empty;
+
+                if (wasColumnHeaderDragging)
+                {
+                    BeginInvoke((System.Windows.Forms.MethodInvoker)RestoreCurrentCellAfterColumnDrag);
+                }
+            }
+        }
+
+        private void CaptureCurrentCellForColumnDrag()
+        {
+            currentCellRowBeforeColumnDrag = -1;
+            currentCellColumnNameBeforeColumnDrag = null;
+
+            if (dgvPartCounter.CurrentCell == null) return;
+
+            int rowIndex = dgvPartCounter.CurrentCell.RowIndex;
+            int colIndex = dgvPartCounter.CurrentCell.ColumnIndex;
+            if (rowIndex < 0 || colIndex < 0) return;
+
+            currentCellRowBeforeColumnDrag = rowIndex;
+            currentCellColumnNameBeforeColumnDrag = dgvPartCounter.Columns[colIndex].Name;
+        }
+
+        private void RestoreCurrentCellAfterColumnDrag()
+        {
+            if (IsDisposed || !dgvPartCounter.IsHandleCreated) return;
+            if (currentCellRowBeforeColumnDrag < 0) return;
+            if (string.IsNullOrEmpty(currentCellColumnNameBeforeColumnDrag)) return;
+            if (currentCellRowBeforeColumnDrag >= dgvPartCounter.Rows.Count) return;
+            if (!dgvPartCounter.Columns.Contains(currentCellColumnNameBeforeColumnDrag)) return;
+
+            DataGridViewColumn column = dgvPartCounter.Columns[currentCellColumnNameBeforeColumnDrag];
+            if (!column.Visible) return;
+
+            dgvPartCounter.CurrentCell = dgvPartCounter.Rows[currentCellRowBeforeColumnDrag].Cells[column.Index];
+        }
+
+        private void DgvPartCounter_DragOver(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(typeof(DataGridViewRow)))
+            {
+                e.Effect = DragDropEffects.Move;
+                return;
+            }
+
+            e.Effect = DragDropEffects.None;
+        }
+
+        private void DgvPartCounter_DragDrop(object sender, DragEventArgs e)
+        {
+            if (!e.Data.GetDataPresent(typeof(DataGridViewRow))) return;
+
+            Point clientPoint = dgvPartCounter.PointToClient(new Point(e.X, e.Y));
+            DataGridView.HitTestInfo hit = dgvPartCounter.HitTest(clientPoint.X, clientPoint.Y);
+
+            DataGridViewRow sourceRow = e.Data.GetData(typeof(DataGridViewRow)) as DataGridViewRow;
+            if (sourceRow == null) return;
+
+            int sourceIndex = sourceRow.Index;
+            if (sourceIndex < 0) return;
+
+            int targetIndex = hit.RowIndex;
+            if (targetIndex < 0)
+            {
+                targetIndex = dgvPartCounter.Rows.Count - 1;
+            }
+
+            if (targetIndex == sourceIndex) return;
+
+            dgvPartCounter.Rows.RemoveAt(sourceIndex);
+            if (targetIndex > sourceIndex) targetIndex--;
+            targetIndex = Math.Max(0, Math.Min(targetIndex, dgvPartCounter.Rows.Count));
+            dgvPartCounter.Rows.Insert(targetIndex, sourceRow);
+
+            if (!string.IsNullOrEmpty(dragCellColumnNameFromMouseDown)
+                && dgvPartCounter.Columns.Contains(dragCellColumnNameFromMouseDown))
+            {
+                DataGridViewColumn column = dgvPartCounter.Columns[dragCellColumnNameFromMouseDown];
+                if (column.Visible)
+                {
+                    FocusRowCells(sourceRow.Index, column.Index);
+                }
+            }
+            else
+            {
+                FocusRowCells(sourceRow.Index, dgvPartCounter.Columns["ClmPart"].Index);
+            }
+
+            isManualRowOrder = true;
+            requiresSorting = false;
+        }
+
         private void EnsureSpacerColumnAtEnd()
         {
             if (IsDisposed || !dgvPartCounter.IsHandleCreated) return;
@@ -955,6 +1305,8 @@ namespace mml2vgmIDEx64
                 row.Cells[dgvPartCounter.Columns["ClmMute"].Index].Style.BackColor = ms.mute ? Color.FromArgb(setting.ColorScheme.PartCounter_MUTE_BackColor) : Color.Empty;
                 SetMute(row);
             }
+
+            ApplyFocusColors();
         }
 
         public void ClickKBDAssign(int rowIndex)
@@ -1385,8 +1737,8 @@ namespace mml2vgmIDEx64
 
     public class PartRowComparer : IComparer
     {
-        private int sortOrder;
-        private Comparer comparer;
+        private readonly int sortOrder;
+        private readonly Comparer comparer;
 
         public PartRowComparer(SortOrder order)
         {
@@ -1395,23 +1747,63 @@ namespace mml2vgmIDEx64
                 System.Globalization.CultureInfo.CurrentCulture);
         }
 
+        private static bool IsConductorRow(DataGridViewRow row)
+        {
+            string chip = row.Cells["ClmChip"].Value as string;
+            if (!string.IsNullOrEmpty(chip)
+                && chip.IndexOf("CONDUCTOR", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return true;
+            }
+
+            string partType = row.Cells["ClmPartType"].Value as string;
+            return !string.IsNullOrEmpty(partType)
+                && partType.IndexOf("CONDUCTOR", StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
+        private static int GetIntCell(DataGridViewRow row, string cellName)
+        {
+            object value = row.Cells[cellName].Value;
+            if (value is int intValue) return intValue;
+            if (value == null) return int.MaxValue;
+
+            return int.TryParse(value.ToString(), out int parsed) ? parsed : int.MaxValue;
+        }
+
+        private int CompareRows(DataGridViewRow rowx, DataGridViewRow rowy)
+        {
+            int conductorCmp = IsConductorRow(rowy).CompareTo(IsConductorRow(rowx));
+            if (conductorCmp != 0) return conductorCmp;
+
+            int chipNameCmp = comparer.Compare(
+                rowx.Cells["ClmChip"].Value?.ToString() ?? string.Empty,
+                rowy.Cells["ClmChip"].Value?.ToString() ?? string.Empty
+            );
+            if (chipNameCmp != 0) return chipNameCmp;
+
+            int chipIndexCmp = GetIntCell(rowx, "ClmChipIndex").CompareTo(GetIntCell(rowy, "ClmChipIndex"));
+            if (chipIndexCmp != 0) return chipIndexCmp;
+
+            int chipNumberCmp = GetIntCell(rowx, "ClmChipNumber").CompareTo(GetIntCell(rowy, "ClmChipNumber"));
+            if (chipNumberCmp != 0) return chipNumberCmp;
+
+            int partNumberCmp = GetIntCell(rowx, "ClmPartNumber").CompareTo(GetIntCell(rowy, "ClmPartNumber"));
+            if (partNumberCmp != 0) return partNumberCmp;
+
+            return comparer.Compare(
+                rowx.Cells["ClmPart"].Value?.ToString() ?? string.Empty,
+                rowy.Cells["ClmPart"].Value?.ToString() ?? string.Empty
+            );
+        }
+
         //並び替え方を定義する
         public int Compare(object x, object y)
         {
-            //https://dobon.net/vb/dotnet/datagridview/autosort.html
+            DataGridViewRow rowx = x as DataGridViewRow;
+            DataGridViewRow rowy = y as DataGridViewRow;
+            if (rowx == null || rowy == null) return 0;
 
-            DataGridViewRow rowx = (DataGridViewRow)x;
-            DataGridViewRow rowy = (DataGridViewRow)y;
-
-            object ox = rowx.Cells["ClmPriority"].Value;
-            object oy = rowy.Cells["ClmPriority"].Value;
-            if (ox == null || oy == null) return 1 * sortOrder;
-
-            int xx = (int)ox;
-            int yy = (int)oy;
-
-            //結果を返す
-            return Math.Sign(xx - yy) * sortOrder;
+            return CompareRows(rowx, rowy) * sortOrder;
         }
     }
 }
