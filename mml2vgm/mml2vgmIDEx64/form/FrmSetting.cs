@@ -18,6 +18,7 @@ namespace mml2vgmIDEx64
         private bool IsInitialOpenFolder;
         DataGridView[] dgv = null;
         private TabPage tpFolder;
+        private TabPage tpColor;
         private Label lblSoxPath;
         private TextBox tbSoxPath;
         private Button btnSoxPath;
@@ -50,6 +51,7 @@ namespace mml2vgmIDEx64
             InitializeComponent();
             Common.ApplyDarkScrollBarTheme(this);
             InitializeFolderTab();
+            InitializeColorTab();
             InitializeMDPlayerPathSetting();
             InitializeMainScrollBarColorSetting();
 
@@ -117,7 +119,7 @@ namespace mml2vgmIDEx64
             cdMainScrollBarCustomColor = new ColorDialog();
 
             lblMainScrollBarColor.AutoSize = true;
-            lblMainScrollBarColor.Location = new System.Drawing.Point(8, 337);
+            lblMainScrollBarColor.Location = new System.Drawing.Point(8, 20);
             lblMainScrollBarColor.Margin = new Padding(4, 0, 4, 0);
             lblMainScrollBarColor.Name = "lblMainScrollBarColor";
             lblMainScrollBarColor.Size = new System.Drawing.Size(179, 15);
@@ -125,7 +127,7 @@ namespace mml2vgmIDEx64
 
             cmbMainScrollBarColor.DropDownStyle = ComboBoxStyle.DropDownList;
             cmbMainScrollBarColor.FormattingEnabled = true;
-            cmbMainScrollBarColor.Location = new System.Drawing.Point(8, 356);
+            cmbMainScrollBarColor.Location = new System.Drawing.Point(8, 39);
             cmbMainScrollBarColor.Margin = new Padding(4);
             cmbMainScrollBarColor.Name = "cmbMainScrollBarColor";
             cmbMainScrollBarColor.Size = new System.Drawing.Size(246, 23);
@@ -138,13 +140,13 @@ namespace mml2vgmIDEx64
             cmbMainScrollBarColor.SelectedIndexChanged += cmbMainScrollBarColor_SelectedIndexChanged;
 
             lblMainScrollBarCustomThumbColor.AutoSize = true;
-            lblMainScrollBarCustomThumbColor.Location = new System.Drawing.Point(8, 386);
+            lblMainScrollBarCustomThumbColor.Location = new System.Drawing.Point(8, 75);
             lblMainScrollBarCustomThumbColor.Margin = new Padding(4, 0, 4, 0);
             lblMainScrollBarCustomThumbColor.Name = "lblMainScrollBarCustomThumbColor";
             lblMainScrollBarCustomThumbColor.Size = new System.Drawing.Size(53, 15);
             lblMainScrollBarCustomThumbColor.Text = "つまみ色";
 
-            btnMainScrollBarCustomThumbColor.Location = new System.Drawing.Point(70, 382);
+            btnMainScrollBarCustomThumbColor.Location = new System.Drawing.Point(70, 71);
             btnMainScrollBarCustomThumbColor.Margin = new Padding(4);
             btnMainScrollBarCustomThumbColor.Name = "btnMainScrollBarCustomThumbColor";
             btnMainScrollBarCustomThumbColor.Size = new System.Drawing.Size(100, 23);
@@ -153,20 +155,20 @@ namespace mml2vgmIDEx64
             btnMainScrollBarCustomThumbColor.Click += btnMainScrollBarCustomThumbColor_Click;
 
             pnlMainScrollBarCustomThumbColor.BorderStyle = BorderStyle.FixedSingle;
-            pnlMainScrollBarCustomThumbColor.Location = new System.Drawing.Point(177, 382);
+            pnlMainScrollBarCustomThumbColor.Location = new System.Drawing.Point(177, 71);
             pnlMainScrollBarCustomThumbColor.Margin = new Padding(4);
             pnlMainScrollBarCustomThumbColor.Name = "pnlMainScrollBarCustomThumbColor";
             pnlMainScrollBarCustomThumbColor.Size = new System.Drawing.Size(86, 23);
             pnlMainScrollBarCustomThumbColor.BackColor = System.Drawing.Color.FromArgb(100, 140, 220);
 
             lblMainScrollBarCustomTrackColor.AutoSize = true;
-            lblMainScrollBarCustomTrackColor.Location = new System.Drawing.Point(271, 386);
+            lblMainScrollBarCustomTrackColor.Location = new System.Drawing.Point(271, 75);
             lblMainScrollBarCustomTrackColor.Margin = new Padding(4, 0, 4, 0);
             lblMainScrollBarCustomTrackColor.Name = "lblMainScrollBarCustomTrackColor";
             lblMainScrollBarCustomTrackColor.Size = new System.Drawing.Size(47, 15);
             lblMainScrollBarCustomTrackColor.Text = "トラック色";
 
-            btnMainScrollBarCustomTrackColor.Location = new System.Drawing.Point(326, 382);
+            btnMainScrollBarCustomTrackColor.Location = new System.Drawing.Point(326, 71);
             btnMainScrollBarCustomTrackColor.Margin = new Padding(4);
             btnMainScrollBarCustomTrackColor.Name = "btnMainScrollBarCustomTrackColor";
             btnMainScrollBarCustomTrackColor.Size = new System.Drawing.Size(100, 23);
@@ -175,7 +177,7 @@ namespace mml2vgmIDEx64
             btnMainScrollBarCustomTrackColor.Click += btnMainScrollBarCustomTrackColor_Click;
 
             pnlMainScrollBarCustomTrackColor.BorderStyle = BorderStyle.FixedSingle;
-            pnlMainScrollBarCustomTrackColor.Location = new System.Drawing.Point(433, 382);
+            pnlMainScrollBarCustomTrackColor.Location = new System.Drawing.Point(433, 71);
             pnlMainScrollBarCustomTrackColor.Margin = new Padding(4);
             pnlMainScrollBarCustomTrackColor.Name = "pnlMainScrollBarCustomTrackColor";
             pnlMainScrollBarCustomTrackColor.Size = new System.Drawing.Size(71, 23);
@@ -183,22 +185,22 @@ namespace mml2vgmIDEx64
 
             cdMainScrollBarCustomColor.FullOpen = true;
 
-            tpOther2.Controls.Add(lblMainScrollBarColor);
-            tpOther2.Controls.Add(cmbMainScrollBarColor);
-            tpOther2.Controls.Add(lblMainScrollBarCustomThumbColor);
-            tpOther2.Controls.Add(btnMainScrollBarCustomThumbColor);
-            tpOther2.Controls.Add(pnlMainScrollBarCustomThumbColor);
-            tpOther2.Controls.Add(lblMainScrollBarCustomTrackColor);
-            tpOther2.Controls.Add(btnMainScrollBarCustomTrackColor);
-            tpOther2.Controls.Add(pnlMainScrollBarCustomTrackColor);
-            tpOther2.Controls.SetChildIndex(pnlMainScrollBarCustomTrackColor, 0);
-            tpOther2.Controls.SetChildIndex(btnMainScrollBarCustomTrackColor, 0);
-            tpOther2.Controls.SetChildIndex(lblMainScrollBarCustomTrackColor, 0);
-            tpOther2.Controls.SetChildIndex(pnlMainScrollBarCustomThumbColor, 0);
-            tpOther2.Controls.SetChildIndex(btnMainScrollBarCustomThumbColor, 0);
-            tpOther2.Controls.SetChildIndex(lblMainScrollBarCustomThumbColor, 0);
-            tpOther2.Controls.SetChildIndex(cmbMainScrollBarColor, 0);
-            tpOther2.Controls.SetChildIndex(lblMainScrollBarColor, 0);
+            tpColor.Controls.Add(lblMainScrollBarColor);
+            tpColor.Controls.Add(cmbMainScrollBarColor);
+            tpColor.Controls.Add(lblMainScrollBarCustomThumbColor);
+            tpColor.Controls.Add(btnMainScrollBarCustomThumbColor);
+            tpColor.Controls.Add(pnlMainScrollBarCustomThumbColor);
+            tpColor.Controls.Add(lblMainScrollBarCustomTrackColor);
+            tpColor.Controls.Add(btnMainScrollBarCustomTrackColor);
+            tpColor.Controls.Add(pnlMainScrollBarCustomTrackColor);
+            tpColor.Controls.SetChildIndex(pnlMainScrollBarCustomTrackColor, 0);
+            tpColor.Controls.SetChildIndex(btnMainScrollBarCustomTrackColor, 0);
+            tpColor.Controls.SetChildIndex(lblMainScrollBarCustomTrackColor, 0);
+            tpColor.Controls.SetChildIndex(pnlMainScrollBarCustomThumbColor, 0);
+            tpColor.Controls.SetChildIndex(btnMainScrollBarCustomThumbColor, 0);
+            tpColor.Controls.SetChildIndex(lblMainScrollBarCustomThumbColor, 0);
+            tpColor.Controls.SetChildIndex(cmbMainScrollBarColor, 0);
+            tpColor.Controls.SetChildIndex(lblMainScrollBarColor, 0);
         }
 
         private void cmbMainScrollBarColor_SelectedIndexChanged(object sender, EventArgs e)
@@ -400,6 +402,31 @@ namespace mml2vgmIDEx64
 
             tpFolder.ResumeLayout(false);
             tpFolder.PerformLayout();
+        }
+
+        private void InitializeColorTab()
+        {
+            tpColor = new TabPage
+            {
+                BorderStyle = BorderStyle.FixedSingle,
+                Location = new System.Drawing.Point(4, 44),
+                Margin = new Padding(4),
+                Name = "tpColor",
+                Size = new System.Drawing.Size(518, 510),
+                TabIndex = 21,
+                Text = "Color",
+                UseVisualStyleBackColor = true
+            };
+
+            int otherTabIndex = tcSetting.TabPages.IndexOf(tpOther2);
+            if (otherTabIndex >= 0)
+            {
+                tcSetting.TabPages.Insert(otherTabIndex, tpColor);
+            }
+            else
+            {
+                tcSetting.TabPages.Add(tpColor);
+            }
         }
 
         public void Init()
