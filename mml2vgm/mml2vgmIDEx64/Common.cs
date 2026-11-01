@@ -551,6 +551,106 @@ namespace mml2vgmIDEx64
             if (e.Control != null) ApplyDarkControlThemeToControl(e.Control, false, false);
         }
 
+        public static void ApplyDarkContextMenuTheme(
+            ContextMenuStrip menu,
+            Color backColor,
+            Color foreColor,
+            Color selectedColor,
+            Color borderColor)
+        {
+            if (menu == null) return;
+
+            menu.RenderMode = ToolStripRenderMode.Professional;
+            menu.Renderer = new CommonDarkToolStripRenderer(backColor, foreColor, selectedColor, borderColor);
+            menu.BackColor = backColor;
+            menu.ForeColor = foreColor;
+            ApplyDarkToolStripItemColors(menu.Items, backColor, foreColor, selectedColor, borderColor);
+        }
+
+        private static void ApplyDarkToolStripItemColors(
+            ToolStripItemCollection items,
+            Color backColor,
+            Color foreColor,
+            Color selectedColor,
+            Color borderColor)
+        {
+            if (items == null) return;
+
+            foreach (ToolStripItem item in items)
+            {
+                item.BackColor = backColor;
+                item.ForeColor = foreColor;
+                if (item is not ToolStripDropDownItem dropDownItem || !dropDownItem.HasDropDownItems) continue;
+
+                dropDownItem.DropDown.RenderMode = ToolStripRenderMode.Professional;
+                dropDownItem.DropDown.Renderer = new CommonDarkToolStripRenderer(backColor, foreColor, selectedColor, borderColor);
+                dropDownItem.DropDown.BackColor = backColor;
+                dropDownItem.DropDown.ForeColor = foreColor;
+                ApplyDarkToolStripItemColors(dropDownItem.DropDownItems, backColor, foreColor, selectedColor, borderColor);
+            }
+        }
+
+        private sealed class CommonDarkToolStripColorTable : ProfessionalColorTable
+        {
+            private readonly Color backColor;
+            private readonly Color selectedColor;
+            private readonly Color borderColor;
+
+            public CommonDarkToolStripColorTable(Color backColor, Color selectedColor, Color borderColor)
+            {
+                this.backColor = backColor;
+                this.selectedColor = selectedColor;
+                this.borderColor = borderColor;
+            }
+
+            public override Color ToolStripDropDownBackground => backColor;
+            public override Color MenuBorder => borderColor;
+            public override Color MenuItemBorder => borderColor;
+            public override Color MenuItemSelected => selectedColor;
+            public override Color MenuItemSelectedGradientBegin => selectedColor;
+            public override Color MenuItemSelectedGradientEnd => selectedColor;
+            public override Color MenuItemPressedGradientBegin => selectedColor;
+            public override Color MenuItemPressedGradientMiddle => selectedColor;
+            public override Color MenuItemPressedGradientEnd => selectedColor;
+            public override Color ImageMarginGradientBegin => backColor;
+            public override Color ImageMarginGradientMiddle => backColor;
+            public override Color ImageMarginGradientEnd => backColor;
+            public override Color ButtonSelectedHighlight => selectedColor;
+            public override Color ButtonSelectedHighlightBorder => borderColor;
+            public override Color ButtonPressedHighlight => selectedColor;
+            public override Color ButtonPressedHighlightBorder => borderColor;
+            public override Color ButtonCheckedHighlight => selectedColor;
+            public override Color ButtonCheckedHighlightBorder => borderColor;
+            public override Color ButtonCheckedGradientBegin => selectedColor;
+            public override Color ButtonCheckedGradientMiddle => selectedColor;
+            public override Color ButtonCheckedGradientEnd => selectedColor;
+            public override Color ButtonPressedGradientBegin => selectedColor;
+            public override Color ButtonPressedGradientMiddle => selectedColor;
+            public override Color ButtonPressedGradientEnd => selectedColor;
+            public override Color ButtonSelectedGradientBegin => selectedColor;
+            public override Color ButtonSelectedGradientMiddle => selectedColor;
+            public override Color ButtonSelectedGradientEnd => selectedColor;
+            public override Color SeparatorDark => borderColor;
+            public override Color SeparatorLight => borderColor;
+        }
+
+        private sealed class CommonDarkToolStripRenderer : ToolStripProfessionalRenderer
+        {
+            private readonly Color foreColor;
+
+            public CommonDarkToolStripRenderer(Color backColor, Color foreColor, Color selectedColor, Color borderColor)
+                : base(new CommonDarkToolStripColorTable(backColor, selectedColor, borderColor))
+            {
+                this.foreColor = foreColor;
+            }
+
+            protected override void OnRenderItemText(ToolStripItemTextRenderEventArgs e)
+            {
+                e.TextColor = foreColor;
+                base.OnRenderItemText(e);
+            }
+        }
+
         public static EnmMmlFileFormat GetEnmMmlFileFormat(string extension)
         {
             if (extension.ToUpper() == ".GWI") return EnmMmlFileFormat.GWI;

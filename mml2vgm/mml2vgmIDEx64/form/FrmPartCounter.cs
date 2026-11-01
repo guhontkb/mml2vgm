@@ -15,6 +15,7 @@ namespace mml2vgmIDEx64
     public partial class FrmPartCounter : DockContent, IForm
     {
         public Action parentUpdate = null;
+        private readonly ThemeBase menuTheme = null;
         private MMLParameter.Manager mmlParams = null;
         private Setting setting = null;
         private Brush[][] meterBrush = new Brush[64][];
@@ -85,11 +86,13 @@ namespace mml2vgmIDEx64
         private bool focusedRowMode = false;
 
 
-        public FrmPartCounter(Setting setting)
+        public FrmPartCounter(Setting setting, ThemeBase theme)
         {
             InitializeComponent();
             Common.ApplyDarkScrollBarTheme(this);
             this.setting = setting;
+            this.menuTheme = theme;
+            ApplyContextMenuTheme(setting);
             comparer=new PartRowComparer(SortOrder.Ascending);
 
             ApplyPartCounterFont(setting);
@@ -767,6 +770,7 @@ namespace mml2vgmIDEx64
                 ((ToolStripMenuItem)cmsMenu.Items[cmsMenu.Items.Count - 1]).Checked = c.Visible;
             }
 
+            ApplyContextMenuTheme(setting);
             cmsMenu.Show(System.Windows.Forms.Cursor.Position);
 
         }
@@ -938,7 +942,30 @@ namespace mml2vgmIDEx64
             mutedRowForeColor = BlendColor(Color.FromArgb(setting.ColorScheme.PartCounter_ForeColor), Color.FromArgb(setting.ColorScheme.PartCounter_BackColor), 0.6f);
             ApplyBaseRowColors();
             ApplyFocusColors();
+            ApplyContextMenuTheme(setting);
             dgvPartCounter.Invalidate();
+        }
+
+        private void ApplyContextMenuTheme(Setting setting)
+        {
+            if (cmsMenu == null) return;
+            if (menuTheme != null)
+            {
+                menuTheme.ApplyTo(cmsMenu);
+                cmsMenu.ShowCheckMargin = true;
+                cmsMenu.ShowImageMargin = false;
+                return;
+            }
+            if (setting == null) return;
+
+            Common.ApplyDarkContextMenuTheme(
+                cmsMenu,
+                Color.FromArgb(setting.ColorScheme.PartCounter_BackColor),
+                Color.FromArgb(setting.ColorScheme.PartCounter_ForeColor),
+                Color.FromArgb(setting.ColorScheme.Panel_HeaderHighlightBackColor),
+                Color.FromArgb(setting.ColorScheme.Panel_GridBorderColor));
+            cmsMenu.ShowCheckMargin = true;
+            cmsMenu.ShowImageMargin = false;
         }
 
         private void ApplyPartCounterFont(Setting setting)

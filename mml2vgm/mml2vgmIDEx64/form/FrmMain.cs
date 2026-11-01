@@ -3735,7 +3735,7 @@ namespace mml2vgmIDEx64
 
             FormBox.Add(this);
 
-            frmPartCounter = new FrmPartCounter(setting);
+            frmPartCounter = new FrmPartCounter(setting, theme);
             FormBox.Add(frmPartCounter);
 
             frmLog = new FrmLog(setting, theme);
@@ -3744,7 +3744,7 @@ namespace mml2vgmIDEx64
             frmFolderTree = new FrmFolderTree(setting, dpMain);
             FormBox.Add(frmFolderTree);
 
-            frmErrorList = new FrmErrorList(setting);
+            frmErrorList = new FrmErrorList(setting, theme);
             FormBox.Add(frmErrorList);
 
             frmLyrics = new FrmLyrics(setting, theme);

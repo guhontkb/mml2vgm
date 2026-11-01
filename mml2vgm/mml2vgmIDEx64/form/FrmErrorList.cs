@@ -9,6 +9,7 @@ namespace mml2vgmIDEx64
     {
         public Action parentUpdate = null;
         public Action<string, long, bool> parentJumpDocument = null;
+        private readonly WeifenLuo.WinFormsUI.Docking.ThemeBase menuTheme = null;
         private ContextMenuStrip cmsErrorList = null;
         private ToolStripMenuItem tsmiCopy = null;
         private ToolStripMenuItem tsmiCopyAll = null;
@@ -20,9 +21,10 @@ namespace mml2vgmIDEx64
         private readonly Setting currentSetting = null;
         private string currentFilter = "All";
 
-        public FrmErrorList(Setting setting)
+        public FrmErrorList(Setting setting, WeifenLuo.WinFormsUI.Docking.ThemeBase theme)
         {
             currentSetting = setting;
+            menuTheme = theme;
             InitializeComponent();
             InitializeStatusBar();
             Common.ApplyDarkScrollBarTheme(this);
@@ -64,6 +66,7 @@ namespace mml2vgmIDEx64
             }
 
             ApplyFilterDropDownTheme(setting);
+            ApplyContextMenuTheme(setting);
 
             ApplyUnifiedHeaderHeight();
         }
@@ -310,6 +313,7 @@ namespace mml2vgmIDEx64
         private void InitializeContextMenu()
         {
             cmsErrorList = new ContextMenuStrip();
+            cmsErrorList.ShowImageMargin = false;
             tsmiCopy = new ToolStripMenuItem("コピー", null, TsmiCopy_Click);
             tsmiCopyAll = new ToolStripMenuItem("全件コピー", null, TsmiCopyAll_Click);
 
@@ -318,6 +322,27 @@ namespace mml2vgmIDEx64
             cmsErrorList.Opening += CmsErrorList_Opening;
 
             dataGridView1.ContextMenuStrip = cmsErrorList;
+            ApplyContextMenuTheme(currentSetting);
+        }
+
+        private void ApplyContextMenuTheme(Setting setting)
+        {
+            if (cmsErrorList == null) return;
+
+            if (menuTheme != null)
+            {
+                menuTheme.ApplyTo(cmsErrorList);
+                cmsErrorList.ShowImageMargin = false;
+                return;
+            }
+            if (setting == null) return;
+
+            Common.ApplyDarkContextMenuTheme(
+                cmsErrorList,
+                Color.FromArgb(setting.ColorScheme.ErrorList_BackColor),
+                Color.FromArgb(setting.ColorScheme.ErrorList_ForeColor),
+                Color.FromArgb(setting.ColorScheme.Panel_HeaderHighlightBackColor),
+                Color.FromArgb(setting.ColorScheme.Panel_GridBorderColor));
         }
 
         private void TsmiCopy_Click(object sender, EventArgs e)
