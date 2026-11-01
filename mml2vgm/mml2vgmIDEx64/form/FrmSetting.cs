@@ -65,19 +65,10 @@ namespace mml2vgmIDEx64
         private Button btnPanelHeaderResetDefault;
         private Button btnPanelGridBorderResetDefault;
         private ColorDialog cdMainScrollBarCustomColor;
-        private CheckBox cbMainWallpaperEnabled;
-        private Label lblMainWallpaperPath;
-        private TextBox tbMainWallpaperPath;
-        private Button btnMainWallpaperPath;
-        private Label lblMainWallpaperLayout;
-        private ComboBox cmbMainWallpaperLayout;
         private static readonly System.Drawing.Color DefaultMainBackgroundColor = System.Drawing.Color.FromArgb(ColorScheme.DefaultBackgroundColorArgb);
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public Action<System.Drawing.Color> MainBackgroundColorPreviewChanged { get; set; }
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public Action<System.Drawing.Color, bool, string, ImageLayout> MainBackgroundAppearancePreviewChanged { get; set; }
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public Action<int> WindowOpacityPreviewChanged { get; set; }
@@ -93,7 +84,6 @@ namespace mml2vgmIDEx64
             InitializeMDPlayerPathSetting();
             InitializeMainScrollBarColorSetting();
             InitializeWindowOpacitySetting();
-            InitializeMainWallpaperSetting();
 
             dgv = new DataGridView[] {
                 dgvMIDIoutListA,dgvMIDIoutListB,dgvMIDIoutListC,dgvMIDIoutListD
@@ -526,12 +516,6 @@ namespace mml2vgmIDEx64
         private void RaiseMainBackgroundColorPreviewChanged()
         {
             MainBackgroundColorPreviewChanged?.Invoke(pnlMainBackgroundCustomColor.BackColor);
-            MainBackgroundAppearancePreviewChanged?.Invoke(
-                pnlMainBackgroundCustomColor.BackColor,
-                cbMainWallpaperEnabled.Checked,
-                tbMainWallpaperPath.Text,
-                GetSelectedWallpaperLayout()
-            );
         }
 
         private void InitializeFolderTab()
@@ -742,106 +726,6 @@ namespace mml2vgmIDEx64
             tpColor.Controls.Add(tbOpacity);
             tpColor.Controls.SetChildIndex(tbOpacity, 0);
             tpColor.Controls.SetChildIndex(label52, 0);
-        }
-
-        private void InitializeMainWallpaperSetting()
-        {
-            cbMainWallpaperEnabled = new CheckBox
-            {
-                AutoSize = true,
-                Location = new System.Drawing.Point(8, 126),
-                Name = "cbMainWallpaperEnabled",
-                Size = new System.Drawing.Size(135, 19),
-                Text = "壁紙を表示する",
-                UseVisualStyleBackColor = true
-            };
-            cbMainWallpaperEnabled.CheckedChanged += cbMainWallpaperEnabled_CheckedChanged;
-
-            lblMainWallpaperPath = new Label
-            {
-                AutoSize = true,
-                Location = new System.Drawing.Point(8, 153),
-                Name = "lblMainWallpaperPath",
-                Size = new System.Drawing.Size(42, 15),
-                Text = "画像パス"
-            };
-
-            tbMainWallpaperPath = new TextBox
-            {
-                Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
-                Location = new System.Drawing.Point(74, 150),
-                Name = "tbMainWallpaperPath",
-                Size = new System.Drawing.Size(390, 23)
-            };
-            tbMainWallpaperPath.TextChanged += tbMainWallpaperPath_TextChanged;
-
-            btnMainWallpaperPath = new Button
-            {
-                Anchor = AnchorStyles.Top | AnchorStyles.Right,
-                Location = new System.Drawing.Point(472, 150),
-                Name = "btnMainWallpaperPath",
-                Size = new System.Drawing.Size(32, 23),
-                Text = "...",
-                UseVisualStyleBackColor = true
-            };
-            btnMainWallpaperPath.Click += btnMainWallpaperPath_Click;
-
-            lblMainWallpaperLayout = new Label
-            {
-                AutoSize = true,
-                Location = new System.Drawing.Point(8, 183),
-                Name = "lblMainWallpaperLayout",
-                Size = new System.Drawing.Size(55, 15),
-                Text = "表示形式"
-            };
-
-            cmbMainWallpaperLayout = new ComboBox
-            {
-                DropDownStyle = ComboBoxStyle.DropDownList,
-                FormattingEnabled = true,
-                Location = new System.Drawing.Point(74, 180),
-                Name = "cmbMainWallpaperLayout",
-                Size = new System.Drawing.Size(153, 23)
-            };
-            cmbMainWallpaperLayout.Items.AddRange(new object[] { "タイル", "中央", "拡大", "縮小(Zoom)" });
-            cmbMainWallpaperLayout.SelectedIndexChanged += cmbMainWallpaperLayout_SelectedIndexChanged;
-
-            lblMainBackgroundColor.Location = new System.Drawing.Point(8, 224);
-            btnMainBackgroundCustomColor.Location = new System.Drawing.Point(8, 245);
-            pnlMainBackgroundCustomColor.Location = new System.Drawing.Point(177, 245);
-            btnMainBackgroundResetDefault.Location = new System.Drawing.Point(8, 276);
-            lblPanelTextColor.Location = new System.Drawing.Point(8, 312);
-            btnPanelTextCustomColor.Location = new System.Drawing.Point(8, 333);
-            pnlPanelTextCustomColor.Location = new System.Drawing.Point(177, 333);
-            btnPanelTextResetDefault.Location = new System.Drawing.Point(8, 364);
-            lblPanelHeaderTextColor.Location = new System.Drawing.Point(8, 400);
-            pnlPanelHeaderTextCustomColor.Location = new System.Drawing.Point(77, 397);
-            btnPanelHeaderTextCustomColor.Location = new System.Drawing.Point(119, 395);
-            lblPanelHeaderColor.Location = new System.Drawing.Point(174, 400);
-            pnlPanelHeaderCustomColor.Location = new System.Drawing.Point(219, 397);
-            btnPanelHeaderCustomColor.Location = new System.Drawing.Point(261, 395);
-            lblPanelHeaderHighlightColor.Location = new System.Drawing.Point(316, 400);
-            pnlPanelHeaderHighlightCustomColor.Location = new System.Drawing.Point(385, 397);
-            btnPanelHeaderHighlightCustomColor.Location = new System.Drawing.Point(427, 395);
-            lblPanelGridBorderColor.Location = new System.Drawing.Point(8, 429);
-            pnlPanelGridBorderCustomColor.Location = new System.Drawing.Point(85, 426);
-            btnPanelGridBorderCustomColor.Location = new System.Drawing.Point(127, 424);
-            btnPanelHeaderResetDefault.Location = new System.Drawing.Point(184, 424);
-            btnPanelGridBorderResetDefault.Location = new System.Drawing.Point(327, 424);
-
-            tpColor.Controls.Add(cbMainWallpaperEnabled);
-            tpColor.Controls.Add(lblMainWallpaperPath);
-            tpColor.Controls.Add(tbMainWallpaperPath);
-            tpColor.Controls.Add(btnMainWallpaperPath);
-            tpColor.Controls.Add(lblMainWallpaperLayout);
-            tpColor.Controls.Add(cmbMainWallpaperLayout);
-
-            tpColor.Controls.SetChildIndex(cmbMainWallpaperLayout, 0);
-            tpColor.Controls.SetChildIndex(lblMainWallpaperLayout, 0);
-            tpColor.Controls.SetChildIndex(btnMainWallpaperPath, 0);
-            tpColor.Controls.SetChildIndex(tbMainWallpaperPath, 0);
-            tpColor.Controls.SetChildIndex(lblMainWallpaperPath, 0);
-            tpColor.Controls.SetChildIndex(cbMainWallpaperEnabled, 0);
         }
 
         public void Init()
@@ -1339,10 +1223,6 @@ namespace mml2vgmIDEx64
             pnlPanelHeaderCustomColor.BackColor = System.Drawing.Color.FromArgb(setting.ColorScheme.Panel_HeaderBackColor);
             pnlPanelHeaderHighlightCustomColor.BackColor = System.Drawing.Color.FromArgb(setting.ColorScheme.Panel_HeaderHighlightBackColor);
             pnlPanelGridBorderCustomColor.BackColor = System.Drawing.Color.FromArgb(setting.ColorScheme.Panel_GridBorderColor);
-            cbMainWallpaperEnabled.Checked = setting.other.MainScreenWallpaperEnabled;
-            tbMainWallpaperPath.Text = setting.other.MainScreenWallpaperPath;
-            SetWallpaperLayoutSelection((ImageLayout)Math.Max(0, Math.Min(setting.other.MainScreenWallpaperLayout, 3)));
-            UpdateMainWallpaperControlState();
 
             cbUseMIDIExport.Checked = setting.midiExport.UseMIDIExport;
             gbMIDIExport.Enabled = cbUseMIDIExport.Checked;
@@ -2226,9 +2106,6 @@ namespace mml2vgmIDEx64
             setting.other.EmptyPlayList = cbEmptyPlayList.Checked;
             setting.other.ChangeEnterCode = cbChangeEnterCode.Checked;
             setting.other.Opacity = tbOpacity.Value;
-            setting.other.MainScreenWallpaperEnabled = cbMainWallpaperEnabled.Checked;
-            setting.other.MainScreenWallpaperPath = tbMainWallpaperPath.Text;
-            setting.other.MainScreenWallpaperLayout = (int)GetSelectedWallpaperLayout();
             setting.other.TextFontName = lblFontName.Text;
             setting.other.TextFontSize = float.Parse(lblFontSize.Text);
             setting.other.TextFontStyle =
@@ -3339,83 +3216,6 @@ namespace mml2vgmIDEx64
         private void tbOpacity_Scroll(object sender, EventArgs e)
         {
             WindowOpacityPreviewChanged?.Invoke(tbOpacity.Value);
-        }
-
-        private void cbMainWallpaperEnabled_CheckedChanged(object sender, EventArgs e)
-        {
-            UpdateMainWallpaperControlState();
-            RaiseMainBackgroundColorPreviewChanged();
-        }
-
-        private void tbMainWallpaperPath_TextChanged(object sender, EventArgs e)
-        {
-            RaiseMainBackgroundColorPreviewChanged();
-        }
-
-        private void cmbMainWallpaperLayout_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            RaiseMainBackgroundColorPreviewChanged();
-        }
-
-        private void btnMainWallpaperPath_Click(object sender, EventArgs e)
-        {
-            OpenFileDialog ofd = new OpenFileDialog();
-            ofd.Filter = "画像ファイル(*.bmp;*.jpg;*.jpeg;*.png;*.gif)|*.bmp;*.jpg;*.jpeg;*.png;*.gif|すべてのファイル(*.*)|*.*";
-            ofd.Title = "壁紙画像を選択してください";
-            ofd.RestoreDirectory = true;
-            ofd.CheckPathExists = true;
-            ofd.Multiselect = false;
-
-            if (File.Exists(tbMainWallpaperPath.Text))
-            {
-                ofd.FileName = tbMainWallpaperPath.Text;
-            }
-            else if (!string.IsNullOrWhiteSpace(setting.other.DefaultDataPath) && Directory.Exists(setting.other.DefaultDataPath))
-            {
-                ofd.InitialDirectory = setting.other.DefaultDataPath;
-            }
-
-            if (ofd.ShowDialog(this) != DialogResult.OK)
-            {
-                return;
-            }
-
-            tbMainWallpaperPath.Text = ofd.FileName;
-            RaiseMainBackgroundColorPreviewChanged();
-        }
-
-        private void UpdateMainWallpaperControlState()
-        {
-            bool enabled = cbMainWallpaperEnabled.Checked;
-            tbMainWallpaperPath.Enabled = enabled;
-            btnMainWallpaperPath.Enabled = enabled;
-            cmbMainWallpaperLayout.Enabled = enabled;
-            lblMainWallpaperPath.Enabled = enabled;
-            lblMainWallpaperLayout.Enabled = enabled;
-        }
-
-        private ImageLayout GetSelectedWallpaperLayout()
-        {
-            return cmbMainWallpaperLayout.SelectedIndex switch
-            {
-                0 => ImageLayout.Tile,
-                1 => ImageLayout.Center,
-                2 => ImageLayout.Stretch,
-                3 => ImageLayout.Zoom,
-                _ => ImageLayout.Zoom
-            };
-        }
-
-        private void SetWallpaperLayoutSelection(ImageLayout layout)
-        {
-            cmbMainWallpaperLayout.SelectedIndex = layout switch
-            {
-                ImageLayout.Tile => 0,
-                ImageLayout.Center => 1,
-                ImageLayout.Stretch => 2,
-                ImageLayout.Zoom => 3,
-                _ => 3
-            };
         }
 
         private void BtFont_Click(object sender, EventArgs e)
