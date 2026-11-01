@@ -1652,6 +1652,8 @@ namespace mml2vgmIDEx64
 
             private static IComparable GetSortKey(ListViewItem item, int column)
             {
+                if (item == null || column < 0 || column >= item.SubItems.Count) return null;
+
                 string text = item.SubItems[column].Text;
                 if (string.IsNullOrWhiteSpace(text)) return null;
 
