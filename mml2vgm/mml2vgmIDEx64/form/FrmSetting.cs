@@ -19,6 +19,7 @@ namespace mml2vgmIDEx64
         DataGridView[] dgv = null;
         private TabPage tpFolder;
         private TabPage tpColor;
+        private TabPage tpErrorList;
         private Label lblSoxPath;
         private TextBox tbSoxPath;
         private Button btnSoxPath;
@@ -81,6 +82,7 @@ namespace mml2vgmIDEx64
             InitializeFolderTab();
             InitializePartCounterFontSetting();
             InitializeColorTab();
+            InitializeErrorListTab();
             InitializeMDPlayerPathSetting();
             InitializeMainScrollBarColorSetting();
             InitializeWindowOpacitySetting();
@@ -239,6 +241,12 @@ namespace mml2vgmIDEx64
 
         private void InitializeMainScrollBarColorSetting()
         {
+            const int settingLeft = 8;
+            const int colorSampleLeft = 177;
+            const int resetButtonLeft = 224;
+            const int headerSectionTop = 200;
+            const int gridSectionTop = 316;
+
             lblMainBackgroundColor = new Label();
             btnMainBackgroundCustomColor = new Button();
             pnlMainBackgroundCustomColor = new Panel();
@@ -264,13 +272,13 @@ namespace mml2vgmIDEx64
             cdMainScrollBarCustomColor = new ColorDialog();
 
             lblMainBackgroundColor.AutoSize = true;
-            lblMainBackgroundColor.Location = new System.Drawing.Point(8, 20);
+            lblMainBackgroundColor.Location = new System.Drawing.Point(settingLeft, 56);
             lblMainBackgroundColor.Margin = new Padding(4, 0, 4, 0);
             lblMainBackgroundColor.Name = "lblMainBackgroundColor";
             lblMainBackgroundColor.Size = new System.Drawing.Size(67, 15);
             lblMainBackgroundColor.Text = "背景色設定";
 
-            btnMainBackgroundCustomColor.Location = new System.Drawing.Point(8, 41);
+            btnMainBackgroundCustomColor.Location = new System.Drawing.Point(settingLeft, 77);
             btnMainBackgroundCustomColor.Margin = new Padding(4);
             btnMainBackgroundCustomColor.Name = "btnMainBackgroundCustomColor";
             btnMainBackgroundCustomColor.Size = new System.Drawing.Size(160, 23);
@@ -279,28 +287,30 @@ namespace mml2vgmIDEx64
             btnMainBackgroundCustomColor.Click += btnMainBackgroundCustomColor_Click;
 
             pnlMainBackgroundCustomColor.BorderStyle = BorderStyle.FixedSingle;
-            pnlMainBackgroundCustomColor.Location = new System.Drawing.Point(177, 41);
+            pnlMainBackgroundCustomColor.Location = new System.Drawing.Point(colorSampleLeft, 52);
             pnlMainBackgroundCustomColor.Margin = new Padding(4);
             pnlMainBackgroundCustomColor.Name = "pnlMainBackgroundCustomColor";
-            pnlMainBackgroundCustomColor.Size = new System.Drawing.Size(86, 23);
+            pnlMainBackgroundCustomColor.Size = new System.Drawing.Size(38, 23);
+            pnlMainBackgroundCustomColor.Cursor = Cursors.Hand;
             pnlMainBackgroundCustomColor.BackColor = DefaultMainBackgroundColor;
+            pnlMainBackgroundCustomColor.Click += btnMainBackgroundCustomColor_Click;
 
-            btnMainBackgroundResetDefault.Location = new System.Drawing.Point(8, 72);
+            btnMainBackgroundResetDefault.Location = new System.Drawing.Point(resetButtonLeft, 52);
             btnMainBackgroundResetDefault.Margin = new Padding(4);
             btnMainBackgroundResetDefault.Name = "btnMainBackgroundResetDefault";
-            btnMainBackgroundResetDefault.Size = new System.Drawing.Size(160, 23);
-            btnMainBackgroundResetDefault.Text = "デフォルトカラーにリセット";
+            btnMainBackgroundResetDefault.Size = new System.Drawing.Size(75, 23);
+            btnMainBackgroundResetDefault.Text = "リセット";
             btnMainBackgroundResetDefault.UseVisualStyleBackColor = true;
             btnMainBackgroundResetDefault.Click += btnMainBackgroundResetDefault_Click;
 
             lblPanelTextColor.AutoSize = true;
-            lblPanelTextColor.Location = new System.Drawing.Point(8, 104);
+            lblPanelTextColor.Location = new System.Drawing.Point(settingLeft, 140);
             lblPanelTextColor.Margin = new Padding(4, 0, 4, 0);
             lblPanelTextColor.Name = "lblPanelTextColor";
             lblPanelTextColor.Size = new System.Drawing.Size(103, 15);
             lblPanelTextColor.Text = "パネル文字色設定";
 
-            btnPanelTextCustomColor.Location = new System.Drawing.Point(8, 125);
+            btnPanelTextCustomColor.Location = new System.Drawing.Point(settingLeft, 161);
             btnPanelTextCustomColor.Margin = new Padding(4);
             btnPanelTextCustomColor.Name = "btnPanelTextCustomColor";
             btnPanelTextCustomColor.Size = new System.Drawing.Size(160, 23);
@@ -309,28 +319,30 @@ namespace mml2vgmIDEx64
             btnPanelTextCustomColor.Click += btnPanelTextCustomColor_Click;
 
             pnlPanelTextCustomColor.BorderStyle = BorderStyle.FixedSingle;
-            pnlPanelTextCustomColor.Location = new System.Drawing.Point(177, 125);
+            pnlPanelTextCustomColor.Location = new System.Drawing.Point(colorSampleLeft, 136);
             pnlPanelTextCustomColor.Margin = new Padding(4);
             pnlPanelTextCustomColor.Name = "pnlPanelTextCustomColor";
-            pnlPanelTextCustomColor.Size = new System.Drawing.Size(86, 23);
+            pnlPanelTextCustomColor.Size = new System.Drawing.Size(38, 23);
+            pnlPanelTextCustomColor.Cursor = Cursors.Hand;
             pnlPanelTextCustomColor.BackColor = Color.FromArgb(ColorScheme.DefaultPanelTextColorArgb);
+            pnlPanelTextCustomColor.Click += btnPanelTextCustomColor_Click;
 
-            btnPanelTextResetDefault.Location = new System.Drawing.Point(8, 156);
+            btnPanelTextResetDefault.Location = new System.Drawing.Point(resetButtonLeft, 136);
             btnPanelTextResetDefault.Margin = new Padding(4);
             btnPanelTextResetDefault.Name = "btnPanelTextResetDefault";
-            btnPanelTextResetDefault.Size = new System.Drawing.Size(160, 23);
-            btnPanelTextResetDefault.Text = "文字色をデフォルトにリセット";
+            btnPanelTextResetDefault.Size = new System.Drawing.Size(75, 23);
+            btnPanelTextResetDefault.Text = "リセット";
             btnPanelTextResetDefault.UseVisualStyleBackColor = true;
             btnPanelTextResetDefault.Click += btnPanelTextResetDefault_Click;
 
             lblPanelHeaderTextColor.AutoSize = true;
-            lblPanelHeaderTextColor.Location = new System.Drawing.Point(8, 188);
+            lblPanelHeaderTextColor.Location = new System.Drawing.Point(settingLeft, headerSectionTop);
             lblPanelHeaderTextColor.Margin = new Padding(4, 0, 4, 0);
             lblPanelHeaderTextColor.Name = "lblPanelHeaderTextColor";
             lblPanelHeaderTextColor.Size = new System.Drawing.Size(127, 15);
             lblPanelHeaderTextColor.Text = "カラムヘッダ文字色設定";
 
-            btnPanelHeaderTextCustomColor.Location = new System.Drawing.Point(8, 209);
+            btnPanelHeaderTextCustomColor.Location = new System.Drawing.Point(settingLeft, 245);
             btnPanelHeaderTextCustomColor.Margin = new Padding(4);
             btnPanelHeaderTextCustomColor.Name = "btnPanelHeaderTextCustomColor";
             btnPanelHeaderTextCustomColor.Size = new System.Drawing.Size(160, 23);
@@ -339,18 +351,22 @@ namespace mml2vgmIDEx64
             btnPanelHeaderTextCustomColor.Click += btnPanelHeaderTextCustomColor_Click;
 
             pnlPanelHeaderTextCustomColor.BorderStyle = BorderStyle.FixedSingle;
-            pnlPanelHeaderTextCustomColor.Location = new System.Drawing.Point(177, 209);
+            pnlPanelHeaderTextCustomColor.Location = new System.Drawing.Point(colorSampleLeft, headerSectionTop - 4);
             pnlPanelHeaderTextCustomColor.Margin = new Padding(4);
             pnlPanelHeaderTextCustomColor.Name = "pnlPanelHeaderTextCustomColor";
             pnlPanelHeaderTextCustomColor.Size = new System.Drawing.Size(38, 23);
+            pnlPanelHeaderTextCustomColor.Cursor = Cursors.Hand;
             pnlPanelHeaderTextCustomColor.BackColor = Color.FromArgb(ColorScheme.DefaultPanelHeaderForeColorArgb);
+            pnlPanelHeaderTextCustomColor.Click += btnPanelHeaderTextCustomColor_Click;
 
             lblPanelHeaderColor.AutoSize = true;
+            lblPanelHeaderColor.Location = new System.Drawing.Point(settingLeft, headerSectionTop + 28);
             lblPanelHeaderColor.Margin = new Padding(4, 0, 4, 0);
             lblPanelHeaderColor.Name = "lblPanelHeaderColor";
             lblPanelHeaderColor.Size = new System.Drawing.Size(41, 15);
             lblPanelHeaderColor.Text = "ヘッダ";
 
+            btnPanelHeaderCustomColor.Location = new System.Drawing.Point(colorSampleLeft - 55, headerSectionTop + 24);
             btnPanelHeaderCustomColor.Margin = new Padding(4);
             btnPanelHeaderCustomColor.Name = "btnPanelHeaderCustomColor";
             btnPanelHeaderCustomColor.Size = new System.Drawing.Size(50, 23);
@@ -359,17 +375,22 @@ namespace mml2vgmIDEx64
             btnPanelHeaderCustomColor.Click += btnPanelHeaderCustomColor_Click;
 
             pnlPanelHeaderCustomColor.BorderStyle = BorderStyle.FixedSingle;
+            pnlPanelHeaderCustomColor.Location = new System.Drawing.Point(colorSampleLeft, headerSectionTop + 24);
             pnlPanelHeaderCustomColor.Margin = new Padding(4);
             pnlPanelHeaderCustomColor.Name = "pnlPanelHeaderCustomColor";
             pnlPanelHeaderCustomColor.Size = new System.Drawing.Size(38, 23);
+            pnlPanelHeaderCustomColor.Cursor = Cursors.Hand;
             pnlPanelHeaderCustomColor.BackColor = Color.FromArgb(ColorScheme.DefaultPanelHeaderBackColorArgb);
+            pnlPanelHeaderCustomColor.Click += btnPanelHeaderCustomColor_Click;
 
             lblPanelHeaderHighlightColor.AutoSize = true;
+            lblPanelHeaderHighlightColor.Location = new System.Drawing.Point(settingLeft, headerSectionTop + 56);
             lblPanelHeaderHighlightColor.Margin = new Padding(4, 0, 4, 0);
             lblPanelHeaderHighlightColor.Name = "lblPanelHeaderHighlightColor";
             lblPanelHeaderHighlightColor.Size = new System.Drawing.Size(65, 15);
             lblPanelHeaderHighlightColor.Text = "ヘッダ強調";
 
+            btnPanelHeaderHighlightCustomColor.Location = new System.Drawing.Point(colorSampleLeft - 55, headerSectionTop + 52);
             btnPanelHeaderHighlightCustomColor.Margin = new Padding(4);
             btnPanelHeaderHighlightCustomColor.Name = "btnPanelHeaderHighlightCustomColor";
             btnPanelHeaderHighlightCustomColor.Size = new System.Drawing.Size(50, 23);
@@ -378,17 +399,22 @@ namespace mml2vgmIDEx64
             btnPanelHeaderHighlightCustomColor.Click += btnPanelHeaderHighlightCustomColor_Click;
 
             pnlPanelHeaderHighlightCustomColor.BorderStyle = BorderStyle.FixedSingle;
+            pnlPanelHeaderHighlightCustomColor.Location = new System.Drawing.Point(colorSampleLeft, headerSectionTop + 52);
             pnlPanelHeaderHighlightCustomColor.Margin = new Padding(4);
             pnlPanelHeaderHighlightCustomColor.Name = "pnlPanelHeaderHighlightCustomColor";
             pnlPanelHeaderHighlightCustomColor.Size = new System.Drawing.Size(38, 23);
+            pnlPanelHeaderHighlightCustomColor.Cursor = Cursors.Hand;
             pnlPanelHeaderHighlightCustomColor.BackColor = Color.FromArgb(ColorScheme.DefaultPanelHeaderHighlightBackColorArgb);
+            pnlPanelHeaderHighlightCustomColor.Click += btnPanelHeaderHighlightCustomColor_Click;
 
             lblPanelGridBorderColor.AutoSize = true;
+            lblPanelGridBorderColor.Location = new System.Drawing.Point(settingLeft, gridSectionTop);
             lblPanelGridBorderColor.Margin = new Padding(4, 0, 4, 0);
             lblPanelGridBorderColor.Name = "lblPanelGridBorderColor";
             lblPanelGridBorderColor.Size = new System.Drawing.Size(73, 15);
             lblPanelGridBorderColor.Text = "グリッド枠線";
 
+            btnPanelGridBorderCustomColor.Location = new System.Drawing.Point(colorSampleLeft - 55, gridSectionTop - 4);
             btnPanelGridBorderCustomColor.Margin = new Padding(4);
             btnPanelGridBorderCustomColor.Name = "btnPanelGridBorderCustomColor";
             btnPanelGridBorderCustomColor.Size = new System.Drawing.Size(50, 23);
@@ -397,51 +423,49 @@ namespace mml2vgmIDEx64
             btnPanelGridBorderCustomColor.Click += btnPanelGridBorderCustomColor_Click;
 
             pnlPanelGridBorderCustomColor.BorderStyle = BorderStyle.FixedSingle;
+            pnlPanelGridBorderCustomColor.Location = new System.Drawing.Point(colorSampleLeft, gridSectionTop - 4);
             pnlPanelGridBorderCustomColor.Margin = new Padding(4);
             pnlPanelGridBorderCustomColor.Name = "pnlPanelGridBorderCustomColor";
             pnlPanelGridBorderCustomColor.Size = new System.Drawing.Size(38, 23);
+            pnlPanelGridBorderCustomColor.Cursor = Cursors.Hand;
             pnlPanelGridBorderCustomColor.BackColor = Color.FromArgb(ColorScheme.DefaultPanelGridBorderColorArgb);
+            pnlPanelGridBorderCustomColor.Click += btnPanelGridBorderCustomColor_Click;
 
+            btnPanelHeaderResetDefault.Location = new System.Drawing.Point(resetButtonLeft, headerSectionTop + 24);
             btnPanelHeaderResetDefault.Margin = new Padding(4);
             btnPanelHeaderResetDefault.Name = "btnPanelHeaderResetDefault";
-            btnPanelHeaderResetDefault.Size = new System.Drawing.Size(241, 23);
-            btnPanelHeaderResetDefault.Text = "ヘッダ文字/ヘッダ/ヘッダ強調色をデフォルトにリセット";
+            btnPanelHeaderResetDefault.Size = new System.Drawing.Size(75, 23);
+            btnPanelHeaderResetDefault.Text = "リセット";
             btnPanelHeaderResetDefault.UseVisualStyleBackColor = true;
             btnPanelHeaderResetDefault.Click += btnPanelHeaderResetDefault_Click;
 
+            btnPanelGridBorderResetDefault.Location = new System.Drawing.Point(resetButtonLeft, gridSectionTop - 4);
             btnPanelGridBorderResetDefault.Margin = new Padding(4);
             btnPanelGridBorderResetDefault.Name = "btnPanelGridBorderResetDefault";
-            btnPanelGridBorderResetDefault.Size = new System.Drawing.Size(177, 23);
-            btnPanelGridBorderResetDefault.Text = "グリッド枠線をデフォルトにリセット";
+            btnPanelGridBorderResetDefault.Size = new System.Drawing.Size(75, 23);
+            btnPanelGridBorderResetDefault.Text = "リセット";
             btnPanelGridBorderResetDefault.UseVisualStyleBackColor = true;
             btnPanelGridBorderResetDefault.Click += btnPanelGridBorderResetDefault_Click;
 
             cdMainScrollBarCustomColor.FullOpen = true;
             tpColor.Controls.Add(lblMainBackgroundColor);
-            tpColor.Controls.Add(btnMainBackgroundCustomColor);
             tpColor.Controls.Add(pnlMainBackgroundCustomColor);
             tpColor.Controls.Add(btnMainBackgroundResetDefault);
             tpColor.Controls.Add(lblPanelTextColor);
-            tpColor.Controls.Add(btnPanelTextCustomColor);
             tpColor.Controls.Add(pnlPanelTextCustomColor);
             tpColor.Controls.Add(btnPanelTextResetDefault);
             tpColor.Controls.Add(lblPanelHeaderTextColor);
-            tpColor.Controls.Add(btnPanelHeaderTextCustomColor);
             tpColor.Controls.Add(pnlPanelHeaderTextCustomColor);
             tpColor.Controls.Add(lblPanelHeaderColor);
-            tpColor.Controls.Add(btnPanelHeaderCustomColor);
             tpColor.Controls.Add(pnlPanelHeaderCustomColor);
             tpColor.Controls.Add(lblPanelHeaderHighlightColor);
-            tpColor.Controls.Add(btnPanelHeaderHighlightCustomColor);
             tpColor.Controls.Add(pnlPanelHeaderHighlightCustomColor);
             tpColor.Controls.Add(lblPanelGridBorderColor);
-            tpColor.Controls.Add(btnPanelGridBorderCustomColor);
             tpColor.Controls.Add(pnlPanelGridBorderCustomColor);
             tpColor.Controls.Add(btnPanelHeaderResetDefault);
             tpColor.Controls.Add(btnPanelGridBorderResetDefault);
             tpColor.Controls.SetChildIndex(btnMainBackgroundResetDefault, 0);
             tpColor.Controls.SetChildIndex(pnlMainBackgroundCustomColor, 0);
-            tpColor.Controls.SetChildIndex(btnMainBackgroundCustomColor, 0);
             tpColor.Controls.SetChildIndex(lblMainBackgroundColor, 0);
         }
 
@@ -711,6 +735,40 @@ namespace mml2vgmIDEx64
             else
             {
                 tcSetting.TabPages.Add(tpColor);
+            }
+        }
+
+        private void InitializeErrorListTab()
+        {
+            tpErrorList = new TabPage
+            {
+                BorderStyle = BorderStyle.FixedSingle,
+                Location = new System.Drawing.Point(4, 44),
+                Margin = new Padding(4),
+                Name = "tpErrorList",
+                Size = new System.Drawing.Size(518, 510),
+                TabIndex = 22,
+                Text = "Error list",
+                UseVisualStyleBackColor = true
+            };
+
+            cbCompileResultDialog.Text = "コンパイルで問題があった場合にダイアログで通知する";
+            cbCompileResultDialog.Location = new System.Drawing.Point(8, 16);
+            cbCompileResultActivateErrorList.Location = new System.Drawing.Point(8, 43);
+            cbCompileResultIncludeWarning.Location = new System.Drawing.Point(8, 70);
+
+            tpErrorList.Controls.Add(cbCompileResultDialog);
+            tpErrorList.Controls.Add(cbCompileResultActivateErrorList);
+            tpErrorList.Controls.Add(cbCompileResultIncludeWarning);
+
+            int other2TabIndex = tcSetting.TabPages.IndexOf(tpOther2);
+            if (other2TabIndex >= 0)
+            {
+                tcSetting.TabPages.Insert(other2TabIndex + 1, tpErrorList);
+            }
+            else
+            {
+                tcSetting.TabPages.Add(tpErrorList);
             }
         }
 
