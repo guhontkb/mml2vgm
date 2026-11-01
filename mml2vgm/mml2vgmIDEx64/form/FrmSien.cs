@@ -32,9 +32,15 @@ namespace mml2vgmIDEx64
                 instCache = ConvertCacheList(setting.sien);
             }
 
+            ApplyColorSetting(setting);
+            this.Opacity = setting.other.Opacity / 100.0;
+        }
+
+        public void ApplyColorSetting(Setting setting)
+        {
+            if (setting == null) return;
             this.BackColor = Color.FromArgb(setting.ColorScheme.Azuki_BackColor);
             treeView1.BackColor = Color.FromArgb(setting.ColorScheme.Azuki_BackColor);
-            this.Opacity = setting.other.Opacity / 100.0;
         }
 
         protected override string GetPersistString()

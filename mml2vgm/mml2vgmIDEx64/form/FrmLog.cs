@@ -13,12 +13,18 @@ namespace mml2vgmIDEx64
         {
             InitializeComponent();
             Common.ApplyDarkScrollBarTheme(this);
-            this.tbLog.BackColor = Color.FromArgb(setting.ColorScheme.Log_BackColor);
-            this.tbLog.ForeColor = Color.FromArgb(setting.ColorScheme.Log_ForeColor);
+            ApplyColorSetting(setting);
             theme.ApplyTo(toolStrip1);
 
             Common.SetDoubleBuffered(this);
             Common.SetDoubleBuffered(tbLog);
+        }
+
+        public void ApplyColorSetting(Setting setting)
+        {
+            if (setting == null) return;
+            this.tbLog.BackColor = Color.FromArgb(setting.ColorScheme.Log_BackColor);
+            this.tbLog.ForeColor = Color.FromArgb(setting.ColorScheme.Log_ForeColor);
         }
 
         public void ClearLog()

@@ -898,11 +898,6 @@ namespace mml2vgmIDEx64
 
             FrmSetting frmSetting = new FrmSetting(setting);
             int beforeOpacity = setting.other.Opacity;
-            Color beforeBackgroundColor = Color.FromArgb(setting.other.MainScreenBackgroundColorArgb);
-            frmSetting.MainBackgroundColorPreviewChanged = backgroundColor =>
-            {
-                ApplyMainBackgroundColor(backgroundColor);
-            };
             frmSetting.WindowOpacityPreviewChanged = opacity =>
             {
                 ApplyWindowOpacity(opacity, frmSetting);
@@ -912,7 +907,6 @@ namespace mml2vgmIDEx64
             if (res != DialogResult.OK)
             {
                 ApplyWindowOpacity(beforeOpacity);
-                ApplyMainBackgroundColor(beforeBackgroundColor);
             }
             //if (res != DialogResult.OK)
             //{
@@ -3801,6 +3795,11 @@ namespace mml2vgmIDEx64
             Log.ForcedWrite("Reinit:ApplyMainBackgroundColor");
             ApplyMainBackgroundColor();
             frmPartCounter?.ApplyColorSetting(this.setting);
+            frmLog?.ApplyColorSetting(this.setting);
+            frmErrorList?.ApplyColorSetting(this.setting);
+            frmFolderTree?.ApplyColorSetting(this.setting);
+            frmLyrics?.ApplyColorSetting(this.setting);
+            frmSien?.ApplyColorSetting(this.setting);
             UpdateControl();
 
             Log.ForcedWrite("設定が変更されたため、再度Audio初期化処理開始");
@@ -3862,7 +3861,7 @@ namespace mml2vgmIDEx64
         private void ApplyMainBackgroundColor()
         {
             if (setting == null) return;
-            ApplyMainBackgroundColor(Color.FromArgb(setting.other.MainScreenBackgroundColorArgb));
+            ApplyMainBackgroundColor(Color.FromArgb(setting.ColorScheme.Log_BackColor));
         }
 
         private void ApplyMainBackgroundColor(Color backgroundColor)
@@ -3879,6 +3878,17 @@ namespace mml2vgmIDEx64
                 dpMain.BackgroundImage = null;
             }
             this.BackColor = backgroundColor;
+
+            if (dpMain == null) return;
+            foreach (var dc in dpMain.Documents)
+            {
+                if (dc is not FrmEditor frmEditor) continue;
+                var azukiControl = frmEditor.azukiControl;
+                if (azukiControl == null) continue;
+                azukiControl.ColorScheme.BackColor = Color.FromArgb(setting.ColorScheme.Azuki_BackColor);
+                azukiControl.ColorScheme.LineNumberBack = Color.FromArgb(setting.ColorScheme.Azuki_LineNumberBack_Normal);
+                azukiControl.Refresh();
+            }
         }
 
         private static void ApplyMainBackgroundColorToControl(Control control, Color backgroundColor)

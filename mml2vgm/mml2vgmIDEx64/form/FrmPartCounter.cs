@@ -97,10 +97,13 @@ namespace mml2vgmIDEx64
             //dgvPartCounter.DefaultCellStyle.SelectionBackColor = Color.Empty;
             dgvPartCounter.ForeColor = Color.FromArgb(setting.ColorScheme.PartCounter_ForeColor);
             mutedRowForeColor = BlendColor(dgvPartCounter.ForeColor, dgvPartCounter.BackgroundColor, 0.6f);
-            dgvPartCounter.GridColor = BlendColor(dgvPartCounter.ForeColor, dgvPartCounter.BackgroundColor, 0.45f);
+            dgvPartCounter.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(setting.ColorScheme.Panel_HeaderBackColor);
+            dgvPartCounter.ColumnHeadersDefaultCellStyle.SelectionBackColor = Color.FromArgb(setting.ColorScheme.Panel_HeaderHighlightBackColor);
+            dgvPartCounter.GridColor = Color.FromArgb(setting.ColorScheme.Panel_GridBorderColor);
             dgvPartCounter.CellBorderStyle = DataGridViewCellBorderStyle.Single;
             dgvPartCounter.DefaultCellStyle.SelectionBackColor = Color.Empty;
             dgvPartCounter.DefaultCellStyle.SelectionForeColor = Color.Empty;
+            focusedCellSelectionBackColor = Color.FromArgb(setting.ColorScheme.Panel_HeaderHighlightBackColor);
             EnableDoubleBuffering(dgvPartCounter);
             dgvPartCounter.AllowDrop = true;
             dgvPartCounter.MouseDown += DgvPartCounter_MouseDown;
@@ -916,7 +919,10 @@ namespace mml2vgmIDEx64
             dgvPartCounter.BackgroundColor = Color.FromArgb(setting.ColorScheme.PartCounter_BackColor);
             dgvPartCounter.DefaultCellStyle.BackColor = dgvPartCounter.BackgroundColor;
             dgvPartCounter.ForeColor = Color.FromArgb(setting.ColorScheme.PartCounter_ForeColor);
-            dgvPartCounter.GridColor = BlendColor(dgvPartCounter.ForeColor, dgvPartCounter.BackgroundColor, 0.45f);
+            dgvPartCounter.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(setting.ColorScheme.Panel_HeaderBackColor);
+            dgvPartCounter.ColumnHeadersDefaultCellStyle.SelectionBackColor = Color.FromArgb(setting.ColorScheme.Panel_HeaderHighlightBackColor);
+            dgvPartCounter.GridColor = Color.FromArgb(setting.ColorScheme.Panel_GridBorderColor);
+            focusedCellSelectionBackColor = Color.FromArgb(setting.ColorScheme.Panel_HeaderHighlightBackColor);
             mutedRowForeColor = BlendColor(Color.FromArgb(setting.ColorScheme.PartCounter_ForeColor), Color.FromArgb(setting.ColorScheme.PartCounter_BackColor), 0.6f);
             ApplyBaseRowColors();
             ApplyFocusColors();

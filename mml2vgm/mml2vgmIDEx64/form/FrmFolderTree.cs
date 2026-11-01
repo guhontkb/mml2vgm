@@ -15,8 +15,8 @@ namespace mml2vgmIDEx64
 {
     public partial class FrmFolderTree : WeifenLuo.WinFormsUI.Docking.DockContent
     {
-        private static readonly Color FileListHeaderBackColor = Color.FromArgb(80, 80, 160);
-        private static readonly Color FileListSortedHeaderBackColor = Color.FromArgb(105, 105, 190);
+        private Color fileListHeaderBackColor = Color.FromArgb(ColorScheme.DefaultPanelHeaderBackColorArgb);
+        private Color fileListSortedHeaderBackColor = Color.FromArgb(ColorScheme.DefaultPanelHeaderHighlightBackColorArgb);
         private static readonly Color FileListHeaderForeColor = Color.FromArgb(230, 255, 255);
         private static readonly Color FolderTreeSplitterColor = Color.FromArgb(60, 60, 72);
         private static readonly Color FileListActiveSelectionBackColor = Color.FromArgb(89, 89, 121);
@@ -73,19 +73,11 @@ namespace mml2vgmIDEx64
             InitializeComponent();
             AddFileIconVariants();
             this.setting = setting;
-            this.tvFolderTree.BackColor = Color.FromArgb(setting.ColorScheme.FolderTree_BackColor);
-            this.tvFolderTree.ForeColor = Color.FromArgb(setting.ColorScheme.FolderTree_ForeColor);
-            this.tvFolderTree.HotColor = Color.FromArgb(setting.ColorScheme.FolderTree_BackColor);
-            this.tvFolderTree.HotColor = Color.FromArgb(
-                (int)(tvFolderTree.HotColor.R * 1.3),
-                (int)(tvFolderTree.HotColor.G * 1.3),
-                (int)(tvFolderTree.HotColor.B * 1.3));
+            ApplyColorSetting(setting);
             this.tvFolderTree.ShowNodeToolTips = false;
             this.tvFolderTree.NodeMouseHover += TvFolderTree_NodeMouseHover;
             this.tvFolderTree.MouseMove += TvFolderTree_MouseMove;
             this.tvFolderTree.MouseLeave += TvFolderTree_MouseLeave;
-            lvFileList.BackColor = Color.FromArgb(setting.ColorScheme.FolderTree_BackColor);
-            lvFileList.ForeColor = Color.FromArgb(setting.ColorScheme.FolderTree_ForeColor);
             splitContainer1.BackColor = FolderTreeSplitterColor;
 
             tvFolderTree.TreeViewNodeSorter = new NodeSorter();
@@ -109,6 +101,24 @@ namespace mml2vgmIDEx64
             folderTreeToolTip.InitialDelay = 300;
             folderTreeToolTip.ReshowDelay = 100;
             folderTreeToolTip.AutoPopDelay = 10000;
+        }
+
+        public void ApplyColorSetting(Setting setting)
+        {
+            if (setting == null) return;
+
+            this.tvFolderTree.BackColor = Color.FromArgb(setting.ColorScheme.FolderTree_BackColor);
+            this.tvFolderTree.ForeColor = Color.FromArgb(setting.ColorScheme.FolderTree_ForeColor);
+            Color hotColorBase = Color.FromArgb(setting.ColorScheme.FolderTree_BackColor);
+            this.tvFolderTree.HotColor = Color.FromArgb(
+                Math.Min((int)(hotColorBase.R * 1.3), 255),
+                Math.Min((int)(hotColorBase.G * 1.3), 255),
+                Math.Min((int)(hotColorBase.B * 1.3), 255));
+            lvFileList.BackColor = Color.FromArgb(setting.ColorScheme.FolderTree_BackColor);
+            lvFileList.ForeColor = Color.FromArgb(setting.ColorScheme.FolderTree_ForeColor);
+            fileListHeaderBackColor = Color.FromArgb(setting.ColorScheme.Panel_HeaderBackColor);
+            fileListSortedHeaderBackColor = Color.FromArgb(setting.ColorScheme.Panel_HeaderHighlightBackColor);
+            lvFileList.Invalidate();
         }
 
         private void RestoreFileListSettings()
@@ -1464,7 +1474,7 @@ namespace mml2vgmIDEx64
         private void LvFileList_DrawColumnHeader(object sender, DrawListViewColumnHeaderEventArgs e)
         {
             bool hasSortIcon = fileListSortColumn == e.ColumnIndex && e.ColumnIndex != columnHeaderHeaderFill.Index;
-            using (SolidBrush backgroundBrush = new SolidBrush(hasSortIcon ? FileListSortedHeaderBackColor : FileListHeaderBackColor))
+            using (SolidBrush backgroundBrush = new SolidBrush(hasSortIcon ? fileListSortedHeaderBackColor : fileListHeaderBackColor))
             {
                 e.Graphics.FillRectangle(backgroundBrush, e.Bounds);
             }

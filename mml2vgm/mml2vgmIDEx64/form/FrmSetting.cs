@@ -45,6 +45,17 @@ namespace mml2vgmIDEx64
         private Button btnMainBackgroundCustomColor;
         private Panel pnlMainBackgroundCustomColor;
         private Button btnMainBackgroundResetDefault;
+        private Label lblPanelHeaderColor;
+        private Button btnPanelHeaderCustomColor;
+        private Panel pnlPanelHeaderCustomColor;
+        private Label lblPanelHeaderHighlightColor;
+        private Button btnPanelHeaderHighlightCustomColor;
+        private Panel pnlPanelHeaderHighlightCustomColor;
+        private Label lblPanelGridBorderColor;
+        private Button btnPanelGridBorderCustomColor;
+        private Panel pnlPanelGridBorderCustomColor;
+        private Button btnPanelHeaderResetDefault;
+        private Button btnPanelGridBorderResetDefault;
         private ColorDialog cdMainScrollBarCustomColor;
         private CheckBox cbMainWallpaperEnabled;
         private Label lblMainWallpaperPath;
@@ -52,7 +63,7 @@ namespace mml2vgmIDEx64
         private Button btnMainWallpaperPath;
         private Label lblMainWallpaperLayout;
         private ComboBox cmbMainWallpaperLayout;
-        private static readonly System.Drawing.Color DefaultMainBackgroundColor = System.Drawing.Color.FromArgb(40, 29, 59);
+        private static readonly System.Drawing.Color DefaultMainBackgroundColor = System.Drawing.Color.FromArgb(ColorScheme.DefaultBackgroundColorArgb);
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public Action<System.Drawing.Color> MainBackgroundColorPreviewChanged { get; set; }
@@ -223,6 +234,17 @@ namespace mml2vgmIDEx64
             btnMainBackgroundCustomColor = new Button();
             pnlMainBackgroundCustomColor = new Panel();
             btnMainBackgroundResetDefault = new Button();
+            lblPanelHeaderColor = new Label();
+            btnPanelHeaderCustomColor = new Button();
+            pnlPanelHeaderCustomColor = new Panel();
+            lblPanelHeaderHighlightColor = new Label();
+            btnPanelHeaderHighlightCustomColor = new Button();
+            pnlPanelHeaderHighlightCustomColor = new Panel();
+            lblPanelGridBorderColor = new Label();
+            btnPanelGridBorderCustomColor = new Button();
+            pnlPanelGridBorderCustomColor = new Panel();
+            btnPanelHeaderResetDefault = new Button();
+            btnPanelGridBorderResetDefault = new Button();
             cdMainScrollBarCustomColor = new ColorDialog();
 
             lblMainBackgroundColor.AutoSize = true;
@@ -255,11 +277,93 @@ namespace mml2vgmIDEx64
             btnMainBackgroundResetDefault.UseVisualStyleBackColor = true;
             btnMainBackgroundResetDefault.Click += btnMainBackgroundResetDefault_Click;
 
+            lblPanelHeaderColor.AutoSize = true;
+            lblPanelHeaderColor.Margin = new Padding(4, 0, 4, 0);
+            lblPanelHeaderColor.Name = "lblPanelHeaderColor";
+            lblPanelHeaderColor.Size = new System.Drawing.Size(41, 15);
+            lblPanelHeaderColor.Text = "ヘッダ";
+
+            btnPanelHeaderCustomColor.Margin = new Padding(4);
+            btnPanelHeaderCustomColor.Name = "btnPanelHeaderCustomColor";
+            btnPanelHeaderCustomColor.Size = new System.Drawing.Size(50, 23);
+            btnPanelHeaderCustomColor.Text = "変更";
+            btnPanelHeaderCustomColor.UseVisualStyleBackColor = true;
+            btnPanelHeaderCustomColor.Click += btnPanelHeaderCustomColor_Click;
+
+            pnlPanelHeaderCustomColor.BorderStyle = BorderStyle.FixedSingle;
+            pnlPanelHeaderCustomColor.Margin = new Padding(4);
+            pnlPanelHeaderCustomColor.Name = "pnlPanelHeaderCustomColor";
+            pnlPanelHeaderCustomColor.Size = new System.Drawing.Size(38, 23);
+            pnlPanelHeaderCustomColor.BackColor = Color.FromArgb(ColorScheme.DefaultPanelHeaderBackColorArgb);
+
+            lblPanelHeaderHighlightColor.AutoSize = true;
+            lblPanelHeaderHighlightColor.Margin = new Padding(4, 0, 4, 0);
+            lblPanelHeaderHighlightColor.Name = "lblPanelHeaderHighlightColor";
+            lblPanelHeaderHighlightColor.Size = new System.Drawing.Size(65, 15);
+            lblPanelHeaderHighlightColor.Text = "ヘッダ強調";
+
+            btnPanelHeaderHighlightCustomColor.Margin = new Padding(4);
+            btnPanelHeaderHighlightCustomColor.Name = "btnPanelHeaderHighlightCustomColor";
+            btnPanelHeaderHighlightCustomColor.Size = new System.Drawing.Size(50, 23);
+            btnPanelHeaderHighlightCustomColor.Text = "変更";
+            btnPanelHeaderHighlightCustomColor.UseVisualStyleBackColor = true;
+            btnPanelHeaderHighlightCustomColor.Click += btnPanelHeaderHighlightCustomColor_Click;
+
+            pnlPanelHeaderHighlightCustomColor.BorderStyle = BorderStyle.FixedSingle;
+            pnlPanelHeaderHighlightCustomColor.Margin = new Padding(4);
+            pnlPanelHeaderHighlightCustomColor.Name = "pnlPanelHeaderHighlightCustomColor";
+            pnlPanelHeaderHighlightCustomColor.Size = new System.Drawing.Size(38, 23);
+            pnlPanelHeaderHighlightCustomColor.BackColor = Color.FromArgb(ColorScheme.DefaultPanelHeaderHighlightBackColorArgb);
+
+            lblPanelGridBorderColor.AutoSize = true;
+            lblPanelGridBorderColor.Margin = new Padding(4, 0, 4, 0);
+            lblPanelGridBorderColor.Name = "lblPanelGridBorderColor";
+            lblPanelGridBorderColor.Size = new System.Drawing.Size(73, 15);
+            lblPanelGridBorderColor.Text = "グリッド枠線";
+
+            btnPanelGridBorderCustomColor.Margin = new Padding(4);
+            btnPanelGridBorderCustomColor.Name = "btnPanelGridBorderCustomColor";
+            btnPanelGridBorderCustomColor.Size = new System.Drawing.Size(50, 23);
+            btnPanelGridBorderCustomColor.Text = "変更";
+            btnPanelGridBorderCustomColor.UseVisualStyleBackColor = true;
+            btnPanelGridBorderCustomColor.Click += btnPanelGridBorderCustomColor_Click;
+
+            pnlPanelGridBorderCustomColor.BorderStyle = BorderStyle.FixedSingle;
+            pnlPanelGridBorderCustomColor.Margin = new Padding(4);
+            pnlPanelGridBorderCustomColor.Name = "pnlPanelGridBorderCustomColor";
+            pnlPanelGridBorderCustomColor.Size = new System.Drawing.Size(38, 23);
+            pnlPanelGridBorderCustomColor.BackColor = Color.FromArgb(ColorScheme.DefaultPanelGridBorderColorArgb);
+
+            btnPanelHeaderResetDefault.Margin = new Padding(4);
+            btnPanelHeaderResetDefault.Name = "btnPanelHeaderResetDefault";
+            btnPanelHeaderResetDefault.Size = new System.Drawing.Size(241, 23);
+            btnPanelHeaderResetDefault.Text = "ヘッダ/ヘッダ強調色をデフォルトにリセット";
+            btnPanelHeaderResetDefault.UseVisualStyleBackColor = true;
+            btnPanelHeaderResetDefault.Click += btnPanelHeaderResetDefault_Click;
+
+            btnPanelGridBorderResetDefault.Margin = new Padding(4);
+            btnPanelGridBorderResetDefault.Name = "btnPanelGridBorderResetDefault";
+            btnPanelGridBorderResetDefault.Size = new System.Drawing.Size(177, 23);
+            btnPanelGridBorderResetDefault.Text = "グリッド枠線をデフォルトにリセット";
+            btnPanelGridBorderResetDefault.UseVisualStyleBackColor = true;
+            btnPanelGridBorderResetDefault.Click += btnPanelGridBorderResetDefault_Click;
+
             cdMainScrollBarCustomColor.FullOpen = true;
             tpColor.Controls.Add(lblMainBackgroundColor);
             tpColor.Controls.Add(btnMainBackgroundCustomColor);
             tpColor.Controls.Add(pnlMainBackgroundCustomColor);
             tpColor.Controls.Add(btnMainBackgroundResetDefault);
+            tpColor.Controls.Add(lblPanelHeaderColor);
+            tpColor.Controls.Add(btnPanelHeaderCustomColor);
+            tpColor.Controls.Add(pnlPanelHeaderCustomColor);
+            tpColor.Controls.Add(lblPanelHeaderHighlightColor);
+            tpColor.Controls.Add(btnPanelHeaderHighlightCustomColor);
+            tpColor.Controls.Add(pnlPanelHeaderHighlightCustomColor);
+            tpColor.Controls.Add(lblPanelGridBorderColor);
+            tpColor.Controls.Add(btnPanelGridBorderCustomColor);
+            tpColor.Controls.Add(pnlPanelGridBorderCustomColor);
+            tpColor.Controls.Add(btnPanelHeaderResetDefault);
+            tpColor.Controls.Add(btnPanelGridBorderResetDefault);
             tpColor.Controls.SetChildIndex(btnMainBackgroundResetDefault, 0);
             tpColor.Controls.SetChildIndex(pnlMainBackgroundCustomColor, 0);
             tpColor.Controls.SetChildIndex(btnMainBackgroundCustomColor, 0);
@@ -271,13 +375,47 @@ namespace mml2vgmIDEx64
             cdMainScrollBarCustomColor.Color = pnlMainBackgroundCustomColor.BackColor;
             if (cdMainScrollBarCustomColor.ShowDialog(this) != DialogResult.OK) return;
             pnlMainBackgroundCustomColor.BackColor = cdMainScrollBarCustomColor.Color;
+            setting.ColorScheme.ApplyBackColor(pnlMainBackgroundCustomColor.BackColor.ToArgb());
             RaiseMainBackgroundColorPreviewChanged();
         }
 
         private void btnMainBackgroundResetDefault_Click(object sender, EventArgs e)
         {
             pnlMainBackgroundCustomColor.BackColor = DefaultMainBackgroundColor;
+            setting.ColorScheme.ApplyBackColor(DefaultMainBackgroundColor.ToArgb());
             RaiseMainBackgroundColorPreviewChanged();
+        }
+
+        private void btnPanelHeaderCustomColor_Click(object sender, EventArgs e)
+        {
+            cdMainScrollBarCustomColor.Color = pnlPanelHeaderCustomColor.BackColor;
+            if (cdMainScrollBarCustomColor.ShowDialog(this) != DialogResult.OK) return;
+            pnlPanelHeaderCustomColor.BackColor = cdMainScrollBarCustomColor.Color;
+        }
+
+        private void btnPanelHeaderHighlightCustomColor_Click(object sender, EventArgs e)
+        {
+            cdMainScrollBarCustomColor.Color = pnlPanelHeaderHighlightCustomColor.BackColor;
+            if (cdMainScrollBarCustomColor.ShowDialog(this) != DialogResult.OK) return;
+            pnlPanelHeaderHighlightCustomColor.BackColor = cdMainScrollBarCustomColor.Color;
+        }
+
+        private void btnPanelGridBorderCustomColor_Click(object sender, EventArgs e)
+        {
+            cdMainScrollBarCustomColor.Color = pnlPanelGridBorderCustomColor.BackColor;
+            if (cdMainScrollBarCustomColor.ShowDialog(this) != DialogResult.OK) return;
+            pnlPanelGridBorderCustomColor.BackColor = cdMainScrollBarCustomColor.Color;
+        }
+
+        private void btnPanelHeaderResetDefault_Click(object sender, EventArgs e)
+        {
+            pnlPanelHeaderCustomColor.BackColor = Color.FromArgb(ColorScheme.DefaultPanelHeaderBackColorArgb);
+            pnlPanelHeaderHighlightCustomColor.BackColor = Color.FromArgb(ColorScheme.DefaultPanelHeaderHighlightBackColorArgb);
+        }
+
+        private void btnPanelGridBorderResetDefault_Click(object sender, EventArgs e)
+        {
+            pnlPanelGridBorderCustomColor.BackColor = Color.FromArgb(ColorScheme.DefaultPanelGridBorderColorArgb);
         }
 
         private void RaiseMainBackgroundColorPreviewChanged()
@@ -567,6 +705,17 @@ namespace mml2vgmIDEx64
             btnMainBackgroundCustomColor.Location = new System.Drawing.Point(8, 245);
             pnlMainBackgroundCustomColor.Location = new System.Drawing.Point(177, 245);
             btnMainBackgroundResetDefault.Location = new System.Drawing.Point(8, 276);
+            lblPanelHeaderColor.Location = new System.Drawing.Point(8, 312);
+            pnlPanelHeaderCustomColor.Location = new System.Drawing.Point(53, 309);
+            btnPanelHeaderCustomColor.Location = new System.Drawing.Point(95, 307);
+            lblPanelHeaderHighlightColor.Location = new System.Drawing.Point(150, 312);
+            pnlPanelHeaderHighlightCustomColor.Location = new System.Drawing.Point(219, 309);
+            btnPanelHeaderHighlightCustomColor.Location = new System.Drawing.Point(261, 307);
+            lblPanelGridBorderColor.Location = new System.Drawing.Point(316, 312);
+            pnlPanelGridBorderCustomColor.Location = new System.Drawing.Point(393, 309);
+            btnPanelGridBorderCustomColor.Location = new System.Drawing.Point(435, 307);
+            btnPanelHeaderResetDefault.Location = new System.Drawing.Point(8, 338);
+            btnPanelGridBorderResetDefault.Location = new System.Drawing.Point(256, 338);
 
             tpColor.Controls.Add(cbMainWallpaperEnabled);
             tpColor.Controls.Add(lblMainWallpaperPath);
@@ -1072,7 +1221,10 @@ namespace mml2vgmIDEx64
             cbUseHistoryBackUp.Checked = setting.other.UseHistoryBackUp;
             tbUseHistoryBackUp.Text = setting.other.HistoryBackUpKeepFileCount.ToString();
             tbTABWidth.Text = setting.other.TabWidth.ToString();
-            pnlMainBackgroundCustomColor.BackColor = System.Drawing.Color.FromArgb(setting.other.MainScreenBackgroundColorArgb);
+            pnlMainBackgroundCustomColor.BackColor = System.Drawing.Color.FromArgb(setting.ColorScheme.Log_BackColor);
+            pnlPanelHeaderCustomColor.BackColor = System.Drawing.Color.FromArgb(setting.ColorScheme.Panel_HeaderBackColor);
+            pnlPanelHeaderHighlightCustomColor.BackColor = System.Drawing.Color.FromArgb(setting.ColorScheme.Panel_HeaderHighlightBackColor);
+            pnlPanelGridBorderCustomColor.BackColor = System.Drawing.Color.FromArgb(setting.ColorScheme.Panel_GridBorderColor);
             cbMainWallpaperEnabled.Checked = setting.other.MainScreenWallpaperEnabled;
             tbMainWallpaperPath.Text = setting.other.MainScreenWallpaperPath;
             SetWallpaperLayoutSelection((ImageLayout)Math.Max(0, Math.Min(setting.other.MainScreenWallpaperLayout, 3)));
@@ -2008,7 +2160,10 @@ namespace mml2vgmIDEx64
             {
                 setting.other.TabWidth = Math.Max(Math.Min(i, 100), 1);
             }
-            setting.other.MainScreenBackgroundColorArgb = pnlMainBackgroundCustomColor.BackColor.ToArgb();
+            setting.ColorScheme.ApplyBackColor(pnlMainBackgroundCustomColor.BackColor.ToArgb());
+            setting.ColorScheme.Panel_HeaderBackColor = pnlPanelHeaderCustomColor.BackColor.ToArgb();
+            setting.ColorScheme.Panel_HeaderHighlightBackColor = pnlPanelHeaderHighlightCustomColor.BackColor.ToArgb();
+            setting.ColorScheme.Panel_GridBorderColor = pnlPanelGridBorderCustomColor.BackColor.ToArgb();
 
             setting.midiExport.UseMIDIExport = cbUseMIDIExport.Checked;
             setting.midiExport.ExportPath = tbMIDIOutputPath.Text;

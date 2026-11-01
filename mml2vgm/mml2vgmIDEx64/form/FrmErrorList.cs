@@ -17,15 +17,24 @@ namespace mml2vgmIDEx64
         {
             InitializeComponent();
             Common.ApplyDarkScrollBarTheme(this);
-            this.dataGridView1.BackgroundColor = Color.FromArgb(setting.ColorScheme.ErrorList_BackColor);
-            this.dataGridView1.DefaultCellStyle.BackColor = Color.FromArgb(setting.ColorScheme.ErrorList_BackColor);
-            this.dataGridView1.ForeColor = Color.FromArgb(setting.ColorScheme.ErrorList_ForeColor);
+            ApplyColorSetting(setting);
             this.dataGridView1.MultiSelect = true;
             this.dataGridView1.ClipboardCopyMode = DataGridViewClipboardCopyMode.EnableAlwaysIncludeHeaderText;
             this.dataGridView1.KeyDown += DataGridView1_KeyDown;
             InitializeContextMenu();
 
             Common.SetDoubleBuffered(dataGridView1);
+        }
+
+        public void ApplyColorSetting(Setting setting)
+        {
+            if (setting == null) return;
+            this.dataGridView1.BackgroundColor = Color.FromArgb(setting.ColorScheme.ErrorList_BackColor);
+            this.dataGridView1.DefaultCellStyle.BackColor = Color.FromArgb(setting.ColorScheme.ErrorList_BackColor);
+            this.dataGridView1.ForeColor = Color.FromArgb(setting.ColorScheme.ErrorList_ForeColor);
+            this.dataGridView1.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(setting.ColorScheme.Panel_HeaderBackColor);
+            this.dataGridView1.ColumnHeadersDefaultCellStyle.SelectionBackColor = Color.FromArgb(setting.ColorScheme.Panel_HeaderHighlightBackColor);
+            this.dataGridView1.GridColor = Color.FromArgb(setting.ColorScheme.Panel_GridBorderColor);
         }
         protected override string GetPersistString()
         {

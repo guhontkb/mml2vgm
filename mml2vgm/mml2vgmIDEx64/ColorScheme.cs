@@ -6,11 +6,15 @@ namespace mml2vgmIDEx64
     [Serializable]
     public class ColorScheme
     {
+        public static readonly int DefaultBackgroundColorArgb = Color.FromArgb(40, 30, 60).ToArgb();
+        public static readonly int DefaultPanelHeaderBackColorArgb = Color.FromArgb(80, 80, 160).ToArgb();
+        public static readonly int DefaultPanelHeaderHighlightBackColorArgb = Color.FromArgb(100, 100, 180).ToArgb();
+        public static readonly int DefaultPanelGridBorderColorArgb = Color.FromArgb(160, 160, 160).ToArgb();
 
         public int Azuki_ForeColor = Color.FromArgb(235, 235, 255).ToArgb();
-        public int Azuki_BackColor = Color.FromArgb(40, 30, 60).ToArgb();
+        public int Azuki_BackColor = DefaultBackgroundColorArgb;
         public int Azuki_IconBarBack = Color.FromArgb(70, 60, 90).ToArgb();
-        public int Azuki_LineNumberBack_Normal = Color.FromArgb(40, 30, 60).ToArgb();
+        public int Azuki_LineNumberBack_Normal = DefaultBackgroundColorArgb;
         public int Azuki_LineNumberFore_Normal = Color.FromArgb(80, 170, 200).ToArgb();
         public int Azuki_SelectionBack_Normal = Color.FromArgb(120, 100, 90).ToArgb();
         public int Azuki_SelectionFore_Normal = Color.FromArgb(220, 230, 250).ToArgb();
@@ -29,25 +33,40 @@ namespace mml2vgmIDEx64
         public int StatusStripBack_Trace = Color.FromArgb(100, 150, 10).ToArgb();
 
         public int ErrorList_ForeColor = Color.FromArgb(235, 235, 255).ToArgb();
-        public int ErrorList_BackColor = Color.FromArgb(40, 30, 60).ToArgb();
+        public int ErrorList_BackColor = DefaultBackgroundColorArgb;
 
         public int SearchBox_ForeColor = Color.FromArgb(235, 235, 255).ToArgb();
-        public int SearchBox_BackColor = Color.FromArgb(40, 30, 60).ToArgb();
+        public int SearchBox_BackColor = DefaultBackgroundColorArgb;
 
         public int Log_ForeColor = Color.FromArgb(235, 235, 255).ToArgb();
-        public int Log_BackColor = Color.FromArgb(40, 30, 60).ToArgb();
+        public int Log_BackColor = DefaultBackgroundColorArgb;
 
         public int PartCounter_ForeColor = Color.FromArgb(235, 235, 255).ToArgb();
-        public int PartCounter_BackColor = Color.FromArgb(40, 30, 60).ToArgb();
+        public int PartCounter_BackColor = DefaultBackgroundColorArgb;
         public int PartCounter_SOLOROW_BackColor = Color.FromArgb(90, 10, 10).ToArgb();
         public int PartCounter_SOLO_BackColor = Color.FromArgb(90, 10, 10).ToArgb();
         public int PartCounter_MUTE_BackColor = Color.FromArgb(120, 90, 10).ToArgb();
 
         public int FolderTree_ForeColor = Color.FromArgb(235, 235, 255).ToArgb();
-        public int FolderTree_BackColor = Color.FromArgb(40, 30, 60).ToArgb();
+        public int FolderTree_BackColor = DefaultBackgroundColorArgb;
 
         public int FrmSien_ForeColor = Color.FromArgb(235, 235, 255).ToArgb();
-        public int FrmSien_BackColor = Color.FromArgb(40, 30, 60).ToArgb();
+        public int FrmSien_BackColor = DefaultBackgroundColorArgb;
+        public int Panel_HeaderBackColor = DefaultPanelHeaderBackColorArgb;
+        public int Panel_HeaderHighlightBackColor = DefaultPanelHeaderHighlightBackColorArgb;
+        public int Panel_GridBorderColor = DefaultPanelGridBorderColorArgb;
+
+        public void ApplyBackColor(int backColorArgb)
+        {
+            Azuki_BackColor = backColorArgb;
+            Azuki_LineNumberBack_Normal = backColorArgb;
+            ErrorList_BackColor = backColorArgb;
+            SearchBox_BackColor = backColorArgb;
+            Log_BackColor = backColorArgb;
+            PartCounter_BackColor = backColorArgb;
+            FolderTree_BackColor = backColorArgb;
+            FrmSien_BackColor = backColorArgb;
+        }
 
         public ColorScheme Copy()
         {
@@ -60,6 +79,8 @@ namespace mml2vgmIDEx64
             ret.Azuki_LineNumberFore_Normal = this.Azuki_LineNumberFore_Normal;
             ret.Azuki_SelectionBack_Normal = this.Azuki_SelectionBack_Normal;
             ret.Azuki_SelectionFore_Normal = this.Azuki_SelectionFore_Normal;
+            ret.Azuki_MatchedBracketBack_Normal = this.Azuki_MatchedBracketBack_Normal;
+            ret.Azuki_MatchedBracketFore_Normal = this.Azuki_MatchedBracketFore_Normal;
             ret.Azuki_LineNumberBack_Trace = this.Azuki_LineNumberBack_Trace;
             ret.Azuki_LineNumberFore_Trace = this.Azuki_LineNumberFore_Trace;
             ret.StatusStripBack_Normal = this.StatusStripBack_Normal;
@@ -88,6 +109,12 @@ namespace mml2vgmIDEx64
 
             ret.FolderTree_ForeColor = this.FolderTree_ForeColor;
             ret.FolderTree_BackColor = this.FolderTree_BackColor;
+
+            ret.FrmSien_ForeColor = this.FrmSien_ForeColor;
+            ret.FrmSien_BackColor = this.FrmSien_BackColor;
+            ret.Panel_HeaderBackColor = this.Panel_HeaderBackColor;
+            ret.Panel_HeaderHighlightBackColor = this.Panel_HeaderHighlightBackColor;
+            ret.Panel_GridBorderColor = this.Panel_GridBorderColor;
 
             return ret;
         }

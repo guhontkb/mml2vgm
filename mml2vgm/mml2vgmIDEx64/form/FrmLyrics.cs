@@ -23,15 +23,21 @@ namespace mml2vgmIDEx64
         {
             InitializeComponent();
             Common.ApplyDarkScrollBarTheme(this);
-            rtbLyrics.BackColor = Color.FromArgb(setting.ColorScheme.Log_BackColor);
-            rtbLyrics.ForeColor = Color.FromArgb(setting.ColorScheme.Log_ForeColor);
-            culColor = Color.FromArgb(setting.ColorScheme.Log_ForeColor);
+            ApplyColorSetting(setting);
 
             this.setting = setting;
             rtbLyrics.GotFocus += RichTextBox1_GotFocus;
 
             Common.SetDoubleBuffered(rtbLyrics);
 
+        }
+
+        public void ApplyColorSetting(Setting setting)
+        {
+            if (setting == null) return;
+            rtbLyrics.BackColor = Color.FromArgb(setting.ColorScheme.Log_BackColor);
+            rtbLyrics.ForeColor = Color.FromArgb(setting.ColorScheme.Log_ForeColor);
+            culColor = Color.FromArgb(setting.ColorScheme.Log_ForeColor);
         }
 
         protected override string GetPersistString()
