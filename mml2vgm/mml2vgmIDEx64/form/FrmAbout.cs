@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Drawing;
 using System.Reflection;
 using System.Windows.Forms;
 
@@ -11,17 +12,22 @@ namespace mml2vgmIDEx64
         {
             InitializeComponent();
             Common.ApplyDarkScrollBarTheme(this);
-            this.Text = String.Format("{0} のバージョン情報", AssemblyTitle);
+            Common.ApplyDarkControlTheme(this);
+            this.Text = String.Format("{0} 分家改造版のバージョン情報", AssemblyTitle);
             this.labelProductName.Text = AssemblyProduct;
             this.labelVersion.Text = String.Format("バージョン {0}", AssemblyVersion);
             this.labelCopyright.Text = AssemblyCopyright;
             this.labelCompanyName.Text = AssemblyCompany;
-            this.textBoxDescription.Text = AssemblyDescription;
-            if (!String.IsNullOrEmpty(this.textBoxDescription.Text))
-            {
-                this.textBoxDescription.AppendText(Environment.NewLine);
-            }
-            this.textBoxDescription.AppendText(String.Format("分家改造版{0}ビルド日時: {1}", Environment.NewLine, AssemblyBuildDate));
+
+            this.labelBuildInfo.Text = String.Format("{0} 分家改造版{1}ビルド日時: {2}", AssemblyProduct, Environment.NewLine, AssemblyBuildDate);
+            this.labelMaintainer.Text = "メンテナ: guhon";
+
+            this.llOpenGithub.LinkColor = Color.Gold;
+            this.llOpenGithub.ActiveLinkColor = Color.Orange;
+            this.llOpenGithub.VisitedLinkColor = Color.Khaki;
+            this.llOpenX.LinkColor = Color.Gold;
+            this.llOpenX.ActiveLinkColor = Color.Orange;
+            this.llOpenX.VisitedLinkColor = Color.Khaki;
         }
 
         #region アセンブリ属性アクセサー
@@ -122,11 +128,12 @@ namespace mml2vgmIDEx64
 
         private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            llOpenGithub.LinkVisited = true;
+            LinkLabel link = sender as LinkLabel;
+            if (link != null) link.LinkVisited = true;
             System.Diagnostics.Process.Start(new ProcessStartInfo
             {
                 UseShellExecute = true,
-                FileName = "https://github.com/guhontkb/mml2vgm"
+                FileName = link?.Text ?? llOpenGithub.Text
             }).Dispose();
 
         }

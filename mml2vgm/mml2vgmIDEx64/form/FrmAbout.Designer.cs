@@ -36,9 +36,11 @@ namespace mml2vgmIDEx64
             this.labelVersion = new System.Windows.Forms.Label();
             this.labelCopyright = new System.Windows.Forms.Label();
             this.labelCompanyName = new System.Windows.Forms.Label();
-            this.textBoxDescription = new System.Windows.Forms.TextBox();
+            this.labelBuildInfo = new System.Windows.Forms.Label();
+            this.labelMaintainer = new System.Windows.Forms.Label();
             this.okButton = new System.Windows.Forms.Button();
             this.llOpenGithub = new System.Windows.Forms.LinkLabel();
+            this.llOpenX = new System.Windows.Forms.LinkLabel();
             this.tableLayoutPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.logoPictureBox)).BeginInit();
             this.SuspendLayout();
@@ -53,18 +55,22 @@ namespace mml2vgmIDEx64
             this.tableLayoutPanel.Controls.Add(this.labelVersion, 1, 1);
             this.tableLayoutPanel.Controls.Add(this.labelCopyright, 1, 2);
             this.tableLayoutPanel.Controls.Add(this.labelCompanyName, 1, 3);
-            this.tableLayoutPanel.Controls.Add(this.textBoxDescription, 1, 4);
-            this.tableLayoutPanel.Controls.Add(this.okButton, 1, 6);
-            this.tableLayoutPanel.Controls.Add(this.llOpenGithub, 1, 5);
+            this.tableLayoutPanel.Controls.Add(this.labelBuildInfo, 1, 4);
+            this.tableLayoutPanel.Controls.Add(this.labelMaintainer, 1, 5);
+            this.tableLayoutPanel.Controls.Add(this.llOpenGithub, 1, 6);
+            this.tableLayoutPanel.Controls.Add(this.llOpenX, 1, 7);
+            this.tableLayoutPanel.Controls.Add(this.okButton, 1, 8);
             this.tableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel.Location = new System.Drawing.Point(9, 8);
             this.tableLayoutPanel.Name = "tableLayoutPanel";
-            this.tableLayoutPanel.RowCount = 7;
+            this.tableLayoutPanel.RowCount = 9;
             this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 9.090909F));
             this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 9.090909F));
             this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 9.090909F));
             this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 9.090909F));
-            this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 45.45454F));
+            this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 9.090909F));
+            this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 9.090909F));
+            this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 9.090909F));
             this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 9.090909F));
             this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 9.090909F));
             this.tableLayoutPanel.Size = new System.Drawing.Size(417, 245);
@@ -76,7 +82,7 @@ namespace mml2vgmIDEx64
             this.logoPictureBox.Image = Resources.フェーリ;
             this.logoPictureBox.Location = new System.Drawing.Point(3, 3);
             this.logoPictureBox.Name = "logoPictureBox";
-            this.tableLayoutPanel.SetRowSpan(this.logoPictureBox, 7);
+            this.tableLayoutPanel.SetRowSpan(this.logoPictureBox, 9);
             this.logoPictureBox.Size = new System.Drawing.Size(131, 239);
             this.logoPictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
             this.logoPictureBox.TabIndex = 12;
@@ -130,19 +136,27 @@ namespace mml2vgmIDEx64
             this.labelCompanyName.Text = "会社名";
             this.labelCompanyName.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             //
-            // textBoxDescription
+            // labelBuildInfo
             //
-            this.textBoxDescription.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.textBoxDescription.Location = new System.Drawing.Point(143, 91);
-            this.textBoxDescription.Margin = new System.Windows.Forms.Padding(6, 3, 3, 3);
-            this.textBoxDescription.Multiline = true;
-            this.textBoxDescription.Name = "textBoxDescription";
-            this.textBoxDescription.ReadOnly = true;
-            this.textBoxDescription.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textBoxDescription.Size = new System.Drawing.Size(271, 105);
-            this.textBoxDescription.TabIndex = 23;
-            this.textBoxDescription.TabStop = false;
-            this.textBoxDescription.Text = "説明";
+            this.labelBuildInfo.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.labelBuildInfo.Location = new System.Drawing.Point(143, 88);
+            this.labelBuildInfo.Margin = new System.Windows.Forms.Padding(6, 0, 3, 0);
+            this.labelBuildInfo.Name = "labelBuildInfo";
+            this.labelBuildInfo.Size = new System.Drawing.Size(271, 22);
+            this.labelBuildInfo.TabIndex = 26;
+            this.labelBuildInfo.Text = "分家改造版";
+            this.labelBuildInfo.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            //
+            // labelMaintainer
+            //
+            this.labelMaintainer.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.labelMaintainer.Location = new System.Drawing.Point(143, 110);
+            this.labelMaintainer.Margin = new System.Windows.Forms.Padding(6, 0, 3, 0);
+            this.labelMaintainer.Name = "labelMaintainer";
+            this.labelMaintainer.Size = new System.Drawing.Size(271, 22);
+            this.labelMaintainer.TabIndex = 27;
+            this.labelMaintainer.Text = "メンテナ: guhon";
+            this.labelMaintainer.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             //
             // okButton
             //
@@ -151,21 +165,34 @@ namespace mml2vgmIDEx64
             this.okButton.Location = new System.Drawing.Point(339, 224);
             this.okButton.Name = "okButton";
             this.okButton.Size = new System.Drawing.Size(75, 18);
-            this.okButton.TabIndex = 24;
+            this.okButton.TabIndex = 25;
             this.okButton.Text = "&OK";
             //
             // llOpenGithub
             //
             this.llOpenGithub.AutoSize = true;
             this.llOpenGithub.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.llOpenGithub.Location = new System.Drawing.Point(140, 199);
+            this.llOpenGithub.Location = new System.Drawing.Point(140, 132);
             this.llOpenGithub.Name = "llOpenGithub";
             this.llOpenGithub.Size = new System.Drawing.Size(274, 22);
-            this.llOpenGithub.TabIndex = 25;
+            this.llOpenGithub.TabIndex = 23;
             this.llOpenGithub.TabStop = true;
             this.llOpenGithub.Text = "https://github.com/guhontkb/mml2vgm";
             this.llOpenGithub.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.llOpenGithub.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel1_LinkClicked);
+            //
+            // llOpenX
+            //
+            this.llOpenX.AutoSize = true;
+            this.llOpenX.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.llOpenX.Location = new System.Drawing.Point(140, 154);
+            this.llOpenX.Name = "llOpenX";
+            this.llOpenX.Size = new System.Drawing.Size(274, 22);
+            this.llOpenX.TabIndex = 24;
+            this.llOpenX.TabStop = true;
+            this.llOpenX.Text = "https://x.com/guhon";
+            this.llOpenX.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.llOpenX.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel1_LinkClicked);
             //
             // FrmAbout
             //
@@ -199,8 +226,10 @@ namespace mml2vgmIDEx64
         private System.Windows.Forms.Label labelVersion;
         private System.Windows.Forms.Label labelCopyright;
         private System.Windows.Forms.Label labelCompanyName;
-        private System.Windows.Forms.TextBox textBoxDescription;
+        private System.Windows.Forms.Label labelBuildInfo;
+        private System.Windows.Forms.Label labelMaintainer;
         private System.Windows.Forms.Button okButton;
         private System.Windows.Forms.LinkLabel llOpenGithub;
+        private System.Windows.Forms.LinkLabel llOpenX;
     }
 }
