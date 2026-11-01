@@ -26,6 +26,19 @@ namespace mml2vgmIDEx64
         private Label lblSoundEnginePath;
         private TextBox tbSoundEnginePath;
         private Button btnSoundEnginePath;
+        private GroupBox gbWaveConvert;
+        private Label lblWaveConvertYM2610B;
+        private TextBox tbWaveConvertYM2610B;
+        private Label lblWaveConvertXGM;
+        private TextBox tbWaveConvertXGM;
+        private Label lblWaveConvertXGM2;
+        private TextBox tbWaveConvertXGM2;
+        private Label lblWaveConvertXGM2Half;
+        private TextBox tbWaveConvertXGM2Half;
+        private Button btnResetWaveConvertYM2610B;
+        private Button btnResetWaveConvertXGM;
+        private Button btnResetWaveConvertXGM2;
+        private Button btnResetWaveConvertXGM2Half;
         private Label lblMDPlayerPath;
         private TextBox tbMDPlayerPath;
         private Button btnMDPlayerPath;
@@ -614,6 +627,19 @@ namespace mml2vgmIDEx64
             lblSoundEnginePath = new Label();
             tbSoundEnginePath = new TextBox();
             btnSoundEnginePath = new Button();
+            gbWaveConvert = new GroupBox();
+            lblWaveConvertYM2610B = new Label();
+            tbWaveConvertYM2610B = new TextBox();
+            lblWaveConvertXGM = new Label();
+            tbWaveConvertXGM = new TextBox();
+            lblWaveConvertXGM2 = new Label();
+            tbWaveConvertXGM2 = new TextBox();
+            lblWaveConvertXGM2Half = new Label();
+            tbWaveConvertXGM2Half = new TextBox();
+            btnResetWaveConvertYM2610B = new Button();
+            btnResetWaveConvertXGM = new Button();
+            btnResetWaveConvertXGM2 = new Button();
+            btnResetWaveConvertXGM2Half = new Button();
             gbFolderFont = new GroupBox();
             lblFolderFontName = new Label();
             lblFolderFontSize = new Label();
@@ -663,6 +689,7 @@ namespace mml2vgmIDEx64
             tpFolder.Controls.Add(lblSoundEnginePath);
             tpFolder.Controls.Add(tbSoundEnginePath);
             tpFolder.Controls.Add(btnSoundEnginePath);
+            tpFolder.Controls.Add(gbWaveConvert);
             tpFolder.Controls.Add(gbFolderFont);
             tpFolder.Controls.Add(cbCopyRelativePathWithDotSlash);
 
@@ -690,6 +717,117 @@ namespace mml2vgmIDEx64
             btnSoundEnginePath.Text = "...";
             btnSoundEnginePath.UseVisualStyleBackColor = true;
             btnSoundEnginePath.Click += btnSoundEnginePath_Click;
+
+            gbWaveConvert.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            gbWaveConvert.Location = new System.Drawing.Point(8, 224);
+            gbWaveConvert.Margin = new Padding(4);
+            gbWaveConvert.Name = "gbWaveConvert";
+            gbWaveConvert.Padding = new Padding(4);
+            gbWaveConvert.Size = new System.Drawing.Size(496, 154);
+            gbWaveConvert.TabIndex = 8;
+            gbWaveConvert.TabStop = false;
+            gbWaveConvert.Text = "wave convert parameters";
+
+            lblWaveConvertYM2610B.AutoSize = true;
+            lblWaveConvertYM2610B.Location = new System.Drawing.Point(8, 28);
+            lblWaveConvertYM2610B.Name = "lblWaveConvertYM2610B";
+            lblWaveConvertYM2610B.Size = new System.Drawing.Size(57, 15);
+            lblWaveConvertYM2610B.TabIndex = 0;
+            lblWaveConvertYM2610B.Text = "YM2610B";
+
+            tbWaveConvertYM2610B.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            tbWaveConvertYM2610B.Location = new System.Drawing.Point(96, 24);
+            tbWaveConvertYM2610B.Name = "tbWaveConvertYM2610B";
+            tbWaveConvertYM2610B.Size = new System.Drawing.Size(278, 23);
+            tbWaveConvertYM2610B.TabIndex = 1;
+
+            lblWaveConvertXGM.AutoSize = true;
+            lblWaveConvertXGM.Location = new System.Drawing.Point(8, 57);
+            lblWaveConvertXGM.Name = "lblWaveConvertXGM";
+            lblWaveConvertXGM.Size = new System.Drawing.Size(34, 15);
+            lblWaveConvertXGM.TabIndex = 2;
+            lblWaveConvertXGM.Text = "XGM";
+
+            tbWaveConvertXGM.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            tbWaveConvertXGM.Location = new System.Drawing.Point(96, 53);
+            tbWaveConvertXGM.Name = "tbWaveConvertXGM";
+            tbWaveConvertXGM.Size = new System.Drawing.Size(278, 23);
+            tbWaveConvertXGM.TabIndex = 3;
+
+            lblWaveConvertXGM2.AutoSize = true;
+            lblWaveConvertXGM2.Location = new System.Drawing.Point(8, 86);
+            lblWaveConvertXGM2.Name = "lblWaveConvertXGM2";
+            lblWaveConvertXGM2.Size = new System.Drawing.Size(39, 15);
+            lblWaveConvertXGM2.TabIndex = 4;
+            lblWaveConvertXGM2.Text = "XGM2";
+
+            tbWaveConvertXGM2.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            tbWaveConvertXGM2.Location = new System.Drawing.Point(96, 82);
+            tbWaveConvertXGM2.Name = "tbWaveConvertXGM2";
+            tbWaveConvertXGM2.Size = new System.Drawing.Size(278, 23);
+            tbWaveConvertXGM2.TabIndex = 5;
+
+            lblWaveConvertXGM2Half.AutoSize = true;
+            lblWaveConvertXGM2Half.Location = new System.Drawing.Point(8, 115);
+            lblWaveConvertXGM2Half.Name = "lblWaveConvertXGM2Half";
+            lblWaveConvertXGM2Half.Size = new System.Drawing.Size(78, 15);
+            lblWaveConvertXGM2Half.TabIndex = 6;
+            lblWaveConvertXGM2Half.Text = "XGM2(half)";
+
+            tbWaveConvertXGM2Half.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            tbWaveConvertXGM2Half.Location = new System.Drawing.Point(96, 111);
+            tbWaveConvertXGM2Half.Name = "tbWaveConvertXGM2Half";
+            tbWaveConvertXGM2Half.Size = new System.Drawing.Size(278, 23);
+            tbWaveConvertXGM2Half.TabIndex = 7;
+
+            btnResetWaveConvertYM2610B.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnResetWaveConvertYM2610B.Location = new System.Drawing.Point(380, 23);
+            btnResetWaveConvertYM2610B.Name = "btnResetWaveConvertYM2610B";
+            btnResetWaveConvertYM2610B.Size = new System.Drawing.Size(108, 25);
+            btnResetWaveConvertYM2610B.TabIndex = 8;
+            btnResetWaveConvertYM2610B.Text = "リセット";
+            btnResetWaveConvertYM2610B.UseVisualStyleBackColor = true;
+            btnResetWaveConvertYM2610B.Click += btnResetWaveConvertYM2610B_Click;
+
+            btnResetWaveConvertXGM.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnResetWaveConvertXGM.Location = new System.Drawing.Point(380, 52);
+            btnResetWaveConvertXGM.Name = "btnResetWaveConvertXGM";
+            btnResetWaveConvertXGM.Size = new System.Drawing.Size(108, 25);
+            btnResetWaveConvertXGM.TabIndex = 9;
+            btnResetWaveConvertXGM.Text = "リセット";
+            btnResetWaveConvertXGM.UseVisualStyleBackColor = true;
+            btnResetWaveConvertXGM.Click += btnResetWaveConvertXGM_Click;
+
+            btnResetWaveConvertXGM2.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnResetWaveConvertXGM2.Location = new System.Drawing.Point(380, 81);
+            btnResetWaveConvertXGM2.Name = "btnResetWaveConvertXGM2";
+            btnResetWaveConvertXGM2.Size = new System.Drawing.Size(108, 25);
+            btnResetWaveConvertXGM2.TabIndex = 10;
+            btnResetWaveConvertXGM2.Text = "リセット";
+            btnResetWaveConvertXGM2.UseVisualStyleBackColor = true;
+            btnResetWaveConvertXGM2.Click += btnResetWaveConvertXGM2_Click;
+
+            btnResetWaveConvertXGM2Half.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnResetWaveConvertXGM2Half.Location = new System.Drawing.Point(380, 110);
+            btnResetWaveConvertXGM2Half.Name = "btnResetWaveConvertXGM2Half";
+            btnResetWaveConvertXGM2Half.Size = new System.Drawing.Size(108, 25);
+            btnResetWaveConvertXGM2Half.TabIndex = 11;
+            btnResetWaveConvertXGM2Half.Text = "リセット";
+            btnResetWaveConvertXGM2Half.UseVisualStyleBackColor = true;
+            btnResetWaveConvertXGM2Half.Click += btnResetWaveConvertXGM2Half_Click;
+
+            gbWaveConvert.Controls.Add(lblWaveConvertYM2610B);
+            gbWaveConvert.Controls.Add(tbWaveConvertYM2610B);
+            gbWaveConvert.Controls.Add(lblWaveConvertXGM);
+            gbWaveConvert.Controls.Add(tbWaveConvertXGM);
+            gbWaveConvert.Controls.Add(lblWaveConvertXGM2);
+            gbWaveConvert.Controls.Add(tbWaveConvertXGM2);
+            gbWaveConvert.Controls.Add(lblWaveConvertXGM2Half);
+            gbWaveConvert.Controls.Add(tbWaveConvertXGM2Half);
+            gbWaveConvert.Controls.Add(btnResetWaveConvertYM2610B);
+            gbWaveConvert.Controls.Add(btnResetWaveConvertXGM);
+            gbWaveConvert.Controls.Add(btnResetWaveConvertXGM2);
+            gbWaveConvert.Controls.Add(btnResetWaveConvertXGM2Half);
 
             gbFolderFont.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             gbFolderFont.Location = new System.Drawing.Point(8, 84);
@@ -1316,6 +1454,10 @@ namespace mml2vgmIDEx64
             tbMDPlayerPath.Text = setting.other.MDPlayerPath;
             tbSoxPath.Text = setting.other.SoxPath;
             tbSoundEnginePath.Text = setting.other.SoundEnginePath;
+            tbWaveConvertYM2610B.Text = setting.other.WaveConvertParamYM2610B;
+            tbWaveConvertXGM.Text = setting.other.WaveConvertParamXGM;
+            tbWaveConvertXGM2.Text = setting.other.WaveConvertParamXGM2;
+            tbWaveConvertXGM2Half.Text = setting.other.WaveConvertParamXGM2Half;
             //cmbInstFormat.SelectedIndex = (int)setting.other.InstFormat;
             tbScreenFrameRate.Text = setting.other.ScreenFrameRate.ToString();
             cbAutoOpen.Checked = setting.other.AutoOpen;
@@ -2223,6 +2365,10 @@ namespace mml2vgmIDEx64
             setting.other.MDPlayerPath = tbMDPlayerPath.Text;
             setting.other.SoxPath = tbSoxPath.Text;
             setting.other.SoundEnginePath = tbSoundEnginePath.Text;
+            setting.other.WaveConvertParamYM2610B = tbWaveConvertYM2610B.Text;
+            setting.other.WaveConvertParamXGM = tbWaveConvertXGM.Text;
+            setting.other.WaveConvertParamXGM2 = tbWaveConvertXGM2.Text;
+            setting.other.WaveConvertParamXGM2Half = tbWaveConvertXGM2Half.Text;
             //setting.other.InstFormat = (EnmInstFormat)cmbInstFormat.SelectedIndex;
             if (int.TryParse(tbScreenFrameRate.Text, out i))
             {
@@ -2992,6 +3138,26 @@ namespace mml2vgmIDEx64
 
             IsInitialOpenFolder = false;
             tbSoxPath.Text = ofd.FileName;
+        }
+
+        private void btnResetWaveConvertYM2610B_Click(object sender, EventArgs e)
+        {
+            tbWaveConvertYM2610B.Text = "-b 16 -c 1 -r 18518";
+        }
+
+        private void btnResetWaveConvertXGM_Click(object sender, EventArgs e)
+        {
+            tbWaveConvertXGM.Text = "-b 8 -c 1 -r 14000 -e unsigned-integer";
+        }
+
+        private void btnResetWaveConvertXGM2_Click(object sender, EventArgs e)
+        {
+            tbWaveConvertXGM2.Text = "-b 8 -c 1 -r 13300 -e unsigned-integer";
+        }
+
+        private void btnResetWaveConvertXGM2Half_Click(object sender, EventArgs e)
+        {
+            tbWaveConvertXGM2Half.Text = "-b 8 -c 1 -r 6650 -e unsigned-integer";
         }
 
         private void btnSoundEnginePath_Click(object sender, EventArgs e)

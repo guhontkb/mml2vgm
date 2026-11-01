@@ -19,3 +19,5 @@ mml2vgm_custom
     「Error list」のエラーをコピペできるように修正
     Part counterのKeyOnゲージを、ノートオフ時に即座に消去するオプションを追加
     Colorタブの壁紙表示オプションを削除
+    Folder詳細リストの右クリックメニューに wave convert (YM2610B/XGM/XGM2/XGM2(low)) を追加（.wav選択時のみ有効）
+    Folderオプションに wave convert の各パラメータ設定項目と初期値リセットボタンを追加

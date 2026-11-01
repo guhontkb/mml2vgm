@@ -1918,6 +1918,62 @@ namespace mml2vgmIDEx64
                 }
             }
 
+            private string _WaveConvertParamYM2610B = "-b 16 -c 1 -r 18518";
+            public string WaveConvertParamYM2610B
+            {
+                get
+                {
+                    return _WaveConvertParamYM2610B;
+                }
+
+                set
+                {
+                    _WaveConvertParamYM2610B = value;
+                }
+            }
+
+            private string _WaveConvertParamXGM = "-b 8 -c 1 -r 14000 -e unsigned-integer";
+            public string WaveConvertParamXGM
+            {
+                get
+                {
+                    return _WaveConvertParamXGM;
+                }
+
+                set
+                {
+                    _WaveConvertParamXGM = value;
+                }
+            }
+
+            private string _WaveConvertParamXGM2 = "-b 8 -c 1 -r 13300 -e unsigned-integer";
+            public string WaveConvertParamXGM2
+            {
+                get
+                {
+                    return _WaveConvertParamXGM2;
+                }
+
+                set
+                {
+                    _WaveConvertParamXGM2 = value;
+                }
+            }
+
+            private string _WaveConvertParamXGM2Half = "-b 8 -c 1 -r 6650 -e unsigned-integer";
+            public string WaveConvertParamXGM2Half
+            {
+                get
+                {
+                    return _WaveConvertParamXGM2Half;
+                }
+
+                set
+                {
+                    _WaveConvertParamXGM2Half = value;
+                }
+            }
+
             public string MDPlayerPath { get; set; } = "";
 
             //private EnmInstFormat _InstFormat = EnmInstFormat.MML2VGM;
@@ -2164,6 +2220,10 @@ namespace mml2vgmIDEx64
                 other.DefaultDataPath = this.DefaultDataPath;
                 other.SoxPath = this.SoxPath;
                 other.SoundEnginePath = this.SoundEnginePath;
+                other.WaveConvertParamYM2610B = this.WaveConvertParamYM2610B;
+                other.WaveConvertParamXGM = this.WaveConvertParamXGM;
+                other.WaveConvertParamXGM2 = this.WaveConvertParamXGM2;
+                other.WaveConvertParamXGM2Half = this.WaveConvertParamXGM2Half;
                 other.MDPlayerPath = this.MDPlayerPath;
                 //other.InstFormat = this.InstFormat;
                 other.Zoom = this.Zoom;

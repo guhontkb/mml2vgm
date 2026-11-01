@@ -7,6 +7,8 @@ using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using System.Diagnostics;
+using System.Threading.Tasks;
 using WeifenLuo.WinFormsUI.Docking;
 using System.ComponentModel;
 using NAudio.Wave;
@@ -58,6 +60,11 @@ namespace mml2vgmIDEx64
         private readonly ToolStripMenuItem tsmiCopyFileName = new ToolStripMenuItem("ファイル名");
         private readonly ToolStripMenuItem tsmiCopyRelativePath = new ToolStripMenuItem("相対パス");
         private readonly ToolStripMenuItem tsmiCopyAbsolutePath = new ToolStripMenuItem("絶対パス");
+        private readonly ToolStripMenuItem tsmiWaveConvert = new ToolStripMenuItem("wave convert");
+        private readonly ToolStripMenuItem tsmiWaveConvertYm2610b = new ToolStripMenuItem("YM2610B");
+        private readonly ToolStripMenuItem tsmiWaveConvertXgm = new ToolStripMenuItem("XGM");
+        private readonly ToolStripMenuItem tsmiWaveConvertXgm2 = new ToolStripMenuItem("XGM2");
+        private readonly ToolStripMenuItem tsmiWaveConvertXgm2Low = new ToolStripMenuItem("XGM2(low)");
         private readonly Dictionary<ColumnHeader, int> fileListColumnDisplayWidths = new Dictionary<ColumnHeader, int>();
         private const string FileListHeaderMenuShowAllText = "Show all";
         private IntPtr lvFileListHeaderHandle = IntPtr.Zero;
@@ -72,6 +79,7 @@ namespace mml2vgmIDEx64
         private TreeNode currentToolTipNode = null;
         private string currentToolTipText = "";
         private Font fileListHeaderFont = null;
+        private bool isWaveConverting = false;
 
         public FrmFolderTree(Setting setting, DockPanel dockPanel)
         {
@@ -100,6 +108,8 @@ namespace mml2vgmIDEx64
             tsmiCopyFileName.Click += (sender, e) => CopySelectedPaths(CopiedPathType.FileName);
             tsmiCopyRelativePath.Click += (sender, e) => CopySelectedPaths(CopiedPathType.RelativePath);
             tsmiCopyAbsolutePath.Click += (sender, e) => CopySelectedPaths(CopiedPathType.AbsolutePath);
+            InitializeWaveConvertMenu();
+            ApplySubmenuCompactMargin(cmsMenu.Items);
             cmsMenu.Opening += CmsMenu_Opening;
             lvFileList.ColumnWidthChanged += LvFileList_ColumnWidthChanged;
             lvFileList.HandleDestroyed += LvFileList_HandleDestroyed;
@@ -117,6 +127,57 @@ namespace mml2vgmIDEx64
             folderTreeToolTip.ReshowDelay = 100;
             folderTreeToolTip.AutoPopDelay = 10000;
             Disposed += (sender, e) => fileListHeaderFont?.Dispose();
+        }
+
+        private sealed class WaveConvertProfile
+        {
+            public WaveConvertType ConvertType { get; }
+            public string OutputSuffix { get; }
+
+            public WaveConvertProfile(WaveConvertType convertType, string outputSuffix)
+            {
+                ConvertType = convertType;
+                OutputSuffix = outputSuffix;
+            }
+        }
+
+        private enum WaveConvertType
+        {
+            YM2610B,
+            XGM,
+            XGM2,
+            XGM2Half
+        }
+
+        private void InitializeWaveConvertMenu()
+        {
+            tsmiWaveConvertYm2610b.Tag = new WaveConvertProfile(WaveConvertType.YM2610B, "YM2610B");
+            tsmiWaveConvertXgm.Tag = new WaveConvertProfile(WaveConvertType.XGM, "xgm");
+            tsmiWaveConvertXgm2.Tag = new WaveConvertProfile(WaveConvertType.XGM2, "xgm2");
+            tsmiWaveConvertXgm2Low.Tag = new WaveConvertProfile(WaveConvertType.XGM2Half, "xgm2(half)");
+
+            tsmiWaveConvert.DropDownItems.AddRange(new ToolStripItem[]
+            {
+                tsmiWaveConvertYm2610b,
+                tsmiWaveConvertXgm,
+                tsmiWaveConvertXgm2,
+                tsmiWaveConvertXgm2Low
+            });
+
+            tsmiWaveConvertYm2610b.Click += TsmiWaveConvert_Click;
+            tsmiWaveConvertXgm.Click += TsmiWaveConvert_Click;
+            tsmiWaveConvertXgm2.Click += TsmiWaveConvert_Click;
+            tsmiWaveConvertXgm2Low.Click += TsmiWaveConvert_Click;
+
+            int copyPathIndex = cmsMenu.Items.IndexOf(tsmiCopyPath);
+            if (copyPathIndex >= 0)
+            {
+                cmsMenu.Items.Insert(copyPathIndex + 1, tsmiWaveConvert);
+            }
+            else
+            {
+                cmsMenu.Items.Add(tsmiWaveConvert);
+            }
         }
 
         public void ApplyColorSetting(Setting setting)
@@ -513,13 +574,14 @@ namespace mml2vgmIDEx64
 
             List<string> lstFullPath = GetSelectedFilePaths();
             if (lstFullPath.Count < 1) return;
+            string currentFolderPath = tvFolderTree.SelectedNode != null ? GetNodePath(tvFolderTree.SelectedNode) : null;
 
             DialogResult ret = DialogResult.Cancel;
 
             if (lstFullPath.Count == 1)
             {
                 ret = MessageBox.Show(
-                    string.Format("「{0}」を削除します。よろしいですか。", lstFullPath[0])
+                    string.Format("「{0}」を削除します。よろしいですか。", GetPathForDeleteDialog(lstFullPath[0]))
                     , "ファイル/フォルダーの削除", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
             }
             else
@@ -527,7 +589,7 @@ namespace mml2vgmIDEx64
                 string fns = "";
                 for (int i = 0; i < Math.Min(lstFullPath.Count, 3); i++)
                 {
-                    fns += "    " + lstFullPath[i] + "\n";
+                    fns += "    " + GetPathForDeleteDialog(lstFullPath[i]) + "\n";
                 }
                 if (lstFullPath.Count > 3)
                 {
@@ -542,6 +604,10 @@ namespace mml2vgmIDEx64
             if (ret == DialogResult.Cancel) return;
 
             parentDeleteFile?.Invoke(lstFullPath.ToArray());
+            if (!string.IsNullOrWhiteSpace(currentFolderPath) && Directory.Exists(currentFolderPath))
+            {
+                FocusFolderAndShowFiles(currentFolderPath);
+            }
 
         }
 
@@ -635,6 +701,253 @@ namespace mml2vgmIDEx64
                     LogFolderOperationException("ShowInExplorer", ex, selectedPath);
                 }
             }
+        }
+
+        private async void TsmiWaveConvert_Click(object sender, EventArgs e)
+        {
+            if (!(sender is ToolStripMenuItem menuItem)) return;
+            if (!(menuItem.Tag is WaveConvertProfile profile)) return;
+            if (isWaveConverting) return;
+
+            try
+            {
+                List<string> selectedFiles = GetSelectedFilePaths();
+                if (selectedFiles.Count == 0) return;
+                string currentFolderPath = null;
+                if (tvFolderTree.SelectedNode != null)
+                {
+                    string selectedNodePath = GetNodePath(tvFolderTree.SelectedNode);
+                    if (!string.IsNullOrWhiteSpace(selectedNodePath))
+                    {
+                        currentFolderPath = Directory.Exists(selectedNodePath)
+                            ? selectedNodePath
+                            : Path.GetDirectoryName(selectedNodePath);
+                    }
+                }
+                if (string.IsNullOrWhiteSpace(currentFolderPath))
+                {
+                    currentFolderPath = Path.GetDirectoryName(selectedFiles[0]);
+                }
+                foreach (string file in selectedFiles)
+                {
+                    if (!Path.GetExtension(file).Equals(".wav", StringComparison.OrdinalIgnoreCase))
+                    {
+                        MessageBox.Show("wave convert は .wav ファイルにのみ実行できます。", "wave convert", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        return;
+                    }
+                }
+
+                string soxPath = EnsureSoxPath();
+                if (string.IsNullOrWhiteSpace(soxPath)) return;
+
+                List<string> errors = new List<string>();
+                List<string> convertedFiles = new List<string>();
+                isWaveConverting = true;
+                UseWaitCursor = true;
+                tsmiWaveConvert.Enabled = false;
+                foreach (string inputPath in selectedFiles)
+                {
+                    string outputPath = Path.Combine(
+                        Path.GetDirectoryName(inputPath),
+                        string.Format("{0}_{1}.wav", Path.GetFileNameWithoutExtension(inputPath), profile.OutputSuffix));
+
+                    string parameterPart = GetWaveConvertParameter(profile.ConvertType);
+                    string arguments = string.Format("\"{0}\" {1} \"{2}\"", inputPath, parameterPart, outputPath);
+                    try
+                    {
+                        List<string> executedCommands = new List<string>();
+                        executedCommands.Add(BuildSoxCommand(soxPath, arguments));
+                        (int exitCode, string stderr) = await RunSoxCommandAsync(soxPath, arguments);
+                        if (exitCode != 0)
+                        {
+                            errors.Add(string.Format(
+                                "{0}: {1}\r\ncommand:\r\n{2}",
+                                Path.GetFileName(inputPath),
+                                string.IsNullOrWhiteSpace(stderr) ? "sox command failed." : stderr.Trim(),
+                                string.Join("\r\n", executedCommands)));
+                        }
+                        else
+                        {
+                            convertedFiles.Add(outputPath);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        errors.Add(string.Format(
+                            "{0}: {1}\r\ncommand:\r\n{2}",
+                            Path.GetFileName(inputPath),
+                            ex.Message,
+                            BuildSoxCommand(soxPath, arguments)));
+                    }
+                }
+
+                if (IsDisposed || Disposing) return;
+
+                if (errors.Count > 0)
+                {
+                    MessageBox.Show(
+                        "wave convert の実行中にエラーが発生しました。\r\n\r\n" + string.Join("\r\n", errors),
+                        "wave convert error",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning);
+                }
+
+                refresh();
+                if (!string.IsNullOrWhiteSpace(currentFolderPath))
+                {
+                    FocusFolderAndShowFiles(currentFolderPath);
+                }
+                if (convertedFiles.Count > 0)
+                {
+                    FocusFileInFileList(convertedFiles[convertedFiles.Count - 1]);
+                }
+            }
+            catch (Exception ex)
+            {
+                LogFolderOperationException("WaveConvert", ex, "");
+                if (!IsDisposed && !Disposing)
+                {
+                    MessageBox.Show("wave convert の実行中に予期しないエラーが発生しました。", "wave convert error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+            }
+            finally
+            {
+                isWaveConverting = false;
+                if (!IsDisposed && !Disposing)
+                {
+                    UseWaitCursor = false;
+                    tsmiWaveConvert.Enabled = true;
+                }
+            }
+        }
+
+        private static async Task<(int exitCode, string stderr)> RunSoxCommandAsync(string soxPath, string arguments)
+        {
+            return await Task.Run(async () =>
+            {
+                ProcessStartInfo psi = new ProcessStartInfo
+                {
+                    FileName = soxPath,
+                    Arguments = arguments,
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    CreateNoWindow = true
+                };
+
+                using (Process process = new Process { StartInfo = psi })
+                {
+                    if (!process.Start())
+                    {
+                        return (-1, "sox command failed to start.");
+                    }
+
+                    Task<string> stderrTask = process.StandardError.ReadToEndAsync();
+                    Task<string> stdoutTask = process.StandardOutput.ReadToEndAsync();
+                    process.WaitForExit();
+                    await Task.WhenAll(stderrTask, stdoutTask);
+
+                    return (process.ExitCode, stderrTask.Result);
+                }
+            });
+        }
+
+        private static string BuildSoxCommand(string soxPath, string arguments)
+        {
+            return string.Format("\"{0}\" {1}", soxPath, arguments);
+        }
+
+        private string GetWaveConvertParameter(WaveConvertType convertType)
+        {
+            Setting currentSetting = parentGetSetting?.Invoke() ?? setting;
+            if (currentSetting?.other == null)
+            {
+                return GetDefaultWaveConvertParameter(convertType);
+            }
+
+            string parameter = convertType switch
+            {
+                WaveConvertType.YM2610B => currentSetting.other.WaveConvertParamYM2610B,
+                WaveConvertType.XGM => currentSetting.other.WaveConvertParamXGM,
+                WaveConvertType.XGM2 => currentSetting.other.WaveConvertParamXGM2,
+                WaveConvertType.XGM2Half => currentSetting.other.WaveConvertParamXGM2Half,
+                _ => string.Empty
+            };
+
+            if (string.IsNullOrWhiteSpace(parameter))
+            {
+                return GetDefaultWaveConvertParameter(convertType);
+            }
+
+            return parameter.Trim();
+        }
+
+        private static string GetDefaultWaveConvertParameter(WaveConvertType convertType)
+        {
+            return convertType switch
+            {
+                WaveConvertType.YM2610B => "-b 16 -c 1 -r 18518",
+                WaveConvertType.XGM => "-b 8 -c 1 -r 14000 -e unsigned-integer",
+                WaveConvertType.XGM2 => "-b 8 -c 1 -r 13300 -e unsigned-integer",
+                WaveConvertType.XGM2Half => "-b 8 -c 1 -r 6650 -e unsigned-integer",
+                _ => string.Empty
+            };
+        }
+
+        private string EnsureSoxPath()
+        {
+            Setting currentSetting = parentGetSetting?.Invoke() ?? setting;
+            if (currentSetting?.other == null) return null;
+
+            string soxPath = currentSetting.other.SoxPath ?? "";
+            if (!string.IsNullOrWhiteSpace(soxPath) && File.Exists(soxPath))
+            {
+                return soxPath;
+            }
+
+            using (OpenFileDialog ofd = new OpenFileDialog())
+            {
+                ofd.Filter = "sox実行ファイル(sox*.exe)|sox*.exe|実行ファイル(*.exe)|*.exe|すべてのファイル(*.*)|*.*";
+                ofd.Title = "SOXの実行ファイルを選択してください";
+                ofd.CheckPathExists = true;
+                ofd.CheckFileExists = true;
+                ofd.Multiselect = false;
+
+                if (!string.IsNullOrWhiteSpace(soxPath))
+                {
+                    string dir = Path.GetDirectoryName(soxPath);
+                    if (!string.IsNullOrWhiteSpace(dir) && Directory.Exists(dir))
+                    {
+                        ofd.InitialDirectory = dir;
+                    }
+                }
+                else if (!string.IsNullOrWhiteSpace(currentSetting.other.DefaultDataPath)
+                    && Directory.Exists(currentSetting.other.DefaultDataPath))
+                {
+                    ofd.InitialDirectory = currentSetting.other.DefaultDataPath;
+                }
+                else
+                {
+                    ofd.RestoreDirectory = true;
+                }
+
+                if (ofd.ShowDialog(this) != DialogResult.OK)
+                {
+                    return null;
+                }
+
+                soxPath = ofd.FileName;
+            }
+
+            if (!File.Exists(soxPath))
+            {
+                MessageBox.Show("指定されたSOX実行ファイルが見つかりません。", "SOX path error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return null;
+            }
+
+            currentSetting.other.SoxPath = soxPath;
+            currentSetting.Save();
+            return soxPath;
         }
 
 
@@ -956,6 +1269,25 @@ namespace mml2vgmIDEx64
             while (0 < value.DropDownItems.Count)
             {
                 cmsMenu.Items.Add(value.DropDownItems[0]);
+            }
+            ApplySubmenuCompactMargin(cmsMenu.Items);
+        }
+
+        private void ApplySubmenuCompactMargin(ToolStripItemCollection items)
+        {
+            if (items == null) return;
+
+            foreach (ToolStripItem item in items)
+            {
+                if (!(item is ToolStripMenuItem menuItem)) continue;
+                if (menuItem.DropDownItems.Count <= 0) continue;
+
+                if (menuItem.DropDown is ToolStripDropDownMenu dropDownMenu)
+                {
+                    dropDownMenu.ShowImageMargin = false;
+                    dropDownMenu.ShowCheckMargin = false;
+                }
+                ApplySubmenuCompactMargin(menuItem.DropDownItems);
             }
         }
 
@@ -1883,6 +2215,39 @@ namespace mml2vgmIDEx64
             return true;
         }
 
+        private string GetPathForDeleteDialog(string fullPath)
+        {
+            if (string.IsNullOrWhiteSpace(fullPath)) return fullPath;
+
+            string rootPath = null;
+            if (tvFolderTree.Nodes.Count > 0)
+            {
+                rootPath = GetNodePath(tvFolderTree.Nodes[0]);
+            }
+            if (string.IsNullOrWhiteSpace(rootPath))
+            {
+                rootPath = Path.GetDirectoryName(basePath);
+                rootPath = string.IsNullOrWhiteSpace(rootPath) ? basePath : rootPath;
+            }
+            if (string.IsNullOrWhiteSpace(rootPath)) return fullPath;
+
+            try
+            {
+                string relativePath = Path.GetRelativePath(rootPath, fullPath);
+                if (string.IsNullOrWhiteSpace(relativePath)
+                    || relativePath.StartsWith("..", StringComparison.Ordinal))
+                {
+                    return fullPath;
+                }
+
+                return relativePath;
+            }
+            catch
+            {
+                return fullPath;
+            }
+        }
+
         private static bool IsPathEqualOrChild(string parentPath, string targetPath)
         {
             if (string.IsNullOrEmpty(parentPath) || string.IsNullOrEmpty(targetPath)) return false;
@@ -1948,6 +2313,25 @@ namespace mml2vgmIDEx64
             if (tvFolderTree.CanFocus) tvFolderTree.Focus();
         }
 
+        private void FocusFileInFileList(string targetFilePath)
+        {
+            if (string.IsNullOrWhiteSpace(targetFilePath)) return;
+            if (lvFileList.Items.Count == 0) return;
+
+            foreach (ListViewItem item in lvFileList.Items)
+            {
+                if (!(item.Tag is string filePath)) continue;
+                if (!string.Equals(filePath, targetFilePath, StringComparison.OrdinalIgnoreCase)) continue;
+
+                lvFileList.SelectedItems.Clear();
+                item.Selected = true;
+                item.Focused = true;
+                item.EnsureVisible();
+                if (lvFileList.CanFocus) lvFileList.Focus();
+                return;
+            }
+        }
+
         private void LvFileList_MouseDown(object sender, MouseEventArgs e)
         {
             if (e.Button != MouseButtons.Right) return;
@@ -1980,6 +2364,9 @@ namespace mml2vgmIDEx64
             TsmiOpenSoundEngine.Enabled = hasFile;
             TsmiDelete.Enabled = hasFile;
             TsmiShowInExplorer.Enabled = hasFileSystem;
+            tsmiWaveConvert.Enabled = !isWaveConverting
+                && hasFile
+                && selectedFiles.TrueForAll(path => Path.GetExtension(path).Equals(".wav", StringComparison.OrdinalIgnoreCase));
             tsmiCopyPath.Enabled = hasFileSystem;
             e.Cancel = !hasFileSystem;
         }
@@ -2176,6 +2563,8 @@ namespace mml2vgmIDEx64
                     return ("FT-005", "WAV情報取得");
                 case "ShowInExplorer":
                     return ("FT-006", "エクスプローラーで表示");
+                case "WaveConvert":
+                    return ("FT-007", "wave convert");
                 default:
                     return ("FT-999", string.IsNullOrWhiteSpace(operation) ? "不明な操作" : operation);
             }
