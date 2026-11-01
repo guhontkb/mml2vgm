@@ -39,6 +39,7 @@ namespace mml2vgmIDEx64
         private Label lblPartCounterFontStyle;
         private Button btnPartCounterFont;
         private CheckBox cbPartCounterHideKeyOnMeterOnNoteOff;
+        private CheckBox cbPartCounterShowKeyOnPeakMarker;
         private string partCounterFontName;
         private float partCounterFontSize;
         private System.Drawing.FontStyle partCounterFontStyle;
@@ -51,6 +52,9 @@ namespace mml2vgmIDEx64
         private Button btnPanelTextCustomColor;
         private Panel pnlPanelTextCustomColor;
         private Button btnPanelTextResetDefault;
+        private Label lblPartCounterPeakMarkerColor;
+        private Panel pnlPartCounterPeakMarkerCustomColor;
+        private Button btnPartCounterPeakMarkerResetDefault;
         private Label lblPanelHeaderTextColor;
         private Button btnPanelHeaderTextCustomColor;
         private Panel pnlPanelHeaderTextCustomColor;
@@ -167,11 +171,22 @@ namespace mml2vgmIDEx64
                 UseVisualStyleBackColor = true,
                 Checked = setting.other.PartCounterHideKeyOnMeterOnNoteOff
             };
+            cbPartCounterShowKeyOnPeakMarker = new CheckBox
+            {
+                AutoSize = true,
+                Location = new System.Drawing.Point(27, 165),
+                Name = "cbPartCounterShowKeyOnPeakMarker",
+                Size = new System.Drawing.Size(447, 19),
+                Text = "KeyOn時に右端にキーオン開始のピークマーカー（赤線）を表示する",
+                UseVisualStyleBackColor = true,
+                Checked = setting.other.PartCounterShowKeyOnPeakMarker
+            };
             tpMMLParameter.Controls.Add(lblPartCounterFontName);
             tpMMLParameter.Controls.Add(lblPartCounterFontSize);
             tpMMLParameter.Controls.Add(lblPartCounterFontStyle);
             tpMMLParameter.Controls.Add(btnPartCounterFont);
             tpMMLParameter.Controls.Add(cbPartCounterHideKeyOnMeterOnNoteOff);
+            tpMMLParameter.Controls.Add(cbPartCounterShowKeyOnPeakMarker);
             partCounterFontName = setting.other.PartCounterFontName;
             partCounterFontSize = setting.other.PartCounterFontSize;
             partCounterFontStyle = setting.other.PartCounterFontStyle;
@@ -244,8 +259,9 @@ namespace mml2vgmIDEx64
             const int settingLeft = 8;
             const int colorSampleLeft = 177;
             const int resetButtonLeft = 224;
-            const int headerSectionTop = 200;
-            const int gridSectionTop = 316;
+            const int peakMarkerSectionTop = 200;
+            const int headerSectionTop = 284;
+            const int gridSectionTop = 400;
 
             lblMainBackgroundColor = new Label();
             btnMainBackgroundCustomColor = new Button();
@@ -255,6 +271,9 @@ namespace mml2vgmIDEx64
             btnPanelTextCustomColor = new Button();
             pnlPanelTextCustomColor = new Panel();
             btnPanelTextResetDefault = new Button();
+            lblPartCounterPeakMarkerColor = new Label();
+            pnlPartCounterPeakMarkerCustomColor = new Panel();
+            btnPartCounterPeakMarkerResetDefault = new Button();
             lblPanelHeaderTextColor = new Label();
             btnPanelHeaderTextCustomColor = new Button();
             pnlPanelHeaderTextCustomColor = new Panel();
@@ -334,6 +353,30 @@ namespace mml2vgmIDEx64
             btnPanelTextResetDefault.Text = "リセット";
             btnPanelTextResetDefault.UseVisualStyleBackColor = true;
             btnPanelTextResetDefault.Click += btnPanelTextResetDefault_Click;
+
+            lblPartCounterPeakMarkerColor.AutoSize = true;
+            lblPartCounterPeakMarkerColor.Location = new System.Drawing.Point(settingLeft, peakMarkerSectionTop);
+            lblPartCounterPeakMarkerColor.Margin = new Padding(4, 0, 4, 0);
+            lblPartCounterPeakMarkerColor.Name = "lblPartCounterPeakMarkerColor";
+            lblPartCounterPeakMarkerColor.Size = new System.Drawing.Size(226, 15);
+            lblPartCounterPeakMarkerColor.Text = "ピークマーカー";
+
+            pnlPartCounterPeakMarkerCustomColor.BorderStyle = BorderStyle.FixedSingle;
+            pnlPartCounterPeakMarkerCustomColor.Location = new System.Drawing.Point(settingLeft, peakMarkerSectionTop + 21);
+            pnlPartCounterPeakMarkerCustomColor.Margin = new Padding(4);
+            pnlPartCounterPeakMarkerCustomColor.Name = "pnlPartCounterPeakMarkerCustomColor";
+            pnlPartCounterPeakMarkerCustomColor.Size = new System.Drawing.Size(38, 23);
+            pnlPartCounterPeakMarkerCustomColor.Cursor = Cursors.Hand;
+            pnlPartCounterPeakMarkerCustomColor.BackColor = Color.FromArgb(ColorScheme.DefaultPartCounterKeyOnPeakMarkerColorArgb);
+            pnlPartCounterPeakMarkerCustomColor.Click += btnPartCounterPeakMarkerCustomColor_Click;
+
+            btnPartCounterPeakMarkerResetDefault.Location = new System.Drawing.Point(settingLeft + 47, peakMarkerSectionTop + 21);
+            btnPartCounterPeakMarkerResetDefault.Margin = new Padding(4);
+            btnPartCounterPeakMarkerResetDefault.Name = "btnPartCounterPeakMarkerResetDefault";
+            btnPartCounterPeakMarkerResetDefault.Size = new System.Drawing.Size(75, 23);
+            btnPartCounterPeakMarkerResetDefault.Text = "リセット";
+            btnPartCounterPeakMarkerResetDefault.UseVisualStyleBackColor = true;
+            btnPartCounterPeakMarkerResetDefault.Click += btnPartCounterPeakMarkerResetDefault_Click;
 
             lblPanelHeaderTextColor.AutoSize = true;
             lblPanelHeaderTextColor.Location = new System.Drawing.Point(settingLeft, headerSectionTop);
@@ -467,6 +510,13 @@ namespace mml2vgmIDEx64
             tpColor.Controls.SetChildIndex(btnMainBackgroundResetDefault, 0);
             tpColor.Controls.SetChildIndex(pnlMainBackgroundCustomColor, 0);
             tpColor.Controls.SetChildIndex(lblMainBackgroundColor, 0);
+
+            lblPartCounterPeakMarkerColor.Location = new System.Drawing.Point(27, 190);
+            pnlPartCounterPeakMarkerCustomColor.Location = new System.Drawing.Point(122, 186);
+            btnPartCounterPeakMarkerResetDefault.Location = new System.Drawing.Point(169, 186);
+            tpMMLParameter.Controls.Add(lblPartCounterPeakMarkerColor);
+            tpMMLParameter.Controls.Add(pnlPartCounterPeakMarkerCustomColor);
+            tpMMLParameter.Controls.Add(btnPartCounterPeakMarkerResetDefault);
         }
 
         private void btnMainBackgroundCustomColor_Click(object sender, EventArgs e)
@@ -495,6 +545,18 @@ namespace mml2vgmIDEx64
         private void btnPanelTextResetDefault_Click(object sender, EventArgs e)
         {
             pnlPanelTextCustomColor.BackColor = Color.FromArgb(ColorScheme.DefaultPanelTextColorArgb);
+        }
+
+        private void btnPartCounterPeakMarkerCustomColor_Click(object sender, EventArgs e)
+        {
+            cdMainScrollBarCustomColor.Color = pnlPartCounterPeakMarkerCustomColor.BackColor;
+            if (cdMainScrollBarCustomColor.ShowDialog(this) != DialogResult.OK) return;
+            pnlPartCounterPeakMarkerCustomColor.BackColor = cdMainScrollBarCustomColor.Color;
+        }
+
+        private void btnPartCounterPeakMarkerResetDefault_Click(object sender, EventArgs e)
+        {
+            pnlPartCounterPeakMarkerCustomColor.BackColor = Color.FromArgb(ColorScheme.DefaultPartCounterKeyOnPeakMarkerColorArgb);
         }
 
         private void btnPanelHeaderTextCustomColor_Click(object sender, EventArgs e)
@@ -1281,6 +1343,7 @@ namespace mml2vgmIDEx64
             pnlPanelHeaderCustomColor.BackColor = System.Drawing.Color.FromArgb(setting.ColorScheme.Panel_HeaderBackColor);
             pnlPanelHeaderHighlightCustomColor.BackColor = System.Drawing.Color.FromArgb(setting.ColorScheme.Panel_HeaderHighlightBackColor);
             pnlPanelGridBorderCustomColor.BackColor = System.Drawing.Color.FromArgb(setting.ColorScheme.Panel_GridBorderColor);
+            pnlPartCounterPeakMarkerCustomColor.BackColor = System.Drawing.Color.FromArgb(setting.ColorScheme.PartCounter_KeyOnPeakMarkerColor);
 
             cbUseMIDIExport.Checked = setting.midiExport.UseMIDIExport;
             gbMIDIExport.Enabled = cbUseMIDIExport.Checked;
@@ -1514,6 +1577,7 @@ namespace mml2vgmIDEx64
             partCounterFontSize = setting.other.PartCounterFontSize;
             partCounterFontStyle = setting.other.PartCounterFontStyle;
             cbPartCounterHideKeyOnMeterOnNoteOff.Checked = setting.other.PartCounterHideKeyOnMeterOnNoteOff;
+            cbPartCounterShowKeyOnPeakMarker.Checked = setting.other.PartCounterShowKeyOnPeakMarker;
             cbDispWarningMessage.Checked = setting.other.DispWarningMessage;
             cbCompileResultDialog.Checked = setting.other.CompileResultDialog;
             cbCompileResultActivateErrorList.Checked = setting.other.CompileResultActivateErrorList;
@@ -2216,6 +2280,7 @@ namespace mml2vgmIDEx64
             setting.ColorScheme.Panel_HeaderBackColor = pnlPanelHeaderCustomColor.BackColor.ToArgb();
             setting.ColorScheme.Panel_HeaderHighlightBackColor = pnlPanelHeaderHighlightCustomColor.BackColor.ToArgb();
             setting.ColorScheme.Panel_GridBorderColor = pnlPanelGridBorderCustomColor.BackColor.ToArgb();
+            setting.ColorScheme.PartCounter_KeyOnPeakMarkerColor = pnlPartCounterPeakMarkerCustomColor.BackColor.ToArgb();
 
             setting.midiExport.UseMIDIExport = cbUseMIDIExport.Checked;
             setting.midiExport.ExportPath = tbMIDIOutputPath.Text;
@@ -2408,6 +2473,7 @@ namespace mml2vgmIDEx64
             setting.other.PartCounterFontSize = partCounterFontSize;
             setting.other.PartCounterFontStyle = partCounterFontStyle;
             setting.other.PartCounterHideKeyOnMeterOnNoteOff = cbPartCounterHideKeyOnMeterOnNoteOff.Checked;
+            setting.other.PartCounterShowKeyOnPeakMarker = cbPartCounterShowKeyOnPeakMarker.Checked;
 
             setting.export.FixedExportPlace = cbFixedExportPlace.Checked;
             setting.export.FixedExportPlacePath = tbFixedExportPlacePath.Text;

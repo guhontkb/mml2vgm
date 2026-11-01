@@ -12,6 +12,7 @@ namespace mml2vgmIDEx64
         public static readonly int DefaultPanelHeaderForeColorArgb = Color.FromArgb(230, 255, 255).ToArgb();
         public static readonly int DefaultPanelHeaderHighlightBackColorArgb = Color.FromArgb(100, 100, 180).ToArgb();
         public static readonly int DefaultPanelGridBorderColorArgb = Color.FromArgb(160, 160, 160).ToArgb();
+        public static readonly int DefaultPartCounterKeyOnPeakMarkerColorArgb = Color.Red.ToArgb();
 
         public int Azuki_ForeColor = Color.FromArgb(235, 235, 255).ToArgb();
         public int Azuki_BackColor = DefaultBackgroundColorArgb;
@@ -50,6 +51,7 @@ namespace mml2vgmIDEx64
         public int PartCounter_SOLOROW_BackColor = Color.FromArgb(90, 10, 10).ToArgb();
         public int PartCounter_SOLO_BackColor = Color.FromArgb(90, 10, 10).ToArgb();
         public int PartCounter_MUTE_BackColor = Color.FromArgb(120, 90, 10).ToArgb();
+        public int PartCounter_KeyOnPeakMarkerColor = DefaultPartCounterKeyOnPeakMarkerColorArgb;
 
         public int FolderTree_ForeColor = DefaultPanelTextColorArgb;
         public int FolderTree_BackColor = DefaultBackgroundColorArgb;
@@ -123,6 +125,7 @@ namespace mml2vgmIDEx64
             ret.PartCounter_SOLOROW_BackColor = this.PartCounter_SOLOROW_BackColor;
             ret.PartCounter_SOLO_BackColor = this.PartCounter_SOLO_BackColor;
             ret.PartCounter_MUTE_BackColor = this.PartCounter_MUTE_BackColor;
+            ret.PartCounter_KeyOnPeakMarkerColor = this.PartCounter_KeyOnPeakMarkerColor;
 
             ret.FolderTree_ForeColor = this.FolderTree_ForeColor;
             ret.FolderTree_BackColor = this.FolderTree_BackColor;

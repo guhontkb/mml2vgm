@@ -2097,6 +2097,7 @@ namespace mml2vgmIDEx64
             private FontStyle _PartCounterFontStyle = FontStyle.Regular;
             public FontStyle PartCounterFontStyle { get => _PartCounterFontStyle; set => _PartCounterFontStyle = value; }
             public bool PartCounterHideKeyOnMeterOnNoteOff { get; set; } = false;
+            public bool PartCounterShowKeyOnPeakMarker { get; set; } = true;
             public bool ShowFilePathInTitleBar { get; set; } = false;
             public int TabWidth { get => _TabWidth; set => _TabWidth = value; }
             private int _TabWidth = 8;
@@ -2189,6 +2190,7 @@ namespace mml2vgmIDEx64
                 other.PartCounterFontSize = this.PartCounterFontSize;
                 other.PartCounterFontStyle = this.PartCounterFontStyle;
                 other.PartCounterHideKeyOnMeterOnNoteOff = this.PartCounterHideKeyOnMeterOnNoteOff;
+                other.PartCounterShowKeyOnPeakMarker = this.PartCounterShowKeyOnPeakMarker;
                 other.ShowFilePathInTitleBar = this.ShowFilePathInTitleBar;
                 other.GwiFileHistory = this.GwiFileHistory;
                 other.LastOpenedFiles = this.LastOpenedFiles;

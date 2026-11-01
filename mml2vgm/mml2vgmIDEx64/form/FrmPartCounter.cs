@@ -77,6 +77,8 @@ namespace mml2vgmIDEx64
         private readonly Color mutedCellBackColor = Color.FromArgb(194, 180, 56);
         private readonly Color soloCellBackColor = Color.FromArgb(211, 78, 54);
         private readonly Color muteSoloCellForeColor = Color.FromArgb(10, 36, 10);
+        private readonly Dictionary<int, int> keyOnRedFramesRemaining = new Dictionary<int, int>();
+        private readonly Dictionary<int, int> previousKeyOnMeterValues = new Dictionary<int, int>();
         private Font partCounterFont = null;
         private int focusedRowIndex = -1;
         private string focusedColumnName = null;
@@ -512,7 +514,13 @@ namespace mml2vgmIDEx64
                 row.Cells["ClmKeyShift"].Value = mmli.keyShift[r] == null ? "-" : mmli.keyShift[r].ToString();
                 row.Cells["ClmMIDIch"].Value = mmli.MIDIch[r] == null ? "-" : mmli.MIDIch[r].ToString();
                 row.Cells["ClmMemo"].Value = mmli.memo[r] == null ? "" : mmli.memo[r].ToString();
-                DrawMeter(row.Cells["ClmMeter"], mmli, r, IsRowMuted(row));
+                DrawMeter(
+                    row.Cells["ClmMeter"],
+                    mmli,
+                    r,
+                    (int)row.Cells[dgvPartCounter.Columns["ClmMuteMngKey"].Index].Value,
+                    IsRowMuted(row)
+                    );
             }
 
             dgvPartCounter.ResumeLayout();
@@ -813,6 +821,8 @@ namespace mml2vgmIDEx64
             focusedRowIndex = -1;
             focusedColumnName = null;
             focusedRowMode = false;
+            keyOnRedFramesRemaining.Clear();
+            previousKeyOnMeterValues.Clear();
             //SoloMode = false;
         }
 
@@ -963,7 +973,7 @@ namespace mml2vgmIDEx64
                new object[] { true });
         }
 
-        private void DrawMeter(DataGridViewCell dataGridViewCell, Instrument mmli, int pn, bool isMuted)
+        private void DrawMeter(DataGridViewCell dataGridViewCell, Instrument mmli, int pn, int partKey, bool isMuted)
         {
             int col = mmli.partColor[pn];
             DataGridViewImageCell cell = (DataGridViewImageCell)dataGridViewCell;
@@ -977,15 +987,44 @@ namespace mml2vgmIDEx64
                 && pn < mmli.notecmd.Length
                 && string.Equals(mmli.notecmd[pn], "r", StringComparison.OrdinalIgnoreCase);
             int p = isMuted || isNoteOff || mmli.keyOnMeter[pn] == null ? 0 : (int)mmli.keyOnMeter[pn];
+            int previousMeterValue = previousKeyOnMeterValues.TryGetValue(partKey, out int previousValue) ? previousValue : 0;
+            if (p > 0 && p > previousMeterValue)
+            {
+                keyOnRedFramesRemaining[partKey] = 3;
+            }
             int w = (int)((cw - 6) / 256.0 * p);
             int h = (int)((ch - 4) / 6.0 * 4.0);
             p = Common.Range(p, 0, meterBrush[col].Length - 1);
+            int redFrames = keyOnRedFramesRemaining.TryGetValue(partKey, out int frames) ? frames : 0;
+            bool showRedTail = (setting?.other?.PartCounterShowKeyOnPeakMarker ?? true) && redFrames > 0;
 
             Bitmap canvas = new Bitmap(cw, ch);
             using (Graphics g = Graphics.FromImage(canvas))
             {
                 g.Clear(Color.Transparent);
-                g.FillRectangle(meterBrush[col][p], x, y, w, h);
+                if (w > 0)
+                {
+                    int keyOnTailWidth = Math.Min(3, w);
+                    int bodyWidth = w - keyOnTailWidth;
+                    int bodyColorIndex = Math.Min(p, 209);
+
+                    if (bodyWidth > 0)
+                    {
+                        g.FillRectangle(meterBrush[col][bodyColorIndex], x, y, bodyWidth, h);
+                    }
+
+                    if (showRedTail)
+                    {
+                        using (SolidBrush markerBrush = new SolidBrush(Color.FromArgb(setting?.ColorScheme?.PartCounter_KeyOnPeakMarkerColor ?? ColorScheme.DefaultPartCounterKeyOnPeakMarkerColorArgb)))
+                        {
+                            g.FillRectangle(markerBrush, x + bodyWidth, y, keyOnTailWidth, h);
+                        }
+                    }
+                    else
+                    {
+                        g.FillRectangle(meterBrush[col][bodyColorIndex], x + bodyWidth, y, keyOnTailWidth, h);
+                    }
+                }
             }
 
             //PictureBox1に表示する
@@ -999,6 +1038,24 @@ namespace mml2vgmIDEx64
             {
                 mmli.keyOnMeter[pn] -= 4;
                 mmli.keyOnMeter[pn] = Math.Max((int)mmli.keyOnMeter[pn], 0);
+            }
+
+            if (p <= 0)
+            {
+                previousKeyOnMeterValues[partKey] = 0;
+                keyOnRedFramesRemaining.Remove(partKey);
+            }
+            else
+            {
+                previousKeyOnMeterValues[partKey] = p;
+                if (showRedTail)
+                {
+                    int nextFrames = redFrames - 1;
+                    if (nextFrames <= 0)
+                        keyOnRedFramesRemaining.Remove(partKey);
+                    else
+                        keyOnRedFramesRemaining[partKey] = nextFrames;
+                }
             }
         }
 
