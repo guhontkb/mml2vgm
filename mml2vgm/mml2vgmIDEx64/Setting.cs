@@ -2150,10 +2150,8 @@ namespace mml2vgmIDEx64
             public bool CompileResultDialog { get; set; } = false;
             public bool CompileResultActivateErrorList { get; set; } = false;
             public bool CompileResultIncludeWarning { get; set; } = false;
+            public string ErrorListFilter { get; set; } = "All";
             public int MainScreenBackgroundColorArgb { get; set; } = Color.FromArgb(40, 29, 59).ToArgb();
-            public bool MainScreenWallpaperEnabled { get; set; } = false;
-            public string MainScreenWallpaperPath { get; set; } = "";
-            public int MainScreenWallpaperLayout { get; set; } = (int)ImageLayout.Zoom;
 
             public Other Copy()
             {
@@ -2221,10 +2219,8 @@ namespace mml2vgmIDEx64
                 other.CompileResultDialog = this.CompileResultDialog;
                 other.CompileResultActivateErrorList = this.CompileResultActivateErrorList;
                 other.CompileResultIncludeWarning = this.CompileResultIncludeWarning;
+                other.ErrorListFilter = this.ErrorListFilter;
                 other.MainScreenBackgroundColorArgb = this.MainScreenBackgroundColorArgb;
-                other.MainScreenWallpaperEnabled = this.MainScreenWallpaperEnabled;
-                other.MainScreenWallpaperPath = this.MainScreenWallpaperPath;
-                other.MainScreenWallpaperLayout = this.MainScreenWallpaperLayout;
 
                 return other;
             }

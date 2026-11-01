@@ -68,6 +68,8 @@ namespace mml2vgmIDEx64
         private MuapManager mpmng = null;
         private musicDriverInterface.MmlDatum[] mubData = null;
         private musicDriverInterface.MmlDatum[] mData = null;
+        private int compileIssueBaseErrorCount = 0;
+        private int compileIssueBaseWarningCount = 0;
         private string m98ResultMucString = null;
         private CompileManager compileManager = null;
 
@@ -2080,6 +2082,7 @@ namespace mml2vgmIDEx64
             this.Invoke(dmy);
             Corex64.Log.Write(string.Format("  preprocess at [{0}]", title));
             msgBox.clear();
+            ClearAllCompilerIssueCache();
 
             Compiling |= 8;
 
@@ -2193,11 +2196,13 @@ namespace mml2vgmIDEx64
             Corex64.Log.Write(string.Format("  compile at [{0}]", title));
 
             msgBox.clear();
+            ClearAllCompilerIssueCache();
 
             string ext = Path.GetExtension(args[1]).ToLower();
             switch (ext)
             {
                 case ".gwi":
+                    ResetCompilerIssueBaseline();
                     Compiling |= 2;
                     startCompileGWI();
                     break;
@@ -2207,6 +2212,7 @@ namespace mml2vgmIDEx64
                         MessageBox.Show("Not found mucomDotNET.", "error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return;
                     }
+                    CaptureCompilerIssueBaseline(mucom.GetCompilerInfo());
                     Compiling |= 4;
                     startCompileMUC();
                     break;
@@ -2216,6 +2222,7 @@ namespace mml2vgmIDEx64
                         MessageBox.Show("Not found PMDDotNET.", "error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return;
                     }
+                    CaptureCompilerIssueBaseline(pmdmng.GetCompilerInfo());
                     Compiling |= 8;
                     startCompileMML();
                     break;
@@ -2225,6 +2232,7 @@ namespace mml2vgmIDEx64
                         MessageBox.Show("Not found MoonDriverDotNET.", "error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return;
                     }
+                    CaptureCompilerIssueBaseline(mdmng.GetCompilerInfo());
                     Compiling |= 16;
                     startCompileMDL();
                     break;
@@ -2234,10 +2242,53 @@ namespace mml2vgmIDEx64
                         MessageBox.Show("Not found muapDotNET.", "error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return;
                     }
+                    CaptureCompilerIssueBaseline(mpmng.GetCompilerInfo());
                     Compiling |= 32;
                     startCompileMUS();
                     break;
             }
+        }
+
+        private void ClearAllCompilerIssueCache()
+        {
+            ClearCompilerIssueCache(mucom?.GetCompilerInfo());
+            ClearCompilerIssueCache(pmdmng?.GetCompilerInfo());
+            ClearCompilerIssueCache(mdmng?.GetCompilerInfo());
+            ClearCompilerIssueCache(mpmng?.GetCompilerInfo());
+        }
+
+        private static void ClearCompilerIssueCache(musicDriverInterface.CompilerInfo ci)
+        {
+            ci?.errorList?.Clear();
+            ci?.warningList?.Clear();
+        }
+
+        private void ResetCompilerIssueBaseline()
+        {
+            compileIssueBaseErrorCount = 0;
+            compileIssueBaseWarningCount = 0;
+        }
+
+        private void CaptureCompilerIssueBaseline(musicDriverInterface.CompilerInfo ci)
+        {
+            compileIssueBaseErrorCount = ci?.errorList?.Count ?? 0;
+            compileIssueBaseWarningCount = ci?.warningList?.Count ?? 0;
+        }
+
+        private static List<Tuple<int, int, string>> SliceCompilerIssues(List<Tuple<int, int, string>> source, int baselineCount)
+        {
+            if (source == null || source.Count < 1) return new List<Tuple<int, int, string>>();
+
+            int start = baselineCount;
+            if (start < 0 || start > source.Count) start = 0;
+
+            List<Tuple<int, int, string>> ret = new List<Tuple<int, int, string>>();
+            for (int i = start; i < source.Count; i++)
+            {
+                ret.Add(source[i]);
+            }
+
+            return ret;
         }
 
         private void startCompileGWI()
@@ -2495,10 +2546,21 @@ namespace mml2vgmIDEx64
 
             if (setting.other.CompileResultActivateErrorList && !frmErrorList.IsHidden)
             {
+                DockContent previousActivePanel = GetActiveDockContent() as DockContent;
+
                 frmErrorList.Focus();
                 if (frmErrorList.DockState != DockState.Float)
                 {
                     frmErrorList.Activate();
+                }
+
+                if (previousActivePanel != null
+                    && previousActivePanel != frmErrorList
+                    && !previousActivePanel.IsDisposed
+                    && !previousActivePanel.IsHidden)
+                {
+                    previousActivePanel.Focus();
+                    previousActivePanel.Activate();
                 }
             }
 
@@ -2529,6 +2591,7 @@ namespace mml2vgmIDEx64
         private void finishedCompile()
         {
             if (isSuccess) Audio.silent = false;
+            frmErrorList.dataGridView1.Rows.Clear();
 
             //
 
@@ -2645,7 +2708,7 @@ namespace mml2vgmIDEx64
             {
                 if (mes.document != null)
                 {
-                    frmErrorList.dataGridView1.Rows.Add(
+                    frmErrorList.AddIssueRow(
                         "Error",
                         ((FrmEditor)mes.document).document.gwiFullPath,
                         mes.line == -1 ? "-" : (mes.line + 1).ToString(),
@@ -2653,7 +2716,7 @@ namespace mml2vgmIDEx64
                 }
                 else
                 {
-                    frmErrorList.dataGridView1.Rows.Add(
+                    frmErrorList.AddIssueRow(
                         "Error",
                         mes.filename,
                         mes.line == -1 ? "-" : (mes.line + 1).ToString(),
@@ -2667,7 +2730,7 @@ namespace mml2vgmIDEx64
             {
                 if (mes.document != null)
                 {
-                    frmErrorList.dataGridView1.Rows.Add(
+                    frmErrorList.AddIssueRow(
                         "Warning",
                         ((FrmEditor)mes.document).document.gwiFullPath,
                         mes.line == -1 ? "-" : (mes.line + 1).ToString(),
@@ -2675,7 +2738,7 @@ namespace mml2vgmIDEx64
                 }
                 else
                 {
-                    frmErrorList.dataGridView1.Rows.Add(
+                    frmErrorList.AddIssueRow(
                     "Warning",
                     mes.filename,
                     mes.line == -1 ? "-" : (mes.line + 1).ToString(),
@@ -2798,8 +2861,8 @@ namespace mml2vgmIDEx64
                 UpdateControl();
                 return;
             }
-            List<Tuple<int, int, string>> errorList = ci.errorList ?? new List<Tuple<int, int, string>>();
-            List<Tuple<int, int, string>> warningList = ci.warningList ?? new List<Tuple<int, int, string>>();
+            List<Tuple<int, int, string>> errorList = SliceCompilerIssues(ci.errorList, compileIssueBaseErrorCount);
+            List<Tuple<int, int, string>> warningList = SliceCompilerIssues(ci.warningList, compileIssueBaseWarningCount);
 
             Document doc = null;
             if (compileTargetDocument is FrmEditor) doc = (Document)((FrmEditor)compileTargetDocument).Tag;
@@ -2901,7 +2964,7 @@ namespace mml2vgmIDEx64
 
             foreach (Tuple<int, int, string> mes in errorList)
             {
-                frmErrorList.dataGridView1.Rows.Add("Error", "-"
+                frmErrorList.AddIssueRow("Error", "-"
                     , mes.Item1 == -1 ? "-" : (mes.Item1 + 1).ToString()
                     , mes.Item3);
                 msgInfo mi = new msgInfo(null, "", mes.Item1, mes.Item2, -1, mes.Item3);
@@ -2910,7 +2973,7 @@ namespace mml2vgmIDEx64
 
             foreach (Tuple<int, int, string> mes in warningList)
             {
-                frmErrorList.dataGridView1.Rows.Add("Warning", "-"
+                frmErrorList.AddIssueRow("Warning", "-"
                     , mes.Item1 == -1 ? "-" : (mes.Item1 + 1).ToString()
                     , mes.Item3);
                 msgInfo mi = new msgInfo(null, "", mes.Item1, mes.Item2, -1, mes.Item3);
@@ -3005,8 +3068,8 @@ namespace mml2vgmIDEx64
                 UpdateControl();
                 return;
             }
-            List<Tuple<int, int, string>> errorList = ci.errorList ?? new List<Tuple<int, int, string>>();
-            List<Tuple<int, int, string>> warningList = ci.warningList ?? new List<Tuple<int, int, string>>();
+            List<Tuple<int, int, string>> errorList = SliceCompilerIssues(ci.errorList, compileIssueBaseErrorCount);
+            List<Tuple<int, int, string>> warningList = SliceCompilerIssues(ci.warningList, compileIssueBaseWarningCount);
             Document doc = null;
             if (compileTargetDocument is FrmEditor) doc = (Document)((FrmEditor)compileTargetDocument).Tag;
             else doc = (Document)compileTargetDocument;
@@ -3092,7 +3155,7 @@ namespace mml2vgmIDEx64
 
             foreach (Tuple<int, int, string> mes in errorList)
             {
-                frmErrorList.dataGridView1.Rows.Add("Error", "-"
+                frmErrorList.AddIssueRow("Error", "-"
                     , mes.Item1 == -1 ? "-" : (mes.Item1 + 1).ToString()
                     , mes.Item3);
                 msgInfo mi = new msgInfo(null, "", mes.Item1, mes.Item2, -1, mes.Item3);
@@ -3101,7 +3164,7 @@ namespace mml2vgmIDEx64
 
             foreach (Tuple<int, int, string> mes in warningList)
             {
-                frmErrorList.dataGridView1.Rows.Add("Warning", "-"
+                frmErrorList.AddIssueRow("Warning", "-"
                     , mes.Item1 == -1 ? "-" : (mes.Item1 + 1).ToString()
                     , mes.Item3);
                 msgInfo mi = new msgInfo(null, "", mes.Item1, mes.Item2, -1, mes.Item3);
@@ -3146,8 +3209,8 @@ namespace mml2vgmIDEx64
                 UpdateControl();
                 return;
             }
-            List<Tuple<int, int, string>> errorList = ci.errorList ?? new List<Tuple<int, int, string>>();
-            List<Tuple<int, int, string>> warningList = ci.warningList ?? new List<Tuple<int, int, string>>();
+            List<Tuple<int, int, string>> errorList = SliceCompilerIssues(ci.errorList, compileIssueBaseErrorCount);
+            List<Tuple<int, int, string>> warningList = SliceCompilerIssues(ci.warningList, compileIssueBaseWarningCount);
             try
             {
                 if (isSuccess)
@@ -3197,7 +3260,7 @@ namespace mml2vgmIDEx64
 
             foreach (Tuple<int, int, string> mes in errorList)
             {
-                frmErrorList.dataGridView1.Rows.Add("Error", "-"
+                frmErrorList.AddIssueRow("Error", "-"
                     , mes.Item1 == -1 ? "-" : (mes.Item1 + 1).ToString()
                     , mes.Item3);
                 msgInfo mi = new msgInfo(null, "", mes.Item1, mes.Item2, -1, mes.Item3);
@@ -3206,7 +3269,7 @@ namespace mml2vgmIDEx64
 
             foreach (Tuple<int, int, string> mes in warningList)
             {
-                frmErrorList.dataGridView1.Rows.Add("Warning", "-"
+                frmErrorList.AddIssueRow("Warning", "-"
                     , mes.Item1 == -1 ? "-" : (mes.Item1 + 1).ToString()
                     , mes.Item3);
                 msgInfo mi = new msgInfo(null, "", mes.Item1, mes.Item2, -1, mes.Item3);
@@ -3250,8 +3313,8 @@ namespace mml2vgmIDEx64
                 UpdateControl();
                 return;
             }
-            List<Tuple<int, int, string>> errorList = ci.errorList ?? new List<Tuple<int, int, string>>();
-            List<Tuple<int, int, string>> warningList = ci.warningList ?? new List<Tuple<int, int, string>>();
+            List<Tuple<int, int, string>> errorList = SliceCompilerIssues(ci.errorList, compileIssueBaseErrorCount);
+            List<Tuple<int, int, string>> warningList = SliceCompilerIssues(ci.warningList, compileIssueBaseWarningCount);
             try
             {
                 if (isSuccess)
@@ -3304,7 +3367,7 @@ namespace mml2vgmIDEx64
 
             foreach (Tuple<int, int, string> mes in errorList)
             {
-                frmErrorList.dataGridView1.Rows.Add("Error", "-"
+                frmErrorList.AddIssueRow("Error", "-"
                     , mes.Item1 == -1 ? "-" : (mes.Item1 + 1).ToString()
                     , mes.Item3);
                 msgInfo mi = new msgInfo(null, "", mes.Item1, mes.Item2, -1, mes.Item3);
@@ -3313,7 +3376,7 @@ namespace mml2vgmIDEx64
 
             foreach (Tuple<int, int, string> mes in warningList)
             {
-                frmErrorList.dataGridView1.Rows.Add("Warning", "-"
+                frmErrorList.AddIssueRow("Warning", "-"
                     , mes.Item1 == -1 ? "-" : (mes.Item1 + 1).ToString()
                     , mes.Item3);
                 msgInfo mi = new msgInfo(null, "", mes.Item1, mes.Item2, -1, mes.Item3);
@@ -5296,6 +5359,7 @@ namespace mml2vgmIDEx64
             isTrace = false;
             doSkip = false;
             doSkipStop = false;
+            frmErrorList.dataGridView1.Rows.Clear();
 
             switch (qi.doc.dstFileFormat)
             {
