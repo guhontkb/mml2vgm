@@ -61,6 +61,9 @@ namespace mml2vgmIDEx64
         private const int LVM_GETHEADER = LVM_FIRST + 31;
         private const int WM_CONTEXTMENU = 0x007B;
         private const string FolderHeaderText = "Folder";
+        private readonly ToolTip folderTreeToolTip = new ToolTip();
+        private TreeNode currentToolTipNode = null;
+        private string currentToolTipText = "";
 
         public FrmFolderTree(Setting setting, DockPanel dockPanel)
         {
@@ -74,6 +77,10 @@ namespace mml2vgmIDEx64
                 (int)(tvFolderTree.HotColor.R * 1.3),
                 (int)(tvFolderTree.HotColor.G * 1.3),
                 (int)(tvFolderTree.HotColor.B * 1.3));
+            this.tvFolderTree.ShowNodeToolTips = false;
+            this.tvFolderTree.NodeMouseHover += TvFolderTree_NodeMouseHover;
+            this.tvFolderTree.MouseMove += TvFolderTree_MouseMove;
+            this.tvFolderTree.MouseLeave += TvFolderTree_MouseLeave;
             lvFileList.BackColor = Color.FromArgb(setting.ColorScheme.FolderTree_BackColor);
             lvFileList.ForeColor = Color.FromArgb(setting.ColorScheme.FolderTree_ForeColor);
             splitContainer1.BackColor = FolderTreeSplitterColor;
@@ -94,6 +101,11 @@ namespace mml2vgmIDEx64
             ApplyFolderTextFont();
             UpdateFileSizeDisplay();
             UpdateDurationDisplay();
+
+            folderTreeToolTip.ShowAlways = true;
+            folderTreeToolTip.InitialDelay = 300;
+            folderTreeToolTip.ReshowDelay = 100;
+            folderTreeToolTip.AutoPopDelay = 10000;
         }
 
         private void RestoreFileListSettings()
@@ -201,11 +213,8 @@ namespace mml2vgmIDEx64
 
         private void UpdateFolderHeaderCaption()
         {
-            Setting currentSetting = parentGetSetting?.Invoke() ?? setting;
-            bool showFolderPath = currentSetting?.other?.ShowFolderPathInHeader ?? true;
-            Text = showFolderPath && !string.IsNullOrWhiteSpace(basePath)
-                ? $"{FolderHeaderText}  {basePath}"
-                : FolderHeaderText;
+            Text = FolderHeaderText;
+            TabText = FolderHeaderText;
         }
 
         private string GetNodePath(TreeNode node)
@@ -334,6 +343,52 @@ namespace mml2vgmIDEx64
 
             e.Node.Checked = true;
 
+        }
+
+        private void TvFolderTree_NodeMouseHover(object sender, TreeNodeMouseHoverEventArgs e)
+        {
+            if (e?.Node == null || e.Node.Parent != null)
+            {
+                HideFolderTreeToolTip();
+                return;
+            }
+
+            string fullPath = GetNodePath(e.Node);
+            if (string.IsNullOrWhiteSpace(fullPath))
+            {
+                HideFolderTreeToolTip();
+                return;
+            }
+
+            if (ReferenceEquals(currentToolTipNode, e.Node) && currentToolTipText == fullPath) return;
+
+            folderTreeToolTip.Hide(tvFolderTree);
+            folderTreeToolTip.Show(fullPath, tvFolderTree, e.Node.Bounds.Left + 16, e.Node.Bounds.Bottom + 2, 5000);
+            currentToolTipNode = e.Node;
+            currentToolTipText = fullPath;
+        }
+
+        private void TvFolderTree_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (currentToolTipNode == null) return;
+
+            TreeNode hit = tvFolderTree.HitTest(e.Location).Node;
+            if (!ReferenceEquals(hit, currentToolTipNode))
+            {
+                HideFolderTreeToolTip();
+            }
+        }
+
+        private void TvFolderTree_MouseLeave(object sender, EventArgs e)
+        {
+            HideFolderTreeToolTip();
+        }
+
+        private void HideFolderTreeToolTip()
+        {
+            folderTreeToolTip.Hide(tvFolderTree);
+            currentToolTipNode = null;
+            currentToolTipText = "";
         }
 
         private void TvFolderTree_ItemDrag(object sender, ItemDragEventArgs e)

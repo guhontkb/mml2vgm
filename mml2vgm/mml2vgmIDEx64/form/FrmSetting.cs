@@ -33,7 +33,7 @@ namespace mml2vgmIDEx64
         private Label lblFolderFontSize;
         private Label lblFolderFontStyle;
         private Button btFolderFont;
-        private CheckBox cbShowFolderPathInHeader;
+        private CheckBox cbShowFilePathInTitleBar;
         private Label lblMainScrollBarColor;
         private Label lblMainScrollBarCustomThumbColor;
         private Label lblMainScrollBarCustomTrackColor;
@@ -130,9 +130,19 @@ namespace mml2vgmIDEx64
                 UseVisualStyleBackColor = true
             };
             btnMDPlayerPath.Click += btnMDPlayerPath_Click;
+            cbShowFilePathInTitleBar = new CheckBox
+            {
+                AutoSize = true,
+                Location = new System.Drawing.Point(8, 462),
+                Name = "cbShowFilePathInTitleBar",
+                Size = new System.Drawing.Size(299, 19),
+                Text = "アプリに表示するファイル名をフルパスで表示する",
+                UseVisualStyleBackColor = true
+            };
             tpOther2.Controls.Add(lblMDPlayerPath);
             tpOther2.Controls.Add(tbMDPlayerPath);
             tpOther2.Controls.Add(btnMDPlayerPath);
+            tpOther2.Controls.Add(cbShowFilePathInTitleBar);
         }
 
         private void InitializeMainScrollBarColorSetting()
@@ -331,7 +341,6 @@ namespace mml2vgmIDEx64
             lblFolderFontSize = new Label();
             lblFolderFontStyle = new Label();
             btFolderFont = new Button();
-            cbShowFolderPathInHeader = new CheckBox();
 
             tpFolder.SuspendLayout();
 
@@ -376,7 +385,6 @@ namespace mml2vgmIDEx64
             tpFolder.Controls.Add(tbSoundEnginePath);
             tpFolder.Controls.Add(btnSoundEnginePath);
             tpFolder.Controls.Add(gbFolderFont);
-            tpFolder.Controls.Add(cbShowFolderPathInHeader);
 
             lblSoundEnginePath.AutoSize = true;
             lblSoundEnginePath.Location = new System.Drawing.Point(8, 52);
@@ -475,14 +483,6 @@ namespace mml2vgmIDEx64
             gbFolderFont.Controls.Add(lblFolderFontSize);
             gbFolderFont.Controls.Add(lblFolderFontStyle);
             gbFolderFont.Controls.Add(btFolderFont);
-
-            cbShowFolderPathInHeader.AutoSize = true;
-            cbShowFolderPathInHeader.Location = new System.Drawing.Point(8, 200);
-            cbShowFolderPathInHeader.Name = "cbShowFolderPathInHeader";
-            cbShowFolderPathInHeader.Size = new System.Drawing.Size(264, 19);
-            cbShowFolderPathInHeader.TabIndex = 7;
-            cbShowFolderPathInHeader.Text = "Folderヘッダーの右側にフルパスを表示する";
-            cbShowFolderPathInHeader.UseVisualStyleBackColor = true;
 
             int editorTabIndex = tcSetting.TabPages.IndexOf(tpEditor);
             if (editorTabIndex >= 0)
@@ -1131,7 +1131,7 @@ namespace mml2vgmIDEx64
             lblFolderFontName.Text = setting.other.FolderFontName;
             lblFolderFontSize.Text = setting.other.FolderFontSize.ToString();
             lblFolderFontStyle.Text = setting.other.FolderFontStyle.ToString();
-            cbShowFolderPathInHeader.Checked = setting.other.ShowFolderPathInHeader;
+            cbShowFilePathInTitleBar.Checked = setting.other.ShowFilePathInTitleBar;
             cbLogWarning.Checked = setting.other.LogWarning;
             cbPlayDeviceCB.Checked = setting.other.PlayDeviceCB;
             cbSinWave.Checked = setting.other.sinWaveGen;
@@ -2039,7 +2039,7 @@ namespace mml2vgmIDEx64
                 lblFolderFontStyle.Text.ToUpper() == "BOLD" ? System.Drawing.FontStyle.Bold : (
                 lblFolderFontStyle.Text.ToUpper() == "ITALIC" ? System.Drawing.FontStyle.Italic : (
                 lblFolderFontStyle.Text.ToUpper() == "STRIKEOUT" ? System.Drawing.FontStyle.Strikeout : System.Drawing.FontStyle.Underline)));
-            setting.other.ShowFolderPathInHeader = cbShowFolderPathInHeader.Checked;
+            setting.other.ShowFilePathInTitleBar = cbShowFilePathInTitleBar.Checked;
 
             setting.Debug_DispFrameCounter = cbDispFrameCounter.Checked;
             setting.HiyorimiMode = cbHiyorimiMode.Checked;

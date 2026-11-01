@@ -73,6 +73,7 @@ namespace mml2vgmIDEx64
         private Color focusedCellSelectionBackColor = Color.FromArgb(100, 100, 180);
         private Color focusedRowSelectionBackColor = Color.FromArgb(96, 96, 148);
         private Color focusedSelectionForeColor = Color.White;
+        private Color mutedRowForeColor = Color.Empty;
         private int focusedRowIndex = -1;
         private string focusedColumnName = null;
         private bool focusedRowMode = false;
@@ -89,6 +90,7 @@ namespace mml2vgmIDEx64
             dgvPartCounter.DefaultCellStyle.BackColor = dgvPartCounter.BackgroundColor;
             //dgvPartCounter.DefaultCellStyle.SelectionBackColor = Color.Empty;
             dgvPartCounter.ForeColor = Color.FromArgb(setting.ColorScheme.PartCounter_ForeColor);
+            mutedRowForeColor = BlendColor(dgvPartCounter.ForeColor, dgvPartCounter.BackgroundColor, 0.6f);
             dgvPartCounter.GridColor = dgvPartCounter.ForeColor;
             dgvPartCounter.CellBorderStyle = DataGridViewCellBorderStyle.Single;
             dgvPartCounter.DefaultCellStyle.SelectionBackColor = Color.Empty;
@@ -501,7 +503,7 @@ namespace mml2vgmIDEx64
                 row.Cells["ClmKeyShift"].Value = mmli.keyShift[r] == null ? "-" : mmli.keyShift[r].ToString();
                 row.Cells["ClmMIDIch"].Value = mmli.MIDIch[r] == null ? "-" : mmli.MIDIch[r].ToString();
                 row.Cells["ClmMemo"].Value = mmli.memo[r] == null ? "" : mmli.memo[r].ToString();
-                DrawMeter(row.Cells["ClmMeter"], mmli, r);
+                DrawMeter(row.Cells["ClmMeter"], mmli, r, IsRowMuted(row));
             }
 
             dgvPartCounter.ResumeLayout();
@@ -622,7 +624,8 @@ namespace mml2vgmIDEx64
                 int partKey = (int)row.Cells[dgvPartCounter.Columns["ClmMuteMngKey"].Index].Value;
                 muteStatus ms = muteManager.GetStatus(partKey);
                 bool isSolo = ms != null && ms.solo;
-                bool isMute = ms != null && ms.mute;
+                bool isMute = IsRowMuted(row);
+                Color rowForeColor = isMute ? mutedRowForeColor : dgvPartCounter.ForeColor;
 
                 Color rowBackColor = isSolo
                     ? Color.FromArgb(setting.ColorScheme.PartCounter_SOLOROW_BackColor)
@@ -631,7 +634,7 @@ namespace mml2vgmIDEx64
                 foreach (DataGridViewCell cell in row.Cells)
                 {
                     cell.Style.BackColor = rowBackColor;
-                    cell.Style.ForeColor = dgvPartCounter.ForeColor;
+                    cell.Style.ForeColor = rowForeColor;
                 }
 
                 row.Cells[dgvPartCounter.Columns["ClmSolo"].Index].Style.BackColor = isSolo
@@ -874,6 +877,7 @@ namespace mml2vgmIDEx64
             if (setting == null) return;
 
             this.setting = setting;
+            mutedRowForeColor = BlendColor(Color.FromArgb(setting.ColorScheme.PartCounter_ForeColor), Color.FromArgb(setting.ColorScheme.PartCounter_BackColor), 0.6f);
             ApplyBaseRowColors();
             ApplyFocusColors();
             dgvPartCounter.Invalidate();
@@ -892,7 +896,7 @@ namespace mml2vgmIDEx64
                new object[] { true });
         }
 
-        private void DrawMeter(DataGridViewCell dataGridViewCell, Instrument mmli, int pn)
+        private void DrawMeter(DataGridViewCell dataGridViewCell, Instrument mmli, int pn, bool isMuted)
         {
             int col = mmli.partColor[pn];
             DataGridViewImageCell cell = (DataGridViewImageCell)dataGridViewCell;
@@ -900,7 +904,7 @@ namespace mml2vgmIDEx64
             int ch = cell.Size.Height;
             int x = 2;
             int y = (int)((ch - 4) / 6.0) + 2;
-            int p = mmli.keyOnMeter[pn] == null ? 0 : (int)mmli.keyOnMeter[pn];
+            int p = isMuted || mmli.keyOnMeter[pn] == null ? 0 : (int)mmli.keyOnMeter[pn];
             int w = (int)((cw - 6) / 256.0 * p);
             int h = (int)((ch - 4) / 6.0 * 4.0);
             p = Common.Range(p, 0, meterBrush[col].Length - 1);
@@ -915,11 +919,34 @@ namespace mml2vgmIDEx64
             //PictureBox1に表示する
             cell.Value = canvas;
 
-            if (mmli.keyOnMeter[pn] != null)
+            if (isMuted && mmli.keyOnMeter[pn] != null)
+            {
+                mmli.keyOnMeter[pn] = 0;
+            }
+            else if (mmli.keyOnMeter[pn] != null)
             {
                 mmli.keyOnMeter[pn] -= 4;
                 mmli.keyOnMeter[pn] = Math.Max((int)mmli.keyOnMeter[pn], 0);
             }
+        }
+
+        private bool IsRowMuted(DataGridViewRow row)
+        {
+            int partKey = (int)row.Cells[dgvPartCounter.Columns["ClmMuteMngKey"].Index].Value;
+            muteStatus ms = muteManager.GetStatus(partKey);
+            if (ms != null) return ms.mute;
+
+            object muteValue = row.Cells[dgvPartCounter.Columns["ClmMute"].Index].Value;
+            return muteValue != null && muteValue.ToString() == "M";
+        }
+
+        private static Color BlendColor(Color baseColor, Color overlayColor, double ratio)
+        {
+            ratio = Math.Max(0.0, Math.Min(1.0, ratio));
+            int r = (int)(baseColor.R * (1.0 - ratio) + overlayColor.R * ratio);
+            int g = (int)(baseColor.G * (1.0 - ratio) + overlayColor.G * ratio);
+            int b = (int)(baseColor.B * (1.0 - ratio) + overlayColor.B * ratio);
+            return Color.FromArgb(r, g, b);
         }
 
         protected override string GetPersistString()

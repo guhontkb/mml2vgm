@@ -1862,7 +1862,7 @@ namespace mml2vgmIDEx64
                 MessageBox.Show("Not found M98DotNET.", "error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            title = Path.GetFileName(Path.GetFileName(((Document)((FrmEditor)dc).Tag).gwiFullPath));
+            title = GetTitleFileText(((Document)((FrmEditor)dc).Tag).gwiFullPath);
 
             args = new string[2];
             args[1] = tempPath;
@@ -1909,7 +1909,7 @@ namespace mml2vgmIDEx64
                 activeMMLTextLines = ((FrmEditor)dc).azukiControl.Text.Split(new string[] { "\r\n" }, StringSplitOptions.None);
 
                 string tempPath = Path.Combine(Common.GetApplicationDataFolder(true), "temp", Path.GetFileName(((Document)((FrmEditor)dc).Tag).gwiFullPath));
-                title = Path.GetFileName(Path.GetFileName(((Document)((FrmEditor)dc).Tag).gwiFullPath));
+                title = GetTitleFileText(((Document)((FrmEditor)dc).Tag).gwiFullPath);
 
                 if (Path.GetExtension(tempPath).ToLower() == ".muc")
                 {
@@ -2118,7 +2118,7 @@ namespace mml2vgmIDEx64
                     , Path.GetFileNameWithoutExtension(fileName)
                     + string.Format("_{0}", m98Count++) + ".muc"
                     );
-                title = Path.GetFileName(Path.GetFileName(fileName));
+                title = GetTitleFileText(fileName);
                 Document dc = new Document(setting, EnmMmlFileFormat.MUC);//, frmSien);
                 dc.InitOpen(fileName, m98ResultMucString);
                 dc.editor.Show(dpMain, DockState.Document);
@@ -2401,6 +2401,18 @@ namespace mml2vgmIDEx64
             {
                 this.Text = string.Format("{0} - {1}", appName, title);
             }
+        }
+
+        private string GetTitleFileText(string fullPath, bool appendDirtyMark = false)
+        {
+            string path = fullPath ?? "";
+            string caption = setting?.other?.ShowFilePathInTitleBar == true
+                ? path
+                : Path.GetFileName(path);
+
+            if (appendDirtyMark) caption += "*";
+
+            return caption;
         }
 
         public void Disp(string msg)
@@ -3344,7 +3356,8 @@ namespace mml2vgmIDEx64
                 }
                 lastFolderTreeDocument = d;
 
-                this.Text = string.Format("{0} - {1}", appName, d.editor.Text);
+                bool isDirty = d.editor.Text.EndsWith("*");
+                this.Text = string.Format("{0} - {1}", appName, GetTitleFileText(d.gwiFullPath, isDirty));
             }
             else
             {
@@ -3701,6 +3714,7 @@ namespace mml2vgmIDEx64
             Log.ForcedWrite("Reinit:ApplyMainBackgroundColor");
             ApplyMainBackgroundColor();
             frmPartCounter?.ApplyColorSetting(this.setting);
+            UpdateControl();
 
             Log.ForcedWrite("設定が変更されたため、再度Audio初期化処理開始");
 
