@@ -37,6 +37,7 @@ namespace mml2vgmIDEx64
         private Label lblPartCounterFontSize;
         private Label lblPartCounterFontStyle;
         private Button btnPartCounterFont;
+        private CheckBox cbPartCounterHideKeyOnMeterOnNoteOff;
         private string partCounterFontName;
         private float partCounterFontSize;
         private System.Drawing.FontStyle partCounterFontStyle;
@@ -164,10 +165,21 @@ namespace mml2vgmIDEx64
                 UseVisualStyleBackColor = true
             };
             btnPartCounterFont.Click += BtnPartCounterFont_Click;
+            cbPartCounterHideKeyOnMeterOnNoteOff = new CheckBox
+            {
+                AutoSize = true,
+                Location = new System.Drawing.Point(27, 140),
+                Name = "cbPartCounterHideKeyOnMeterOnNoteOff",
+                Size = new System.Drawing.Size(313, 19),
+                Text = "KeyOnゲージをノートオフ時に即座に消す",
+                UseVisualStyleBackColor = true,
+                Checked = setting.other.PartCounterHideKeyOnMeterOnNoteOff
+            };
             tpMMLParameter.Controls.Add(lblPartCounterFontName);
             tpMMLParameter.Controls.Add(lblPartCounterFontSize);
             tpMMLParameter.Controls.Add(lblPartCounterFontStyle);
             tpMMLParameter.Controls.Add(btnPartCounterFont);
+            tpMMLParameter.Controls.Add(cbPartCounterHideKeyOnMeterOnNoteOff);
             partCounterFontName = setting.other.PartCounterFontName;
             partCounterFontSize = setting.other.PartCounterFontSize;
             partCounterFontStyle = setting.other.PartCounterFontStyle;
@@ -1563,6 +1575,7 @@ namespace mml2vgmIDEx64
             partCounterFontName = setting.other.PartCounterFontName;
             partCounterFontSize = setting.other.PartCounterFontSize;
             partCounterFontStyle = setting.other.PartCounterFontStyle;
+            cbPartCounterHideKeyOnMeterOnNoteOff.Checked = setting.other.PartCounterHideKeyOnMeterOnNoteOff;
             cbDispWarningMessage.Checked = setting.other.DispWarningMessage;
             cbCompileResultDialog.Checked = setting.other.CompileResultDialog;
             cbCompileResultActivateErrorList.Checked = setting.other.CompileResultActivateErrorList;
@@ -2459,6 +2472,7 @@ namespace mml2vgmIDEx64
             setting.other.PartCounterFontName = partCounterFontName;
             setting.other.PartCounterFontSize = partCounterFontSize;
             setting.other.PartCounterFontStyle = partCounterFontStyle;
+            setting.other.PartCounterHideKeyOnMeterOnNoteOff = cbPartCounterHideKeyOnMeterOnNoteOff.Checked;
 
             setting.export.FixedExportPlace = cbFixedExportPlace.Checked;
             setting.export.FixedExportPlacePath = tbFixedExportPlacePath.Text;

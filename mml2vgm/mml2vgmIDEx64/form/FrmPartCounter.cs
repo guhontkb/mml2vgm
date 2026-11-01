@@ -971,7 +971,12 @@ namespace mml2vgmIDEx64
             int ch = cell.Size.Height;
             int x = 2;
             int y = (int)((ch - 4) / 6.0) + 2;
-            int p = isMuted || mmli.keyOnMeter[pn] == null ? 0 : (int)mmli.keyOnMeter[pn];
+            bool hideMeterOnNoteOff = setting?.other?.PartCounterHideKeyOnMeterOnNoteOff ?? false;
+            bool isNoteOff = hideMeterOnNoteOff
+                && pn >= 0
+                && pn < mmli.notecmd.Length
+                && string.Equals(mmli.notecmd[pn], "r", StringComparison.OrdinalIgnoreCase);
+            int p = isMuted || isNoteOff || mmli.keyOnMeter[pn] == null ? 0 : (int)mmli.keyOnMeter[pn];
             int w = (int)((cw - 6) / 256.0 * p);
             int h = (int)((ch - 4) / 6.0 * 4.0);
             p = Common.Range(p, 0, meterBrush[col].Length - 1);
@@ -986,7 +991,7 @@ namespace mml2vgmIDEx64
             //PictureBox1に表示する
             cell.Value = canvas;
 
-            if (isMuted && mmli.keyOnMeter[pn] != null)
+            if ((isMuted || isNoteOff) && mmli.keyOnMeter[pn] != null)
             {
                 mmli.keyOnMeter[pn] = 0;
             }
