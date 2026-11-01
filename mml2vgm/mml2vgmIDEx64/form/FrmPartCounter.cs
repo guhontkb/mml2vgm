@@ -920,7 +920,9 @@ namespace mml2vgmIDEx64
             dgvPartCounter.DefaultCellStyle.BackColor = dgvPartCounter.BackgroundColor;
             dgvPartCounter.ForeColor = Color.FromArgb(setting.ColorScheme.PartCounter_ForeColor);
             dgvPartCounter.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(setting.ColorScheme.Panel_HeaderBackColor);
+            dgvPartCounter.ColumnHeadersDefaultCellStyle.ForeColor = Color.FromArgb(setting.ColorScheme.Panel_HeaderForeColor);
             dgvPartCounter.ColumnHeadersDefaultCellStyle.SelectionBackColor = Color.FromArgb(setting.ColorScheme.Panel_HeaderHighlightBackColor);
+            dgvPartCounter.ColumnHeadersDefaultCellStyle.SelectionForeColor = Color.FromArgb(setting.ColorScheme.Panel_HeaderForeColor);
             dgvPartCounter.GridColor = Color.FromArgb(setting.ColorScheme.Panel_GridBorderColor);
             focusedCellSelectionBackColor = Color.FromArgb(setting.ColorScheme.Panel_HeaderHighlightBackColor);
             mutedRowForeColor = BlendColor(Color.FromArgb(setting.ColorScheme.PartCounter_ForeColor), Color.FromArgb(setting.ColorScheme.PartCounter_BackColor), 0.6f);

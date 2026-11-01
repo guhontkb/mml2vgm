@@ -36,7 +36,9 @@ namespace mml2vgmIDEx64
             this.dataGridView1.DefaultCellStyle.BackColor = Color.FromArgb(setting.ColorScheme.ErrorList_BackColor);
             this.dataGridView1.ForeColor = Color.FromArgb(setting.ColorScheme.ErrorList_ForeColor);
             this.dataGridView1.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(setting.ColorScheme.Panel_HeaderBackColor);
+            this.dataGridView1.ColumnHeadersDefaultCellStyle.ForeColor = Color.FromArgb(setting.ColorScheme.Panel_HeaderForeColor);
             this.dataGridView1.ColumnHeadersDefaultCellStyle.SelectionBackColor = Color.FromArgb(setting.ColorScheme.Panel_HeaderBackColor);
+            this.dataGridView1.ColumnHeadersDefaultCellStyle.SelectionForeColor = Color.FromArgb(setting.ColorScheme.Panel_HeaderForeColor);
             Font previousHeaderFont = headerFont;
             headerFont = new Font(setting.other.PartCounterFontName, setting.other.PartCounterFontSize, setting.other.PartCounterFontStyle);
             this.dataGridView1.ColumnHeadersDefaultCellStyle.Font = headerFont;

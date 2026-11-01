@@ -17,7 +17,7 @@ namespace mml2vgmIDEx64
     {
         private Color fileListHeaderBackColor = Color.FromArgb(ColorScheme.DefaultPanelHeaderBackColorArgb);
         private Color fileListSortedHeaderBackColor = Color.FromArgb(ColorScheme.DefaultPanelHeaderHighlightBackColorArgb);
-        private static readonly Color FileListHeaderForeColor = Color.FromArgb(230, 255, 255);
+        private Color fileListHeaderForeColor = Color.FromArgb(ColorScheme.DefaultPanelHeaderForeColorArgb);
         private static readonly Color FolderTreeSplitterColor = Color.FromArgb(60, 60, 72);
         private static readonly Color FileListActiveSelectionBackColor = Color.FromArgb(89, 89, 121);
         private static readonly Color FileListActiveSelectionForeColor = Color.FromArgb(241, 241, 241);
@@ -120,6 +120,7 @@ namespace mml2vgmIDEx64
             lvFileList.ForeColor = Color.FromArgb(setting.ColorScheme.FolderTree_ForeColor);
             fileListHeaderBackColor = Color.FromArgb(setting.ColorScheme.Panel_HeaderBackColor);
             fileListSortedHeaderBackColor = Color.FromArgb(setting.ColorScheme.Panel_HeaderHighlightBackColor);
+            fileListHeaderForeColor = Color.FromArgb(setting.ColorScheme.Panel_HeaderForeColor);
             Font previousHeaderFont = fileListHeaderFont;
             fileListHeaderFont = new Font(setting.other.PartCounterFontName, setting.other.PartCounterFontSize, setting.other.PartCounterFontStyle);
             previousHeaderFont?.Dispose();
@@ -1494,7 +1495,7 @@ namespace mml2vgmIDEx64
             }
             Font headerFont = fileListHeaderFont ?? e.Font;
             TextRenderer.DrawText(e.Graphics, e.Header.Text, headerFont,
-                textBounds, FileListHeaderForeColor,
+                textBounds, fileListHeaderForeColor,
                 alignment | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
             if (hasSortIcon)
             {

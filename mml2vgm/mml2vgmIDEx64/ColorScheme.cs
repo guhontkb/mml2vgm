@@ -7,7 +7,9 @@ namespace mml2vgmIDEx64
     public class ColorScheme
     {
         public static readonly int DefaultBackgroundColorArgb = Color.FromArgb(40, 30, 60).ToArgb();
+        public static readonly int DefaultPanelTextColorArgb = Color.FromArgb(235, 235, 255).ToArgb();
         public static readonly int DefaultPanelHeaderBackColorArgb = Color.FromArgb(80, 80, 160).ToArgb();
+        public static readonly int DefaultPanelHeaderForeColorArgb = Color.FromArgb(230, 255, 255).ToArgb();
         public static readonly int DefaultPanelHeaderHighlightBackColorArgb = Color.FromArgb(100, 100, 180).ToArgb();
         public static readonly int DefaultPanelGridBorderColorArgb = Color.FromArgb(160, 160, 160).ToArgb();
 
@@ -32,26 +34,29 @@ namespace mml2vgmIDEx64
         public int StatusStripBack_Normal = Color.FromArgb(60, 90, 190).ToArgb();
         public int StatusStripBack_Trace = Color.FromArgb(100, 150, 10).ToArgb();
 
-        public int ErrorList_ForeColor = Color.FromArgb(235, 235, 255).ToArgb();
+        public int PanelText_ForeColor = DefaultPanelTextColorArgb;
+
+        public int ErrorList_ForeColor = DefaultPanelTextColorArgb;
         public int ErrorList_BackColor = DefaultBackgroundColorArgb;
 
-        public int SearchBox_ForeColor = Color.FromArgb(235, 235, 255).ToArgb();
+        public int SearchBox_ForeColor = DefaultPanelTextColorArgb;
         public int SearchBox_BackColor = DefaultBackgroundColorArgb;
 
-        public int Log_ForeColor = Color.FromArgb(235, 235, 255).ToArgb();
+        public int Log_ForeColor = DefaultPanelTextColorArgb;
         public int Log_BackColor = DefaultBackgroundColorArgb;
 
-        public int PartCounter_ForeColor = Color.FromArgb(235, 235, 255).ToArgb();
+        public int PartCounter_ForeColor = DefaultPanelTextColorArgb;
         public int PartCounter_BackColor = DefaultBackgroundColorArgb;
         public int PartCounter_SOLOROW_BackColor = Color.FromArgb(90, 10, 10).ToArgb();
         public int PartCounter_SOLO_BackColor = Color.FromArgb(90, 10, 10).ToArgb();
         public int PartCounter_MUTE_BackColor = Color.FromArgb(120, 90, 10).ToArgb();
 
-        public int FolderTree_ForeColor = Color.FromArgb(235, 235, 255).ToArgb();
+        public int FolderTree_ForeColor = DefaultPanelTextColorArgb;
         public int FolderTree_BackColor = DefaultBackgroundColorArgb;
 
-        public int FrmSien_ForeColor = Color.FromArgb(235, 235, 255).ToArgb();
+        public int FrmSien_ForeColor = DefaultPanelTextColorArgb;
         public int FrmSien_BackColor = DefaultBackgroundColorArgb;
+        public int Panel_HeaderForeColor = DefaultPanelHeaderForeColorArgb;
         public int Panel_HeaderBackColor = DefaultPanelHeaderBackColorArgb;
         public int Panel_HeaderHighlightBackColor = DefaultPanelHeaderHighlightBackColorArgb;
         public int Panel_GridBorderColor = DefaultPanelGridBorderColorArgb;
@@ -66,6 +71,17 @@ namespace mml2vgmIDEx64
             PartCounter_BackColor = backColorArgb;
             FolderTree_BackColor = backColorArgb;
             FrmSien_BackColor = backColorArgb;
+        }
+
+        public void ApplyPanelTextForeColor(int foreColorArgb)
+        {
+            PanelText_ForeColor = foreColorArgb;
+            ErrorList_ForeColor = foreColorArgb;
+            SearchBox_ForeColor = foreColorArgb;
+            Log_ForeColor = foreColorArgb;
+            PartCounter_ForeColor = foreColorArgb;
+            FolderTree_ForeColor = foreColorArgb;
+            FrmSien_ForeColor = foreColorArgb;
         }
 
         public ColorScheme Copy()
@@ -92,6 +108,7 @@ namespace mml2vgmIDEx64
             ret.Azuki_Number = this.Azuki_Number;
             ret.Azuki_Annotation = this.Azuki_Annotation;
 
+            ret.PanelText_ForeColor = this.PanelText_ForeColor;
             ret.ErrorList_ForeColor = this.ErrorList_ForeColor;
             ret.ErrorList_BackColor = this.ErrorList_BackColor;
 
@@ -112,6 +129,7 @@ namespace mml2vgmIDEx64
 
             ret.FrmSien_ForeColor = this.FrmSien_ForeColor;
             ret.FrmSien_BackColor = this.FrmSien_BackColor;
+            ret.Panel_HeaderForeColor = this.Panel_HeaderForeColor;
             ret.Panel_HeaderBackColor = this.Panel_HeaderBackColor;
             ret.Panel_HeaderHighlightBackColor = this.Panel_HeaderHighlightBackColor;
             ret.Panel_GridBorderColor = this.Panel_GridBorderColor;
