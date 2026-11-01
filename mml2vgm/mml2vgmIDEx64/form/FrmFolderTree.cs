@@ -33,7 +33,18 @@ namespace mml2vgmIDEx64
         public Action<string[]> parentExecFile = null;
         public Action<string[]> parentDeleteFile = null;
         public Func<Setting> parentGetSetting = null;
-        public string basePath = "";
+        private string _basePath = "";
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public string basePath
+        {
+            get => _basePath;
+            set
+            {
+                _basePath = value ?? "";
+                UpdateFolderHeaderCaption();
+            }
+        }
         private bool useMouse;
         private int fileListSortColumn = -1;
         private bool fileListSortAscending = true;
@@ -49,6 +60,7 @@ namespace mml2vgmIDEx64
         private const int LVM_FIRST = 0x1000;
         private const int LVM_GETHEADER = LVM_FIRST + 31;
         private const int WM_CONTEXTMENU = 0x007B;
+        private const string FolderHeaderText = "Folder";
 
         public FrmFolderTree(Setting setting, DockPanel dockPanel)
         {
@@ -182,6 +194,32 @@ namespace mml2vgmIDEx64
             lvFileList.Font = folderFont;
         }
 
+        public void RefreshHeaderText()
+        {
+            UpdateFolderHeaderCaption();
+        }
+
+        private void UpdateFolderHeaderCaption()
+        {
+            Setting currentSetting = parentGetSetting?.Invoke() ?? setting;
+            bool showFolderPath = currentSetting?.other?.ShowFolderPathInHeader ?? true;
+            Text = showFolderPath && !string.IsNullOrWhiteSpace(basePath)
+                ? $"{FolderHeaderText}  {basePath}"
+                : FolderHeaderText;
+        }
+
+        private string GetNodePath(TreeNode node)
+        {
+            if (node?.Tag is string taggedPath && !string.IsNullOrWhiteSpace(taggedPath))
+            {
+                return taggedPath;
+            }
+
+            string path1 = Path.GetDirectoryName(basePath);
+            path1 = string.IsNullOrEmpty(path1) ? basePath : path1;
+            return Path.Combine(path1, Path.GetFullPath(node?.FullPath ?? ""));
+        }
+
         private void FrmFolderTree_FormClosing(object sender, FormClosingEventArgs e)
         {
             e.Cancel = true;
@@ -197,9 +235,7 @@ namespace mml2vgmIDEx64
                 TreeNode ts;
 
                 // 展開するノードのフルパスを取得
-                string path1 = Path.GetDirectoryName(basePath);
-                path1 = string.IsNullOrEmpty(path1) ? basePath : path1;
-                string fullpath = Path.Combine(path1, Path.GetFullPath(node.FullPath));
+                string fullpath = GetNodePath(node);
                 node.Nodes.Clear();
 
                 DirectoryInfo dm = new DirectoryInfo(fullpath);
@@ -209,6 +245,7 @@ namespace mml2vgmIDEx64
                     foreach (DirectoryInfo ds in dm.GetDirectories())
                     {
                         ts = new TreeNode(ds.Name, 1, 1);
+                        ts.Tag = ds.FullName;
                         ts.Nodes.Add("!dmy");
                         node.Nodes.Add(ts);
                     }
@@ -552,9 +589,7 @@ namespace mml2vgmIDEx64
                             ? fileOrFolder.Substring(0, fileOrFolder.Length - 1)
                             : fileOrFolder;
                         string folder = Path.GetFileName(tmp);
-                        string path1 = Path.GetDirectoryName(basePath);
-                        path1 = string.IsNullOrEmpty(path1) ? basePath : path1;
-                        string targetPath = Path.Combine(path1, Path.GetFullPath(target.FullPath), folder);
+                        string targetPath = Path.Combine(GetNodePath(target), folder);
 
                         CopyDirectory(fileOrFolder, targetPath);
 
@@ -564,9 +599,7 @@ namespace mml2vgmIDEx64
                     {
                         // file
                         string file = Path.GetFileName(fileOrFolder);
-                        string path1 = Path.GetDirectoryName(basePath);
-                        path1 = string.IsNullOrEmpty(path1) ? basePath : path1;
-                        string targetPath = Path.Combine(path1, Path.GetFullPath(target.FullPath), file);
+                        string targetPath = Path.Combine(GetNodePath(target), file);
 
                         if (File.Exists(targetPath))
                         {
@@ -690,9 +723,7 @@ namespace mml2vgmIDEx64
                     {
                         refreshRemoveCheck(tn.Nodes);
                     }
-                    string path1 = Path.GetDirectoryName(basePath);
-                    path1 = string.IsNullOrEmpty(path1) ? basePath : path1;
-                    string fullpath = Path.Combine(path1, Path.GetFullPath(tn.FullPath));
+                    string fullpath = GetNodePath(tn);
                     if (tn.ImageIndex == 1)
                     {
                         //folder
@@ -721,10 +752,7 @@ namespace mml2vgmIDEx64
 
         private void refreshAddCheck(TreeNode tn)
         {
-            string path1 = Path.GetDirectoryName(basePath);
-            path1 = string.IsNullOrEmpty(path1) ? basePath : path1;
-
-            string fullpath = Path.Combine(path1, Path.GetFullPath(tn.FullPath));
+            string fullpath = GetNodePath(tn);
             DirectoryInfo dm = new DirectoryInfo(fullpath);
             TreeNode ts;
 
@@ -748,7 +776,7 @@ namespace mml2vgmIDEx64
 
                         }
 
-                        string fpath = Path.Combine(path1, Path.GetFullPath(ttn.FullPath));
+                        string fpath = GetNodePath(ttn);
                         if (ds.FullName == fpath)
                         {
                             flg = true;
@@ -757,6 +785,7 @@ namespace mml2vgmIDEx64
                     if (!flg)
                     {
                         ts = new TreeNode(ds.Name, 1, 1);
+                        ts.Tag = ds.FullName;
                         ts.Nodes.Add("!dmy");
                         tn.Nodes.Add(ts);
                     }
@@ -888,7 +917,7 @@ namespace mml2vgmIDEx64
                 }
                 if (!tn.Checked && !tn.IsSelected) continue;
 
-                string fullpath = Corex64.Common.PathCombine(Corex64.Common.GetDirectoryName(basePath), Path.GetFullPath(tn.FullPath));
+                string fullpath = GetNodePath(tn);
                 lstFullPath.Add(fullpath);
             }
         }
@@ -903,7 +932,7 @@ namespace mml2vgmIDEx64
                     continue;
                 }
                 if (!tn.Checked) continue;
-                lstFullPathExt.Add(Path.GetExtension(Path.GetFullPath(tn.FullPath)));
+                lstFullPathExt.Add(Path.GetExtension(GetNodePath(tn)));
             }
         }
 
@@ -1121,9 +1150,7 @@ namespace mml2vgmIDEx64
             {
                 if (node == null) return;
 
-                string path1 = Path.GetDirectoryName(basePath);
-                path1 = string.IsNullOrEmpty(path1) ? basePath : path1;
-                string directoryPath = Path.Combine(path1, Path.GetFullPath(node.FullPath));
+                string directoryPath = GetNodePath(node);
                 DirectoryInfo directory = new DirectoryInfo(directoryPath);
                 if (ShouldShowFolders())
                 {
@@ -1387,6 +1414,7 @@ namespace mml2vgmIDEx64
         private void FrmFolderTree_Shown(object sender, EventArgs e)
         {
             UpdateHeaderFillWidth();
+            UpdateFolderHeaderCaption();
         }
 
         private void UpdateHeaderFillWidth()
@@ -1724,11 +1752,9 @@ namespace mml2vgmIDEx64
 
         private bool SelectFolderNode(string targetPath, TreeNodeCollection nodes)
         {
-            string path1 = Path.GetDirectoryName(basePath);
-            path1 = string.IsNullOrEmpty(path1) ? basePath : path1;
             foreach (TreeNode node in nodes)
             {
-                string nodePath = Path.Combine(path1, Path.GetFullPath(node.FullPath));
+                string nodePath = GetNodePath(node);
                 if (string.Equals(nodePath, targetPath, StringComparison.OrdinalIgnoreCase))
                 {
                     tvFolderTree.SelectedNode = node;

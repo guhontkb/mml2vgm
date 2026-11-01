@@ -205,7 +205,8 @@ namespace mml2vgmIDEx64
         {
             string path1 = Path.GetDirectoryName(gwiFullPath);
             path1 = string.IsNullOrEmpty(path1) ? gwiFullPath : path1;
-            TreeNode tn = new TreeNode(path1, 1, 1);
+            TreeNode tn = new TreeNode(GetDirectoryDisplayName(path1), 1, 1);
+            tn.Tag = path1;
             gwiTree = tn;
             tn.Expand();
             TreeNode ts = new TreeNode();
@@ -216,12 +217,24 @@ namespace mml2vgmIDEx64
                 foreach (DirectoryInfo ds in dm.GetDirectories())
                 {
                     ts = new TreeNode(ds.Name, 1, 1);
+                    ts.Tag = ds.FullName;
                     ts.Nodes.Add("!dmy");
                     tn.Nodes.Add(ts);
                 }
             }
             catch { }
 
+        }
+
+        private static string GetDirectoryDisplayName(string fullPath)
+        {
+            if (string.IsNullOrEmpty(fullPath)) return fullPath;
+
+            string trimmedPath = fullPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            if (string.IsNullOrEmpty(trimmedPath)) return fullPath;
+
+            string directoryName = Path.GetFileName(trimmedPath);
+            return string.IsNullOrEmpty(directoryName) ? fullPath : directoryName;
         }
     }
 

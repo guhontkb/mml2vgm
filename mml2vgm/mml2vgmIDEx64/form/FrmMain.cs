@@ -3691,6 +3691,7 @@ namespace mml2vgmIDEx64
             ApplyWindowOpacity(this.setting.other.Opacity);
             Log.ForcedWrite("Reinit:ApplyFolderTextFont");
             frmFolderTree?.ApplyFolderTextFont();
+            frmFolderTree?.RefreshHeaderText();
             Log.ForcedWrite("Reinit:ApplyDarkScrollBarTheme");
             Common.ApplyDarkScrollBarTheme(this);
             foreach (Form frm in FormBox)
