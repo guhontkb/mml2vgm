@@ -2503,6 +2503,36 @@ namespace Corex64
         {
         }
 
+        /// <summary>
+        /// エラー出力用の位置情報を得る。
+        /// mmlがnull(チャンネル横断処理など)の場合は、ページで直前に処理したMMLの位置を返す。
+        /// </summary>
+        protected LinePos GetLinePos(partPage page, MML mml)
+        {
+            if (mml?.line?.Lp != null) return mml.line.Lp;
+            if (page?.mmlData == null || page.mmlData.Count < 1) return null;
+
+            int index = page.mmlPos;
+            if (index >= page.mmlData.Count) index = page.mmlData.Count - 1;
+            if (index > 0) index--;
+
+            return page.mmlData[index]?.line?.Lp;
+        }
+
+        /// <summary>
+        /// ページの音色番号がPCM定義に存在するか確認し、存在しない場合はエラーを出力する。
+        /// </summary>
+        protected bool CheckPcmInstrument(partPage page, MML mml)
+        {
+            if (parent.instPCM.ContainsKey(page.instrument)) return true;
+
+            if (page.instrument < 0)
+                msgBox.setErrMsg(Msg.get("E10030"), GetLinePos(page, mml));
+            else
+                msgBox.setErrMsg(string.Format(Msg.get("E10021"), page.instrument), GetLinePos(page, mml));
+            return false;
+        }
+
 
         public virtual string DispRegion(Tuple<string, clsPcm> pcm)
         {

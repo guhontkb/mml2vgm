@@ -248,6 +248,8 @@ namespace Corex64
                 return;
             }
 
+            if (!CheckPcmInstrument(page, mml)) return;
+
             float m = Const.pcmMTbl[page.pcmNote] * (float)Math.Pow(2, (page.pcmOctave - 4));
             page.pcmBaseFreqPerFreq = Information.VGM_SAMPLE_PER_SECOND / ((float)parent.instPCM[page.instrument].Item2.freq * m);
             page.pcmFreqCountBuffer = 0.0f;

@@ -1060,9 +1060,10 @@ namespace Corex64
                 page.spg.pcmEndAddress = -1;
                 page.spg.pcmStartAddress = -1;
 
-                SetADPCMAddress(null, page
-                    , (int)parent.instPCM[page.instrument].Item2.stAdr
-                    , (int)parent.instPCM[page.instrument].Item2.edAdr);
+                if (parent.instPCM.ContainsKey(page.instrument))
+                    SetADPCMAddress(null, page
+                        , (int)parent.instPCM[page.instrument].Item2.stAdr
+                        , (int)parent.instPCM[page.instrument].Item2.edAdr);
 
                 //周波数
                 page.spg.freq = -1;

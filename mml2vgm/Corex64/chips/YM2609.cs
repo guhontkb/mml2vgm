@@ -553,13 +553,13 @@ namespace Corex64
                     }
                     else
                     {
-                        msgBox.setErrMsg(string.Format(Msg.get("E10025"), page.octaveNow, page.noteCmd, page.shift + page.keyShift + arpNote), mml.line.Lp);
+                        msgBox.setErrMsg(string.Format(Msg.get("E10025"), page.octaveNow, page.noteCmd, page.shift + page.keyShift + arpNote), GetLinePos(page, mml));
                         return;
                     }
                 }
                 else
                 {
-                    msgBox.setErrMsg(string.Format(Msg.get("E10024"), page.pcmMapNo), mml != null ? mml.line.Lp : null);
+                    msgBox.setErrMsg(string.Format(Msg.get("E10024"), page.pcmMapNo), GetLinePos(page, mml));
                     return;
                 }
             }
@@ -2170,7 +2170,7 @@ namespace Corex64
 
             if (!parent.instFM.ContainsKey(n))
             {
-                msgBox.setWrnMsg(string.Format(Msg.get("E11001"), n), mml.line.Lp);
+                msgBox.setWrnMsg(string.Format(Msg.get("E11001"), n), GetLinePos(page, mml));
                 return;
             }
 
@@ -2182,7 +2182,7 @@ namespace Corex64
             if (page.Type == enmChannelType.FMOPNex)
             {
                 //
-                if (page.Ch3SpecialMode)
+                if (page.Ch3SpecialMode && mml?.args != null)
                 {
                     if (mml.args.Count > 4 && mml.args[3].ToString() == "OP")
                     {
@@ -2611,7 +2611,7 @@ namespace Corex64
                     }
                     else
                     {
-                        msgBox.setErrMsg(string.Format(Msg.get("E11005"), opV), mml.line.Lp);
+                        msgBox.setErrMsg(string.Format(Msg.get("E11005"), opV), GetLinePos(page, mml));
                         break;
                     }
                     opV /= 10;
@@ -2847,9 +2847,10 @@ namespace Corex64
                 page.spg.pcmEndAddress = -1;
                 page.spg.pcmStartAddress = -1;
 
-                SetADPCMAddress(null, page
-                    , (int)parent.instPCM[page.instrument].Item2.stAdr
-                    , (int)parent.instPCM[page.instrument].Item2.edAdr);
+                if (parent.instPCM.ContainsKey(page.instrument))
+                    SetADPCMAddress(null, page
+                        , (int)parent.instPCM[page.instrument].Item2.stAdr
+                        , (int)parent.instPCM[page.instrument].Item2.edAdr);
 
                 //周波数
                 page.spg.freq = -1;
@@ -2872,9 +2873,10 @@ namespace Corex64
                 page.spg.pcmEndAddress = -1;
                 page.spg.pcmStartAddress = -1;
 
-                SetADPCMAAddress(null, page
-                    , (int)parent.instPCM[page.instrument].Item2.stAdr
-                    , (int)parent.instPCM[page.instrument].Item2.edAdr);
+                if (parent.instPCM.ContainsKey(page.instrument))
+                    SetADPCMAAddress(null, page
+                        , (int)parent.instPCM[page.instrument].Item2.stAdr
+                        , (int)parent.instPCM[page.instrument].Item2.edAdr);
 
                 //周波数
                 page.spg.freq = -1;

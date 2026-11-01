@@ -119,7 +119,7 @@ namespace Corex64
 
             if (!parent.instWF.ContainsKey(n))
             {
-                msgBox.setWrnMsg(string.Format(Msg.get("E10021"), n), mml.line.Lp);
+                msgBox.setWrnMsg(string.Format(Msg.get("E10021"), n), GetLinePos(page, mml));
                 return;
             }
 

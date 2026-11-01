@@ -414,7 +414,7 @@ namespace Corex64
             adr = (byte)((page.ch << 3) + 0x03);
             data = (ushort)0x8000;
 
-            if (parent.instPCM[page.instrument].Item2.status != enmPCMSTATUS.ERROR)
+            if (CheckPcmInstrument(page, mml) && parent.instPCM[page.instrument].Item2.status != enmPCMSTATUS.ERROR)
             {
                 parent.instPCM[page.instrument].Item2.status = enmPCMSTATUS.USED;
             }

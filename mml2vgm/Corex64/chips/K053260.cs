@@ -434,7 +434,7 @@ namespace Corex64
                 page.spg.beforepcmBank = page.pcmBank;
             }
 
-            if (parent.instPCM[page.instrument].Item2.status != enmPCMSTATUS.ERROR)
+            if (CheckPcmInstrument(page, mml) && parent.instPCM[page.instrument].Item2.status != enmPCMSTATUS.ERROR)
             {
                 parent.instPCM[page.instrument].Item2.status = enmPCMSTATUS.USED;
             }
@@ -783,10 +783,13 @@ namespace Corex64
                 if (page.spg.instrument != page.instrument)
                 {
                     page.spg.instrument = page.instrument;
-                    page.pcmStartAddress = (int)parent.instPCM[page.instrument].Item2.stAdr;
-                    page.pcmEndAddress = (int)parent.instPCM[page.instrument].Item2.edAdr;
-                    page.pcmLoopAddress = (int)parent.instPCM[page.instrument].Item2.loopAdr;
-                    page.pcmBank = (int)((parent.instPCM[page.instrument].Item2.stAdr >> 16));
+                    if (parent.instPCM.ContainsKey(page.instrument))
+                    {
+                        page.pcmStartAddress = (int)parent.instPCM[page.instrument].Item2.stAdr;
+                        page.pcmEndAddress = (int)parent.instPCM[page.instrument].Item2.edAdr;
+                        page.pcmLoopAddress = (int)parent.instPCM[page.instrument].Item2.loopAdr;
+                        page.pcmBank = (int)((parent.instPCM[page.instrument].Item2.stAdr >> 16));
+                    }
                     page.keyOff = true;
                     page.spg.keyOn = false;
                 }

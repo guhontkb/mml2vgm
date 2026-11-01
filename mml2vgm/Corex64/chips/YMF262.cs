@@ -263,7 +263,7 @@ namespace Corex64
         {
             if (!parent.instOPL.ContainsKey(n))
             {
-                msgBox.setWrnMsg(string.Format(Msg.get("E11000"), n), mml.line.Lp);
+                msgBox.setWrnMsg(string.Format(Msg.get("E11000"), n), GetLinePos(page, mml));
                 return;
             }
 

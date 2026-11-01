@@ -552,8 +552,8 @@ namespace Corex64
     0x0000 |
     0x2000 |
     (page.noise != 0 ? 0x0010 : 0x0000) |
-    (parent.instPCM[page.instrument].Item2.is16bit ? 0x0008 : 0x0000) |
-    (parent.instPCM[page.instrument].Item2.loopAdr != -1 ? 0x0002 : 0x0000) |
+    (parent.instPCM.TryGetValue(page.instrument, out var inst) && inst.Item2.is16bit ? 0x0008 : 0x0000) |
+    (inst != null && inst.Item2.loopAdr != -1 ? 0x0002 : 0x0000) |
     (page.C352flag & 0xffff)
     ;
 
@@ -846,6 +846,11 @@ namespace Corex64
                 {
                     if (page.instrument == -1) continue;
                     if (!page.changeFlag) continue;
+                    if (!CheckPcmInstrument(page, mml))
+                    {
+                        page.changeFlag = false;
+                        continue;
+                    }
                     page.changeFlag = false;
 
                     OutC352KeyOn(page, mml);

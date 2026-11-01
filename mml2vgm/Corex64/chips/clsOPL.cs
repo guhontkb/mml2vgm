@@ -546,7 +546,7 @@ namespace Corex64
         {
             if (!parent.instOPL.ContainsKey(n))
             {
-                msgBox.setWrnMsg(string.Format(Msg.get("E11000"), n), mml.line.Lp);
+                msgBox.setWrnMsg(string.Format(Msg.get("E11000"), n), GetLinePos(page, mml));
                 return;
             }
 
@@ -875,7 +875,7 @@ namespace Corex64
                                     }
                                     else
                                     {
-                                        msgBox.setErrMsg(string.Format(Msg.get("E11005"), opV), mml.line.Lp);
+                                        msgBox.setErrMsg(string.Format(Msg.get("E11005"), opV), GetLinePos(page, mml));
                                         break;
                                     }
                                     opV /= 10;

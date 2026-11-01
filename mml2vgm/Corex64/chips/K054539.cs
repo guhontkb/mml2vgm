@@ -436,7 +436,7 @@ namespace Corex64
                 );
 
 
-            if (parent.instPCM[page.instrument].Item2.status != enmPCMSTATUS.ERROR)
+            if (CheckPcmInstrument(page, mml) && parent.instPCM[page.instrument].Item2.status != enmPCMSTATUS.ERROR)
             {
                 parent.instPCM[page.instrument].Item2.status = enmPCMSTATUS.USED;
             }
@@ -820,18 +820,21 @@ namespace Corex64
                 {
                     page.spg.instrument = page.instrument;
                     page.spg.reversePlay = page.reversePlay;
-                    if (!page.reversePlay)
+                    if (parent.instPCM.ContainsKey(page.instrument))
                     {
-                        page.pcmStartAddress = (int)parent.instPCM[page.instrument].Item2.stAdr;
-                        page.pcmEndAddress = (int)parent.instPCM[page.instrument].Item2.edAdr;
+                        if (!page.reversePlay)
+                        {
+                            page.pcmStartAddress = (int)parent.instPCM[page.instrument].Item2.stAdr;
+                            page.pcmEndAddress = (int)parent.instPCM[page.instrument].Item2.edAdr;
+                        }
+                        else
+                        {
+                            page.pcmEndAddress = (int)parent.instPCM[page.instrument].Item2.stAdr;
+                            page.pcmStartAddress = (int)parent.instPCM[page.instrument].Item2.edAdr;
+                        }
+                        page.pcmLoopAddress = (int)parent.instPCM[page.instrument].Item2.loopAdr;
+                        page.pcmBank = (int)(parent.instPCM[page.instrument].Item2.option[0]);
                     }
-                    else
-                    {
-                        page.pcmEndAddress = (int)parent.instPCM[page.instrument].Item2.stAdr;
-                        page.pcmStartAddress = (int)parent.instPCM[page.instrument].Item2.edAdr;
-                    }
-                    page.pcmLoopAddress = (int)parent.instPCM[page.instrument].Item2.loopAdr;
-                    page.pcmBank = (int)(parent.instPCM[page.instrument].Item2.option[0]);
                     //page.keyOff = true;
                     //page.spg.keyOn = false;
                 }

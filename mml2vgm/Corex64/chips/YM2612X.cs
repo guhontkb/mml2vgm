@@ -104,20 +104,20 @@ namespace Corex64
                     {
                         msgBox.setErrMsg(
                             string.Format(Msg.get("E10025"), page.octaveNow, page.noteCmd, page.shift + page.keyShift + arpNote),
-                            mmlDmy != null ? mmlDmy.line.Lp : null);
+                            GetLinePos(page, mmlDmy));
                         return;
                     }
                 }
                 else
                 {
-                    msgBox.setErrMsg(string.Format(Msg.get("E10024"), page.pcmMapNo), mmlDmy != null ? mmlDmy.line.Lp : null);
+                    msgBox.setErrMsg(string.Format(Msg.get("E10024"), page.pcmMapNo), GetLinePos(page, mmlDmy));
                     return;
                 }
             }
 
             if (!parent.instPCM.ContainsKey(page.instrument))
             {
-                msgBox.setErrMsg(string.Format(Msg.get("E21000"), page.instrument), mmlDmy != null ? mmlDmy.line.Lp : null);
+                msgBox.setErrMsg(string.Format(Msg.get("E21000"), page.instrument), GetLinePos(page, mmlDmy));
                 return;
             }
 

@@ -157,9 +157,10 @@ namespace Corex64
             if (page.instrument < 0)
             {
                 msgBox.setErrMsg(Msg.get("E11014")
-                        , mml?.line.Lp);
+                        , GetLinePos(page, mml));
                 return;
             }
+            if (!CheckPcmInstrument(page, mml)) return;
 
             float m = Const.pcmMTbl[page.pcmNote] * (float)Math.Pow(2, (page.pcmOctave - 4));
             page.pcmBaseFreqPerFreq = Information.VGM_SAMPLE_PER_SECOND / ((float)parent.instPCM[page.instrument].Item2.freq * m);
@@ -493,9 +494,10 @@ namespace Corex64
             if (page.instrument < 0)
             {
                 msgBox.setErrMsg(Msg.get("E11014")
-                        , mml?.line.Lp);
+                        , GetLinePos(page, mml));
                 return;
             }
+            if (!CheckPcmInstrument(page, mml)) return;
 
             long f = 0;
             f = -page.detune;
@@ -594,6 +596,7 @@ namespace Corex64
                 o = Common.CheckRange(--o, 1, 8);
             }
 
+            if (!parent.instPCM.ContainsKey(page.instrument)) return pitchShift;
             long f = parent.instPCM[page.instrument].Item2.freq;
 
             return ((int)(f * Const.pcmMTbl[n] * Math.Pow(2, (o - 3))) + 1) + pitchShift;
@@ -1106,7 +1109,7 @@ namespace Corex64
 
             if (!parent.instFM.ContainsKey(n))
             {
-                msgBox.setWrnMsg(string.Format(Msg.get("E11001"), n), mml.line.Lp);
+                msgBox.setWrnMsg(string.Format(Msg.get("E11001"), n), GetLinePos(page, mml));
                 return;
             }
 
@@ -1119,7 +1122,7 @@ namespace Corex64
             if (page.Type == enmChannelType.FMOPNex)
             {
                 //
-                if (page.Ch3SpecialMode)
+                if (page.Ch3SpecialMode && mml?.args != null)
                 {
                     if (mml.args.Count > 4 && mml.args[3].ToString() == "OP")
                     {
@@ -2197,13 +2200,13 @@ namespace Corex64
                     }
                     else
                     {
-                        msgBox.setErrMsg(string.Format(Msg.get("E10025"), page.octaveNow, page.noteCmd, page.shift + page.keyShift + arpNote), mml.line.Lp);
+                        msgBox.setErrMsg(string.Format(Msg.get("E10025"), page.octaveNow, page.noteCmd, page.shift + page.keyShift + arpNote), GetLinePos(page, mml));
                         return;
                     }
                 }
                 else
                 {
-                    msgBox.setErrMsg(string.Format(Msg.get("E10024"), page.pcmMapNo), mml.line.Lp);
+                    msgBox.setErrMsg(string.Format(Msg.get("E10024"), page.pcmMapNo), GetLinePos(page, mml));
                     return;
                 }
             }

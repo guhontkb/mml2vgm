@@ -710,9 +710,12 @@ namespace Corex64
                             //
                             if (page.instrument != page.beforeInstrument)
                             {
-                                clsPcm p = parent.instPCM[page.instrument].Item2;
-                                SOutData(page, mml, port[0], (byte)0x12, (byte)(p.stAdr >> 6));
-                                SOutData(page, mml, port[0], (byte)0x13, (byte)(p.size / 16));
+                                if (CheckPcmInstrument(page, mml))
+                                {
+                                    clsPcm p = parent.instPCM[page.instrument].Item2;
+                                    SOutData(page, mml, port[0], (byte)0x12, (byte)(p.stAdr >> 6));
+                                    SOutData(page, mml, port[0], (byte)0x13, (byte)(p.size / 16));
+                                }
                                 page.beforeInstrument = page.instrument;
                             }
 

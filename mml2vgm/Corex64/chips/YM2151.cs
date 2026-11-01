@@ -97,7 +97,7 @@ namespace Corex64
         {
             if (!parent.instOPM.ContainsKey(n))
             {
-                msgBox.setWrnMsg(string.Format(Msg.get("E16000"), n), mml.line.Lp);
+                msgBox.setWrnMsg(string.Format(Msg.get("E16000"), n), GetLinePos(page, mml));
                 return;
             }
 
@@ -154,7 +154,7 @@ namespace Corex64
         {
             if (!parent.instOPM.ContainsKey(n))
             {
-                msgBox.setWrnMsg(string.Format(Msg.get("E11000"), n), mml.line.Lp);
+                msgBox.setWrnMsg(string.Format(Msg.get("E11000"), n), GetLinePos(page, mml));
                 return;
             }
 
@@ -333,7 +333,7 @@ namespace Corex64
 
             if (!parent.instOPM.ContainsKey(n))
             {
-                msgBox.setWrnMsg(string.Format(Msg.get("E16001"), n), mml.line.Lp);
+                msgBox.setWrnMsg(string.Format(Msg.get("E16001"), n), GetLinePos(page, mml));
                 return;
             }
 

@@ -1161,9 +1161,10 @@ namespace Corex64
                 page.spg.pcmEndAddress = -1;
                 page.spg.pcmStartAddress = -1;
 
-                SetADPCMAAddress(null, page
-                    , (int)parent.instPCM[page.instrument].Item2.stAdr
-                    , (int)parent.instPCM[page.instrument].Item2.edAdr);
+                if (parent.instPCM.ContainsKey(page.instrument))
+                    SetADPCMAAddress(null, page
+                        , (int)parent.instPCM[page.instrument].Item2.stAdr
+                        , (int)parent.instPCM[page.instrument].Item2.edAdr);
 
                 //音量
                 page.spg.beforeVolume = -1;
@@ -1178,9 +1179,10 @@ namespace Corex64
                 page.spg.pcmEndAddress = -1;
                 page.spg.pcmStartAddress = -1;
 
-                SetADPCMBAddress(null, page
-                    , (int)parent.instPCM[page.instrument].Item2.stAdr
-                    , (int)parent.instPCM[page.instrument].Item2.edAdr);
+                if (parent.instPCM.ContainsKey(page.instrument))
+                    SetADPCMBAddress(null, page
+                        , (int)parent.instPCM[page.instrument].Item2.stAdr
+                        , (int)parent.instPCM[page.instrument].Item2.edAdr);
 
                 //周波数
                 page.spg.freq = -1;
@@ -1220,7 +1222,7 @@ namespace Corex64
 
                         if (page.isPcmMap && page.keyOn)
                         {
-                            var lp = mml?.line?.Lp ?? GetCurrentLinePos(page);
+                            var lp = GetLinePos(page, mml);
                             int n = Const.NOTE.IndexOf(page.noteCmd);
                             int arpNote = page.arpFreqMode ? 0 : page.arpDelta;
                             int f = page.octaveNow * 12 + n + page.shift + page.keyShift + arpNote;
@@ -1327,18 +1329,6 @@ namespace Corex64
         {
             port = (page.ch > 2 && page.ch < 6) ? page.port[1] : page.port[0];
             vch = (byte)((page.ch > 2 && page.ch < 6) ? page.ch - 3 : (page.ch < 3 ? page.ch : 2));
-        }
-
-        private LinePos GetCurrentLinePos(partPage page)
-        {
-            if (page?.mmlData == null || page.mmlData.Count < 1) return null;
-
-            int index = page.mmlPos;
-            if (index >= page.mmlData.Count) index = page.mmlData.Count - 1;
-            if (index > 0) index--;
-
-            MML cmml = page.mmlData[index];
-            return cmml?.line?.Lp;
         }
     }
 }

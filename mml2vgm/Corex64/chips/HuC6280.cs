@@ -370,16 +370,18 @@ namespace Corex64
                     }
                     else
                     {
-                        msgBox.setErrMsg(string.Format(Msg.get("E10025"), page.octaveNow, page.noteCmd, page.shift + page.keyShift + arpNote), mml.line.Lp);
+                        msgBox.setErrMsg(string.Format(Msg.get("E10025"), page.octaveNow, page.noteCmd, page.shift + page.keyShift + arpNote), GetLinePos(page, mml));
                         return;
                     }
                 }
                 else
                 {
-                    msgBox.setErrMsg(string.Format(Msg.get("E10024"), page.pcmMapNo), mml.line.Lp);
+                    msgBox.setErrMsg(string.Format(Msg.get("E10024"), page.pcmMapNo), GetLinePos(page, mml));
                     return;
                 }
             }
+
+            if (!CheckPcmInstrument(page, mml)) return;
 
             float m = Const.pcmMTbl[page.pcmNote] * (float)Math.Pow(2, (page.pcmOctave - 4));
             page.pcmBaseFreqPerFreq = Information.VGM_SAMPLE_PER_SECOND / ((float)parent.instPCM[page.instrument].Item2.freq * m);

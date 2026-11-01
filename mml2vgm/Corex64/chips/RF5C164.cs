@@ -331,9 +331,9 @@ namespace Corex64
             if (!parent.instPCM.ContainsKey(page.instrument))
             {
                 if (page.instrument == -1)
-                    msgBox.setErrMsg(Msg.get("E10030"), mml.line.Lp);
+                    msgBox.setErrMsg(Msg.get("E10030"), GetLinePos(page, mml));
                 else
-                    msgBox.setErrMsg(string.Format(Msg.get("E10021"), page.instrument), mml.line.Lp);
+                    msgBox.setErrMsg(string.Format(Msg.get("E10021"), page.instrument), GetLinePos(page, mml));
                 return;
             }
             if (parent.instPCM[page.instrument].Item2.status != enmPCMSTATUS.ERROR)
