@@ -3664,7 +3664,9 @@ namespace mml2vgmIDEx64
             foreach (Form frm in FormBox)
             {
                 Common.ApplyDarkScrollBarTheme(frm);
+                Common.ApplyDarkControlTheme(frm);
             }
+            Common.ApplyDarkControlTheme(this);
             ApplyMainBackgroundColor();
             statusStrip1.BackColor = Color.FromArgb(setting.ColorScheme.StatusStripBack_Normal);
 
@@ -3710,7 +3712,9 @@ namespace mml2vgmIDEx64
             foreach (Form frm in FormBox)
             {
                 Common.ApplyDarkScrollBarTheme(frm);
+                Common.ApplyDarkControlTheme(frm);
             }
+            Common.ApplyDarkControlTheme(this);
             Log.ForcedWrite("Reinit:ApplyMainBackgroundColor");
             ApplyMainBackgroundColor();
             frmPartCounter?.ApplyColorSetting(this.setting);

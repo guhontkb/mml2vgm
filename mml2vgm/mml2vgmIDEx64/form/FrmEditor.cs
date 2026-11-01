@@ -49,6 +49,7 @@ namespace mml2vgmIDEx64
         public FrmEditor(Setting setting, EnmMmlFileFormat fmt)//, FrmSien sien)
         {
             InitializeComponent();
+            Common.ApplyDarkControlTheme(this);
             Common.ApplyDarkScrollBarTheme(this);
             this.setting = setting;
             IHighlighter ih = null;
@@ -918,7 +919,7 @@ namespace mml2vgmIDEx64
 
             ////支援ウィンドウのキーによる制御
             //e.SuppressKeyPress = true;
-            
+
             ////Console.WriteLine("{0}", e.KeyCode);
 
             //try

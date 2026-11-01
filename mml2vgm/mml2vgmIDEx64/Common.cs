@@ -629,6 +629,68 @@ namespace mml2vgmIDEx64
             }
         }
 
+        private static readonly Color DarkControlBackColor = Color.FromArgb(37, 37, 38);
+        private static readonly Color DarkControlForeColor = Color.FromArgb(241, 241, 241);
+        private static readonly ConditionalWeakTable<Control, DarkControlThemeState> DarkControlThemeStates = new();
+
+        private sealed class DarkControlThemeState
+        {
+            public bool BackColorAppliedByTheme { get; set; }
+            public bool ForeColorAppliedByTheme { get; set; }
+        }
+
+        public static void ApplyDarkControlTheme(Control root)
+        {
+            if (root == null) return;
+            ApplyDarkControlThemeToControl(root, false, false);
+        }
+
+        private static void ApplyDarkControlThemeToControl(Control control, bool inheritedCustomBackColor, bool inheritedCustomForeColor)
+        {
+            if (control == null || control is ToolStrip) return;
+
+            bool preserveBackColor = ApplyDarkControlColor(control, "BackColor", DarkControlBackColor, inheritedCustomBackColor);
+            bool preserveForeColor = ApplyDarkControlColor(control, "ForeColor", DarkControlForeColor, inheritedCustomForeColor);
+
+            control.ControlAdded -= DarkControlTheme_ControlAdded;
+            control.ControlAdded += DarkControlTheme_ControlAdded;
+
+            foreach (Control child in control.Controls)
+            {
+                ApplyDarkControlThemeToControl(child, preserveBackColor, preserveForeColor);
+            }
+        }
+
+        private static bool ApplyDarkControlColor(Control control, string propertyName, Color themeColor, bool inheritedCustomColor)
+        {
+            if (inheritedCustomColor) return true;
+
+            System.ComponentModel.PropertyDescriptor property =
+                System.ComponentModel.TypeDescriptor.GetProperties(control)[propertyName];
+            if (property == null) return false;
+
+            Color currentColor = (Color)property.GetValue(control);
+            DarkControlThemeStates.TryGetValue(control, out DarkControlThemeState state);
+            bool wasAppliedByTheme = propertyName == "BackColor"
+                ? state?.BackColorAppliedByTheme == true
+                : state?.ForeColorAppliedByTheme == true;
+            if (property.ShouldSerializeValue(control) && !(wasAppliedByTheme && currentColor == themeColor)) return true;
+            if (propertyName == "BackColor" && currentColor == Color.Transparent) return false;
+
+            property.SetValue(control, themeColor);
+            state ??= DarkControlThemeStates.GetValue(control, _ => new DarkControlThemeState());
+            if (propertyName == "BackColor")
+                state.BackColorAppliedByTheme = true;
+            else
+                state.ForeColorAppliedByTheme = true;
+            return false;
+        }
+
+        private static void DarkControlTheme_ControlAdded(object sender, ControlEventArgs e)
+        {
+            if (e.Control != null) ApplyDarkControlThemeToControl(e.Control, false, false);
+        }
+
         public static EnmMmlFileFormat GetEnmMmlFileFormat(string extension)
         {
             if (extension.ToUpper() == ".GWI") return EnmMmlFileFormat.GWI;
