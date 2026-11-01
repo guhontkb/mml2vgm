@@ -3819,17 +3819,6 @@ namespace mml2vgmIDEx64
                     return;
                 }
 
-                this.Visible = false;
-                Log.ForcedWrite("frmMain_FormClosing:STEP 00");
-
-                timer.Enabled = false;
-
-                midikbd?.StopMIDIInMonitoring();
-                simpleMidiKbd?.StopMIDIInMonitoring();
-
-                Audio.Close();
-                Audio.RealChipClose();
-
                 MemoryStream stream = new MemoryStream();
                 dpMain.SaveAsXml(stream, Encoding.UTF8);
                 setting.dockingState = Encoding.UTF8.GetString(stream.ToArray());
@@ -3850,6 +3839,17 @@ namespace mml2vgmIDEx64
                         setting.location.RMixer = new Rectangle(frmMixer.Location.X, frmMixer.Location.Y, 0, 0);
                     }
                 }
+
+                this.Visible = false;
+                Log.ForcedWrite("frmMain_FormClosing:STEP 00");
+
+                timer.Enabled = false;
+
+                midikbd?.StopMIDIInMonitoring();
+                simpleMidiKbd?.StopMIDIInMonitoring();
+
+                Audio.Close();
+                Audio.RealChipClose();
 
                 frmPartCounter.Close();
 
