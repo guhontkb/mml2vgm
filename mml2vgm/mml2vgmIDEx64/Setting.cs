@@ -2099,6 +2099,7 @@ namespace mml2vgmIDEx64
             public bool PartCounterHideKeyOnMeterOnNoteOff { get; set; } = false;
             public bool PartCounterShowKeyOnPeakMarker { get; set; } = true;
             public bool ShowFilePathInTitleBar { get; set; } = false;
+            public bool CopyRelativePathWithDotSlash { get; set; } = false;
             public int TabWidth { get => _TabWidth; set => _TabWidth = value; }
             private int _TabWidth = 8;
             private string[] _GwiFileHistory = null;
@@ -2192,6 +2193,7 @@ namespace mml2vgmIDEx64
                 other.PartCounterHideKeyOnMeterOnNoteOff = this.PartCounterHideKeyOnMeterOnNoteOff;
                 other.PartCounterShowKeyOnPeakMarker = this.PartCounterShowKeyOnPeakMarker;
                 other.ShowFilePathInTitleBar = this.ShowFilePathInTitleBar;
+                other.CopyRelativePathWithDotSlash = this.CopyRelativePathWithDotSlash;
                 other.GwiFileHistory = this.GwiFileHistory;
                 other.LastOpenedFiles = this.LastOpenedFiles;
                 other.LastActiveFile = this.LastActiveFile;

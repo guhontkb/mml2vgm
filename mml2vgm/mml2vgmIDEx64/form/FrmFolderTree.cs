@@ -54,6 +54,10 @@ namespace mml2vgmIDEx64
         private bool restoringFileListSettings;
         private readonly Setting setting;
         private readonly ContextMenuStrip cmsFileListHeaderMenu = new ContextMenuStrip();
+        private readonly ToolStripMenuItem tsmiCopyPath = new ToolStripMenuItem("パスのコピー");
+        private readonly ToolStripMenuItem tsmiCopyFileName = new ToolStripMenuItem("ファイル名");
+        private readonly ToolStripMenuItem tsmiCopyRelativePath = new ToolStripMenuItem("相対パス");
+        private readonly ToolStripMenuItem tsmiCopyAbsolutePath = new ToolStripMenuItem("絶対パス");
         private readonly Dictionary<ColumnHeader, int> fileListColumnDisplayWidths = new Dictionary<ColumnHeader, int>();
         private const string FileListHeaderMenuShowAllText = "Show all";
         private IntPtr lvFileListHeaderHandle = IntPtr.Zero;
@@ -86,6 +90,16 @@ namespace mml2vgmIDEx64
             dockPanel.Theme.ApplyTo(cmsMenu);
             dockPanel.Theme.ApplyTo(cmsFileListHeaderMenu);
             dockPanel.Theme.ApplyTo(toolStrip1);
+            tsmiCopyPath.DropDownItems.AddRange(new ToolStripItem[]
+            {
+                tsmiCopyFileName,
+                tsmiCopyRelativePath,
+                tsmiCopyAbsolutePath
+            });
+            cmsMenu.Items.Add(tsmiCopyPath);
+            tsmiCopyFileName.Click += (sender, e) => CopySelectedPaths(CopiedPathType.FileName);
+            tsmiCopyRelativePath.Click += (sender, e) => CopySelectedPaths(CopiedPathType.RelativePath);
+            tsmiCopyAbsolutePath.Click += (sender, e) => CopySelectedPaths(CopiedPathType.AbsolutePath);
             cmsMenu.Opening += CmsMenu_Opening;
             lvFileList.ColumnWidthChanged += LvFileList_ColumnWidthChanged;
             lvFileList.HandleDestroyed += LvFileList_HandleDestroyed;
@@ -212,6 +226,13 @@ namespace mml2vgmIDEx64
         {
             HourMinuteSecond,
             SecondsWithCentiseconds
+        }
+
+        private enum CopiedPathType
+        {
+            FileName,
+            RelativePath,
+            AbsolutePath
         }
 
         public void ApplyFolderTextFont()
@@ -1774,6 +1795,43 @@ namespace mml2vgmIDEx64
             return paths;
         }
 
+        private void CopySelectedPaths(CopiedPathType pathType)
+        {
+            List<string> selectedPaths = GetSelectedFileSystemPaths();
+            if (selectedPaths.Count == 0) return;
+
+            string rootPath = string.IsNullOrWhiteSpace(basePath)
+                ? Path.GetDirectoryName(selectedPaths[0])
+                : basePath;
+            bool prefixRelativePaths = (parentGetSetting?.Invoke() ?? setting)?.other?.CopyRelativePathWithDotSlash ?? false;
+            List<string> pathsToCopy = new List<string>(selectedPaths.Count);
+            foreach (string path in selectedPaths)
+            {
+                switch (pathType)
+                {
+                    case CopiedPathType.FileName:
+                        string trimmedPath = Path.TrimEndingDirectorySeparator(path);
+                        string fileName = Path.GetFileName(trimmedPath);
+                        pathsToCopy.Add(string.IsNullOrEmpty(fileName) ? trimmedPath : fileName);
+                        break;
+                    case CopiedPathType.RelativePath:
+                        string relativePath = Path.GetRelativePath(rootPath, path);
+                        if (prefixRelativePaths)
+                        {
+                            relativePath = relativePath.Replace(Path.DirectorySeparatorChar, '/');
+                            relativePath = "./" + relativePath;
+                        }
+                        pathsToCopy.Add(relativePath);
+                        break;
+                    default:
+                        pathsToCopy.Add(path);
+                        break;
+                }
+            }
+
+            Clipboard.SetText(string.Join(Environment.NewLine, pathsToCopy));
+        }
+
         private void LvFileList_ItemActivate(object sender, EventArgs e)
         {
             if (TryOpenSelectedFolderFromFileList()) return;
@@ -1922,6 +1980,7 @@ namespace mml2vgmIDEx64
             TsmiOpenSoundEngine.Enabled = hasFile;
             TsmiDelete.Enabled = hasFile;
             TsmiShowInExplorer.Enabled = hasFileSystem;
+            tsmiCopyPath.Enabled = hasFileSystem;
             e.Cancel = !hasFileSystem;
         }
 

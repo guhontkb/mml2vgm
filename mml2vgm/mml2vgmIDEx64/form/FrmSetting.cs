@@ -34,6 +34,7 @@ namespace mml2vgmIDEx64
         private Label lblFolderFontSize;
         private Label lblFolderFontStyle;
         private Button btFolderFont;
+        private CheckBox cbCopyRelativePathWithDotSlash;
         private Label lblPartCounterFontName;
         private Label lblPartCounterFontSize;
         private Label lblPartCounterFontStyle;
@@ -618,6 +619,7 @@ namespace mml2vgmIDEx64
             lblFolderFontSize = new Label();
             lblFolderFontStyle = new Label();
             btFolderFont = new Button();
+            cbCopyRelativePathWithDotSlash = new CheckBox();
 
             tpFolder.SuspendLayout();
 
@@ -662,6 +664,7 @@ namespace mml2vgmIDEx64
             tpFolder.Controls.Add(tbSoundEnginePath);
             tpFolder.Controls.Add(btnSoundEnginePath);
             tpFolder.Controls.Add(gbFolderFont);
+            tpFolder.Controls.Add(cbCopyRelativePathWithDotSlash);
 
             lblSoundEnginePath.AutoSize = true;
             lblSoundEnginePath.Location = new System.Drawing.Point(8, 52);
@@ -760,6 +763,14 @@ namespace mml2vgmIDEx64
             gbFolderFont.Controls.Add(lblFolderFontSize);
             gbFolderFont.Controls.Add(lblFolderFontStyle);
             gbFolderFont.Controls.Add(btFolderFont);
+
+            cbCopyRelativePathWithDotSlash.AutoSize = true;
+            cbCopyRelativePathWithDotSlash.Location = new System.Drawing.Point(8, 200);
+            cbCopyRelativePathWithDotSlash.Name = "cbCopyRelativePathWithDotSlash";
+            cbCopyRelativePathWithDotSlash.Size = new System.Drawing.Size(290, 19);
+            cbCopyRelativePathWithDotSlash.TabIndex = 7;
+            cbCopyRelativePathWithDotSlash.Text = "相対パスのコピーは「./」から始まる";
+            cbCopyRelativePathWithDotSlash.UseVisualStyleBackColor = true;
 
             int editorTabIndex = tcSetting.TabPages.IndexOf(tpEditor);
             if (editorTabIndex >= 0)
@@ -1327,6 +1338,7 @@ namespace mml2vgmIDEx64
             lblFolderFontName.Text = setting.other.FolderFontName;
             lblFolderFontSize.Text = setting.other.FolderFontSize.ToString();
             lblFolderFontStyle.Text = setting.other.FolderFontStyle.ToString();
+            cbCopyRelativePathWithDotSlash.Checked = setting.other.CopyRelativePathWithDotSlash;
             cbShowFilePathInTitleBar.Checked = setting.other.ShowFilePathInTitleBar;
             cbLogWarning.Checked = setting.other.LogWarning;
             cbPlayDeviceCB.Checked = setting.other.PlayDeviceCB;
@@ -2242,6 +2254,7 @@ namespace mml2vgmIDEx64
                 lblFolderFontStyle.Text.ToUpper() == "BOLD" ? System.Drawing.FontStyle.Bold : (
                 lblFolderFontStyle.Text.ToUpper() == "ITALIC" ? System.Drawing.FontStyle.Italic : (
                 lblFolderFontStyle.Text.ToUpper() == "STRIKEOUT" ? System.Drawing.FontStyle.Strikeout : System.Drawing.FontStyle.Underline)));
+            setting.other.CopyRelativePathWithDotSlash = cbCopyRelativePathWithDotSlash.Checked;
             setting.other.ShowFilePathInTitleBar = cbShowFilePathInTitleBar.Checked;
 
             setting.Debug_DispFrameCounter = cbDispFrameCounter.Checked;
