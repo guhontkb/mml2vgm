@@ -1207,11 +1207,11 @@ namespace mml2vgmIDEx64
             switch (fileSizeDisplayUnit)
             {
                 case FileSizeDisplayUnit.KB:
-                    return string.Format(CultureInfo.CurrentCulture, "{0:N1} KB", sizeInBytes / 1024d);
+                    return string.Format(CultureInfo.CurrentCulture, "{0:N1}", sizeInBytes / 1024d);
                 case FileSizeDisplayUnit.MB:
-                    return string.Format(CultureInfo.CurrentCulture, "{0:N2} MB", sizeInBytes / 1024d / 1024d);
+                    return string.Format(CultureInfo.CurrentCulture, "{0:N2}", sizeInBytes / 1024d / 1024d);
                 default:
-                    return string.Format(CultureInfo.CurrentCulture, "{0:N0} bytes", sizeInBytes);
+                    return string.Format(CultureInfo.CurrentCulture, "{0:N0}", sizeInBytes);
             }
         }
 
@@ -1525,7 +1525,7 @@ namespace mml2vgmIDEx64
                     case 2:
                         object sizeTag = item.SubItems[column].Tag;
                         if (sizeTag is long sizeFromTag) return sizeFromTag;
-                        if (long.TryParse(text.Replace(" bytes", string.Empty), NumberStyles.Number,
+                        if (long.TryParse(text, NumberStyles.Number,
                             CultureInfo.CurrentCulture, out long size)) return size;
                         break;
                     case 3:
