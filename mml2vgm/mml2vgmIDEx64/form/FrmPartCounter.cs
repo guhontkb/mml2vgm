@@ -37,11 +37,11 @@ namespace mml2vgmIDEx64
             new Tuple<string,string,string,bool,DataGridViewContentAlignment>("text","ClmPartType"   ,"PartType"   ,true,DataGridViewContentAlignment.NotSet),
             new Tuple<string,string,string,bool,DataGridViewContentAlignment>("text","ClmMIDICh"     ,"MIDI Ch"    ,true,DataGridViewContentAlignment.NotSet),
             new Tuple<string,string,string,bool,DataGridViewContentAlignment>("text","ClmChip"       ,"Chip"       ,true,DataGridViewContentAlignment.NotSet),
-            new Tuple<string,string,string,bool,DataGridViewContentAlignment>("text","ClmCounter"    ,"Counter"    ,true,DataGridViewContentAlignment.NotSet),
-            new Tuple<string,string,string,bool,DataGridViewContentAlignment>("text","ClmLoopCounter","LoopCounter",true,DataGridViewContentAlignment.NotSet),
+            new Tuple<string,string,string,bool,DataGridViewContentAlignment>("text","ClmCounter"    ,"Counter"    ,true,DataGridViewContentAlignment.MiddleRight),
+            new Tuple<string,string,string,bool,DataGridViewContentAlignment>("text","ClmLoopCounter","LoopCounter",true,DataGridViewContentAlignment.MiddleRight),
             new Tuple<string,string,string,bool,DataGridViewContentAlignment>("text","ClmInstrument" ,"Instrument" ,true,DataGridViewContentAlignment.NotSet),
             new Tuple<string,string,string,bool,DataGridViewContentAlignment>("text","ClmEnvelope"   ,"Envelope"   ,true,DataGridViewContentAlignment.NotSet),
-            new Tuple<string,string,string,bool,DataGridViewContentAlignment>("text","ClmVolume"     ,"Volume"     ,true,DataGridViewContentAlignment.NotSet),
+            new Tuple<string,string,string,bool,DataGridViewContentAlignment>("text","ClmVolume"     ,"Volume"     ,true,DataGridViewContentAlignment.MiddleRight),
             new Tuple<string,string,string,bool,DataGridViewContentAlignment>("text","ClmExpression" ,"Expression" ,true,DataGridViewContentAlignment.NotSet),
             new Tuple<string,string,string,bool,DataGridViewContentAlignment>("text","ClmVelocity"   ,"Velocity"   ,true,DataGridViewContentAlignment.NotSet),
             new Tuple<string,string,string,bool,DataGridViewContentAlignment>("text","ClmPan"        ,"Pan"        ,true,DataGridViewContentAlignment.NotSet),
@@ -52,7 +52,7 @@ namespace mml2vgmIDEx64
             new Tuple<string,string,string,bool,DataGridViewContentAlignment>("text","ClmLfoSw"      ,"LFO Sw."    ,true,DataGridViewContentAlignment.NotSet),
             new Tuple<string,string,string,bool,DataGridViewContentAlignment>("text","ClmLfo"        ,"LFO"        ,true,DataGridViewContentAlignment.NotSet),
             new Tuple<string,string,string,bool,DataGridViewContentAlignment>("text","ClmHLfo"       ,"Hard LFO"   ,true,DataGridViewContentAlignment.NotSet),
-            new Tuple<string,string,string,bool,DataGridViewContentAlignment>("text","ClmDetune"     ,"Detune"     ,true,DataGridViewContentAlignment.NotSet),
+            new Tuple<string,string,string,bool,DataGridViewContentAlignment>("text","ClmDetune"     ,"Detune"     ,true,DataGridViewContentAlignment.MiddleRight),
             new Tuple<string,string,string,bool,DataGridViewContentAlignment>("text","ClmKeyShift"   ,"Key shift"  ,true,DataGridViewContentAlignment.NotSet),
             new Tuple<string,string,string,bool,DataGridViewContentAlignment>("image","ClmMeter"     ,"KeyOn"      ,true,DataGridViewContentAlignment.NotSet),
             new Tuple<string,string,string,bool,DataGridViewContentAlignment>("text","ClmMemo"       ,"Memo"       ,true,DataGridViewContentAlignment.NotSet),
@@ -1108,6 +1108,10 @@ namespace mml2vgmIDEx64
                             if (colName[i].Item2 == "ClmKBDAssign") col.Visible=false;
                         }
                         col.DefaultCellStyle.Alignment = colName[i].Item5;
+                        if (colName[i].Item2 == "ClmCounter" || colName[i].Item2 == "ClmLoopCounter")
+                        {
+                            col.DefaultCellStyle.Format = "#,0";
+                        }
                         col.SortMode = DataGridViewColumnSortMode.NotSortable;
                         if (colName[i].Item2 == "ClmSpacer")
                         {
