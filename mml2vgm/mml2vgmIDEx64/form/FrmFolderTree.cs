@@ -238,37 +238,7 @@ namespace mml2vgmIDEx64
 
         private void TvFolderTree_BeforeExpand(object sender, TreeViewCancelEventArgs e)
         {
-            if (e.Node.ImageIndex == 1 && e.Node.Nodes.Count == 1 && e.Node.Nodes[0].Text == "!dmy")
-            {
-                TreeNode node = e.Node;
-                TreeNode ts;
-
-                // 展開するノードのフルパスを取得
-                string fullpath = GetNodePath(node);
-                node.Nodes.Clear();
-
-                DirectoryInfo dm = new DirectoryInfo(fullpath);
-
-                try
-                {
-                    foreach (DirectoryInfo ds in dm.GetDirectories())
-                    {
-                        ts = new TreeNode(ds.Name, 1, 1);
-                        ts.Tag = ds.FullName;
-                        ts.Nodes.Add("!dmy");
-                        node.Nodes.Add(ts);
-                    }
-                }
-                catch (UnauthorizedAccessException)
-                {
-                    LogFolderOperationException("TvFolderTree_BeforeExpand", null, fullpath);
-                    MessageBox.Show("アクセスが拒否されました。", "権限不足", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-                catch (Exception ex)
-                {
-                    LogFolderOperationException("TvFolderTree_BeforeExpand", ex, fullpath);
-                }
-            }
+            EnsureFolderChildrenLoaded(e.Node, "TvFolderTree_BeforeExpand", true);
         }
 
         private void TvFolderTree_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
@@ -489,6 +459,7 @@ namespace mml2vgmIDEx64
         private void TsmiOpen_MouseUp(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Right) return;
+            if (TryOpenSelectedFolderFromFileList()) return;
 
             List<string> lstFullPath = GetSelectedFilePaths();
             if (lstFullPath.Count < 1) return;
@@ -1782,13 +1753,7 @@ namespace mml2vgmIDEx64
 
         private void LvFileList_ItemActivate(object sender, EventArgs e)
         {
-            if (lvFileList.SelectedItems.Count == 1
-                && lvFileList.SelectedItems[0].Tag is string selectedPath
-                && Directory.Exists(selectedPath))
-            {
-                SelectFolderNode(selectedPath, tvFolderTree.Nodes);
-                return;
-            }
+            if (TryOpenSelectedFolderFromFileList()) return;
 
             List<string> paths = GetSelectedFilePaths();
             if (paths.Count > 0) parentExecFile?.Invoke(paths.ToArray());
@@ -1818,9 +1783,71 @@ namespace mml2vgmIDEx64
                     node.EnsureVisible();
                     return true;
                 }
+                if (IsPathEqualOrChild(nodePath, targetPath))
+                {
+                    EnsureFolderChildrenLoaded(node, "SelectFolderNode", false);
+                }
                 if (SelectFolderNode(targetPath, node.Nodes)) return true;
             }
             return false;
+        }
+
+        private bool TryOpenSelectedFolderFromFileList()
+        {
+            if (lvFileList.SelectedItems.Count != 1) return false;
+            if (!(lvFileList.SelectedItems[0].Tag is string selectedPath)) return false;
+            if (!Directory.Exists(selectedPath)) return false;
+
+            FocusFolderAndShowFiles(selectedPath);
+            return true;
+        }
+
+        private static bool IsPathEqualOrChild(string parentPath, string targetPath)
+        {
+            if (string.IsNullOrEmpty(parentPath) || string.IsNullOrEmpty(targetPath)) return false;
+            if (string.Equals(parentPath, targetPath, StringComparison.OrdinalIgnoreCase)) return true;
+
+            string normalizedParent = parentPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            string normalizedTarget = targetPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            if (normalizedTarget.Length <= normalizedParent.Length) return false;
+            if (!normalizedTarget.StartsWith(normalizedParent, StringComparison.OrdinalIgnoreCase)) return false;
+
+            char separator = normalizedTarget[normalizedParent.Length];
+            return separator == Path.DirectorySeparatorChar || separator == Path.AltDirectorySeparatorChar;
+        }
+
+        private void EnsureFolderChildrenLoaded(TreeNode node, string operation, bool showAccessDeniedDialog)
+        {
+            if (node == null) return;
+            if (node.ImageIndex != 1) return;
+            if (node.Nodes.Count != 1 || node.Nodes[0].Text != "!dmy") return;
+
+            string fullpath = GetNodePath(node);
+            node.Nodes.Clear();
+
+            DirectoryInfo directory = new DirectoryInfo(fullpath);
+            try
+            {
+                foreach (DirectoryInfo subDirectory in directory.GetDirectories())
+                {
+                    TreeNode childNode = new TreeNode(subDirectory.Name, 1, 1);
+                    childNode.Tag = subDirectory.FullName;
+                    childNode.Nodes.Add("!dmy");
+                    node.Nodes.Add(childNode);
+                }
+            }
+            catch (UnauthorizedAccessException)
+            {
+                LogFolderOperationException(operation, null, fullpath);
+                if (showAccessDeniedDialog)
+                {
+                    MessageBox.Show("アクセスが拒否されました。", "権限不足", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                LogFolderOperationException(operation, ex, fullpath);
+            }
         }
 
         public void FocusFolderAndShowFiles(string targetPath)
@@ -1868,7 +1895,7 @@ namespace mml2vgmIDEx64
             bool hasFile = selectedFiles.Count > 0;
             bool hasFileSystem = selectedFileSystems.Count > 0;
 
-            TsmiOpen.Enabled = hasFile;
+            TsmiOpen.Enabled = hasFileSystem;
             TsmiOpenSoundEngine.Enabled = hasFile;
             TsmiDelete.Enabled = hasFile;
             TsmiShowInExplorer.Enabled = hasFileSystem;
