@@ -436,8 +436,8 @@ namespace mml2vgmx64
                     tsbCompile_Click(null, null);
                     break;
                 default:
-                    //��KeyData�m�F�p
-                    //log.Write(string.Format("���얢��`�̃L�[�F{0}",e.KeyData));
+                    //※KeyData確認用
+                    //log.Write(string.Format("押下されたキー：{0}", e.KeyData));
                     break;
             }
         }

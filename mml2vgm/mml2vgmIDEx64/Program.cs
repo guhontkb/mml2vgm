@@ -11,14 +11,14 @@ namespace mml2vgmIDEx64
         [STAThread]
         static void Main()
         {
-            //DOBON.NET ����̃R�[�h�𗬗p
+            //DOBON.NET さんのコードを流用
 
             string mutexName = "mml2vgmIDE";
             bool createdNew;
 
             using (Mutex mutex = new Mutex(true, mutexName, out createdNew))
             {
-                //�~���[�e�b�N�X�̏������L�����t�^���ꂽ�����ׂ�
+                //ミューテックスの所有権が取得されたか調べる
                 if (!createdNew)
                 {
                     if (Environment.GetCommandLineArgs().Length > 1)
@@ -31,8 +31,8 @@ namespace mml2vgmIDEx64
                         }
                     }
 
-                    //����Ȃ������ꍇ�́A���łɋN�����Ă���Ɣ��f���ďI��
-                    MessageBox.Show("二重起動はできません。");
+                    //取得できなかった場合は、すでに起動していると判断して終了
+                    MessageBox.Show("二重起動はできません。", "致命的エラー");
                     return;
                 }
 
@@ -62,7 +62,7 @@ namespace mml2vgmIDEx64
                     try
                     {
                         Log.ForcedWrite(ex);
-                        MessageBox.Show(ex.Message, "�v���I�ȃG���[");
+                        MessageBox.Show(ex.Message, "致命的エラー");
                     }
                     finally
                     {
@@ -71,7 +71,7 @@ namespace mml2vgmIDEx64
                 finally
                 {
                     Log.Shutdown();
-                    //�~���[�e�b�N�X���������
+                    //ミューテックスを解放する
                     mutex.ReleaseMutex();
                 }
 
@@ -83,11 +83,11 @@ namespace mml2vgmIDEx64
             try
             {
                 Log.ForcedWrite(e.Exception);
-                MessageBox.Show(e.Exception.Message, "�v���I�ȃG���[");
+                MessageBox.Show(e.Exception.Message, "致命的エラー");
             }
             finally
             {
-                //�A�v���P�[�V�������I������
+                //アプリケーションを終了する
                 Application.Exit();
             }
         }
@@ -99,26 +99,26 @@ namespace mml2vgmIDEx64
 
             foreach (Process checkProcess in allProcesses)
             {
-                // �������g�̃v���Z�XID�͖�������
+                // 現在のプロセスIDは無視する
                 if (checkProcess.Id != curProcess.Id)
                 {
-                    // �v���Z�X�̃t���p�X�����r���ē����A�v���P�[�V����������
+                    // プロセスのフルパス名を比較して、同じアプリケーションか調べる
                     if (string.Compare(
                         checkProcess.MainModule.FileName,
                         curProcess.MainModule.FileName, true) == 0)
                     {
-                        // �����t���p�X���̃v���Z�X���擾
+                        // 同じフルパス名のプロセスを取得
                         return checkProcess;
                     }
                 }
             }
 
-            // �����A�v���P�[�V�����̃v���Z�X��������Ȃ��I
+            // 同じアプリケーションのプロセスは見つからない
             return null;
         }
 
 
-        //SendMessage�ő���\���́iUnicode�����񑗐M�ɍœK�������p�^�[���j
+        //SendMessageで送る構造体（Unicode文字列送信に最適化されたパターン）
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
         public struct COPYDATASTRUCT
         {
@@ -128,20 +128,20 @@ namespace mml2vgmIDEx64
             public string lpData;
         }
 
-        //SendMessage�i�f�[�^�]���j
+        //SendMessage（データ転送）
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         public static extern int SendMessage(IntPtr hWnd, int Msg, IntPtr wParam, ref COPYDATASTRUCT lParam);
         public const int WM_COPYDATA = 0x004A;
         public const int WM_PASTE = 0x0302;
 
-        //SendMessage���g���ăv���Z�X�ԒʐM�ŕ������n��
+        //SendMessageを使ってプロセス間通信で文字列を渡す
         public static void SendString(IntPtr targetWindowHandle, string str)
         {
             COPYDATASTRUCT cds = new COPYDATASTRUCT();
             cds.dwData = IntPtr.Zero;
             cds.lpData = str;
             cds.cbData = str.Length * sizeof(char);
-            //��M���ł�lpData�̕������(cbData/2)�̒�����string.Substring()����
+            //受信側ではlpDataの文字列を(cbData/2)の長さでstring.Substring()する
 
             IntPtr myWindowHandle = Process.GetCurrentProcess().MainWindowHandle;
             SendMessage(targetWindowHandle, WM_COPYDATA, myWindowHandle, ref cds);
