@@ -46,8 +46,6 @@ namespace mml2vgmIDEx64
         private Panel pnlMainBackgroundCustomColor;
         private Button btnMainBackgroundResetDefault;
         private ColorDialog cdMainScrollBarCustomColor;
-        private Label lblMainBackgroundOpacity;
-        private TrackBar tbMainBackgroundOpacity;
         private CheckBox cbMainWallpaperEnabled;
         private Label lblMainWallpaperPath;
         private TextBox tbMainWallpaperPath;
@@ -60,7 +58,7 @@ namespace mml2vgmIDEx64
         public Action<System.Drawing.Color> MainBackgroundColorPreviewChanged { get; set; }
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public Action<System.Drawing.Color, int, bool, string, ImageLayout> MainBackgroundAppearancePreviewChanged { get; set; }
+        public Action<System.Drawing.Color, bool, string, ImageLayout> MainBackgroundAppearancePreviewChanged { get; set; }
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public Action<int> WindowOpacityPreviewChanged { get; set; }
@@ -76,7 +74,6 @@ namespace mml2vgmIDEx64
             InitializeMDPlayerPathSetting();
             InitializeMainScrollBarColorSetting();
             InitializeWindowOpacitySetting();
-            InitializeMainBackgroundOpacitySetting();
             InitializeMainWallpaperSetting();
 
             dgv = new DataGridView[] {
@@ -288,7 +285,6 @@ namespace mml2vgmIDEx64
             MainBackgroundColorPreviewChanged?.Invoke(pnlMainBackgroundCustomColor.BackColor);
             MainBackgroundAppearancePreviewChanged?.Invoke(
                 pnlMainBackgroundCustomColor.BackColor,
-                tbMainBackgroundOpacity.Value,
                 cbMainWallpaperEnabled.Checked,
                 tbMainWallpaperPath.Text,
                 GetSelectedWallpaperLayout()
@@ -503,38 +499,6 @@ namespace mml2vgmIDEx64
             tpColor.Controls.Add(tbOpacity);
             tpColor.Controls.SetChildIndex(tbOpacity, 0);
             tpColor.Controls.SetChildIndex(label52, 0);
-        }
-
-        private void InitializeMainBackgroundOpacitySetting()
-        {
-            lblMainBackgroundOpacity = new Label
-            {
-                AutoSize = true,
-                Location = new System.Drawing.Point(8, 72),
-                Margin = new Padding(4, 0, 4, 0),
-                Name = "lblMainBackgroundOpacity",
-                Size = new System.Drawing.Size(85, 15),
-                Text = "背景色不透明度"
-            };
-
-            tbMainBackgroundOpacity = new TrackBar
-            {
-                Location = new System.Drawing.Point(123, 52),
-                Margin = new Padding(4),
-                Maximum = 100,
-                Minimum = 0,
-                Name = "tbMainBackgroundOpacity",
-                Size = new System.Drawing.Size(167, 45),
-                TickFrequency = 10,
-                TickStyle = TickStyle.Both,
-                Value = 100
-            };
-            tbMainBackgroundOpacity.Scroll += tbMainBackgroundOpacity_Scroll;
-
-            tpColor.Controls.Add(lblMainBackgroundOpacity);
-            tpColor.Controls.Add(tbMainBackgroundOpacity);
-            tpColor.Controls.SetChildIndex(tbMainBackgroundOpacity, 0);
-            tpColor.Controls.SetChildIndex(lblMainBackgroundOpacity, 0);
         }
 
         private void InitializeMainWallpaperSetting()
@@ -1092,7 +1056,6 @@ namespace mml2vgmIDEx64
             cbEmptyPlayList.Checked = setting.other.EmptyPlayList;
             cbChangeEnterCode.Checked = setting.other.ChangeEnterCode;
             tbOpacity.Value = setting.other.Opacity;
-            tbMainBackgroundOpacity.Value = setting.other.MainScreenBackgroundOpacity;
             lblFontName.Text = setting.other.TextFontName;
             lblFontSize.Text = setting.other.TextFontSize.ToString();
             lblFontStyle.Text = setting.other.TextFontStyle.ToString();
@@ -1347,6 +1310,9 @@ namespace mml2vgmIDEx64
             partCounterFontSize = setting.other.PartCounterFontSize;
             partCounterFontStyle = setting.other.PartCounterFontStyle;
             cbDispWarningMessage.Checked = setting.other.DispWarningMessage;
+            cbCompileResultDialog.Checked = setting.other.CompileResultDialog;
+            cbCompileResultActivateErrorList.Checked = setting.other.CompileResultActivateErrorList;
+            cbCompileResultIncludeWarning.Checked = setting.other.CompileResultIncludeWarning;
 
             cbFixedExportPlace.Checked = setting.export.FixedExportPlace;
             gpbFixedExportPlace.Enabled = cbFixedExportPlace.Checked;
@@ -1993,7 +1959,6 @@ namespace mml2vgmIDEx64
             setting.other.EmptyPlayList = cbEmptyPlayList.Checked;
             setting.other.ChangeEnterCode = cbChangeEnterCode.Checked;
             setting.other.Opacity = tbOpacity.Value;
-            setting.other.MainScreenBackgroundOpacity = tbMainBackgroundOpacity.Value;
             setting.other.MainScreenWallpaperEnabled = cbMainWallpaperEnabled.Checked;
             setting.other.MainScreenWallpaperPath = tbMainWallpaperPath.Text;
             setting.other.MainScreenWallpaperLayout = (int)GetSelectedWallpaperLayout();
@@ -2036,6 +2001,9 @@ namespace mml2vgmIDEx64
                 setting.other.HistoryBackUpKeepFileCount = Math.Max(Math.Min(i, 20), 1);
             }
             setting.other.DispWarningMessage = cbDispWarningMessage.Checked;
+            setting.other.CompileResultDialog = cbCompileResultDialog.Checked;
+            setting.other.CompileResultActivateErrorList = cbCompileResultActivateErrorList.Checked;
+            setting.other.CompileResultIncludeWarning = cbCompileResultIncludeWarning.Checked;
             if (int.TryParse(tbTABWidth.Text, out i))
             {
                 setting.other.TabWidth = Math.Max(Math.Min(i, 100), 1);
@@ -3098,11 +3066,6 @@ namespace mml2vgmIDEx64
         private void tbOpacity_Scroll(object sender, EventArgs e)
         {
             WindowOpacityPreviewChanged?.Invoke(tbOpacity.Value);
-        }
-
-        private void tbMainBackgroundOpacity_Scroll(object sender, EventArgs e)
-        {
-            RaiseMainBackgroundColorPreviewChanged();
         }
 
         private void cbMainWallpaperEnabled_CheckedChanged(object sender, EventArgs e)

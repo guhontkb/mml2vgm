@@ -2488,6 +2488,50 @@ namespace mml2vgmIDEx64
             frmLog.tbLog.Clear();
         }
 
+        private bool HasCompileResultIssue(int errorCount, int warningCount)
+        {
+            if (errorCount > 0) return true;
+            if (setting.other.CompileResultIncludeWarning && warningCount > 0) return true;
+            return false;
+        }
+
+        private void NotifyCompileResultIssue(int errorCount, int warningCount)
+        {
+            if (!HasCompileResultIssue(errorCount, warningCount)) return;
+
+            if (setting.other.CompileResultActivateErrorList && !frmErrorList.IsHidden)
+            {
+                frmErrorList.Focus();
+                if (frmErrorList.DockState != DockState.Float)
+                {
+                    frmErrorList.Activate();
+                }
+            }
+
+            if (!setting.other.CompileResultDialog) return;
+
+            string message;
+            MessageBoxIcon icon;
+
+            if (errorCount > 0 && warningCount > 0)
+            {
+                message = $"コンパイルで Error:{errorCount} / Warning:{warningCount} が発生しました。";
+                icon = MessageBoxIcon.Error;
+            }
+            else if (errorCount > 0)
+            {
+                message = $"コンパイルで Error:{errorCount} が発生しました。";
+                icon = MessageBoxIcon.Error;
+            }
+            else
+            {
+                message = $"コンパイルで Warning:{warningCount} が発生しました。";
+                icon = MessageBoxIcon.Warning;
+            }
+
+            MessageBox.Show(this, message, "Compile Result", MessageBoxButtons.OK, icon);
+        }
+
         private void finishedCompile()
         {
             if (isSuccess) Audio.silent = false;
@@ -2649,6 +2693,7 @@ namespace mml2vgmIDEx64
             //ログウィンドウに各種メッセージを表示
             frmLog.tbLog.AppendText("\r\n");
             frmLog.tbLog.AppendText(string.Format(Msg.get("I0110"), msgBox.getErr().Length, msgBox.getWrn().Length));
+            NotifyCompileResultIssue(msgBox.getErr().Length, msgBox.getWrn().Length);
 
             if (!isSuccess)
             {
@@ -2877,6 +2922,7 @@ namespace mml2vgmIDEx64
                 msgInfo mi = new msgInfo(null, "", mes.Item1, mes.Item2, -1, mes.Item3);
                 msgBox.setWrnMsg(mi);
             }
+            NotifyCompileResultIssue(errorList.Count, warningList.Count);
 
             if (isSuccess)
             {
@@ -3067,6 +3113,7 @@ namespace mml2vgmIDEx64
                 msgInfo mi = new msgInfo(null, "", mes.Item1, mes.Item2, -1, mes.Item3);
                 msgBox.setWrnMsg(mi);
             }
+            NotifyCompileResultIssue(errorList.Count, warningList.Count);
 
             if (isSuccess)
             {
@@ -3171,6 +3218,7 @@ namespace mml2vgmIDEx64
                 msgInfo mi = new msgInfo(null, "", mes.Item1, mes.Item2, -1, mes.Item3);
                 msgBox.setWrnMsg(mi);
             }
+            NotifyCompileResultIssue(errorList.Count, warningList.Count);
 
             if (isSuccess)
             {
@@ -3277,6 +3325,7 @@ namespace mml2vgmIDEx64
                 msgInfo mi = new msgInfo(null, "", mes.Item1, mes.Item2, -1, mes.Item3);
                 msgBox.setWrnMsg(mi);
             }
+            NotifyCompileResultIssue(errorList.Count, warningList.Count);
 
             if (isSuccess)
             {

@@ -395,6 +395,9 @@ namespace mml2vgmIDEx64
             tpOther2 = new TabPage();
             cbUseMuapDotNET = new CheckBox();
             cbDispWarningMessage = new CheckBox();
+            cbCompileResultDialog = new CheckBox();
+            cbCompileResultActivateErrorList = new CheckBox();
+            cbCompileResultIncludeWarning = new CheckBox();
             tbUseHistoryBackUp = new TextBox();
             cbUseHistoryBackUp = new CheckBox();
             cbUseMoonDriverDotNET = new CheckBox();
@@ -4812,6 +4815,9 @@ namespace mml2vgmIDEx64
             // 
             tpOther2.Controls.Add(cbUseMuapDotNET);
             tpOther2.Controls.Add(cbDispWarningMessage);
+            tpOther2.Controls.Add(cbCompileResultDialog);
+            tpOther2.Controls.Add(cbCompileResultActivateErrorList);
+            tpOther2.Controls.Add(cbCompileResultIncludeWarning);
             tpOther2.Controls.Add(tbUseHistoryBackUp);
             tpOther2.Controls.Add(cbUseHistoryBackUp);
             tpOther2.Controls.Add(cbUseMoonDriverDotNET);
@@ -4852,6 +4858,39 @@ namespace mml2vgmIDEx64
             cbDispWarningMessage.TabIndex = 30;
             cbDispWarningMessage.Text = "コンパイル時の警告メッセージをログウィンドウに表示する";
             cbDispWarningMessage.UseVisualStyleBackColor = true;
+            // 
+            // cbCompileResultDialog
+            // 
+            cbCompileResultDialog.AutoSize = true;
+            cbCompileResultDialog.Location = new Point(8, 333);
+            cbCompileResultDialog.Margin = new Padding(4);
+            cbCompileResultDialog.Name = "cbCompileResultDialog";
+            cbCompileResultDialog.Size = new Size(357, 19);
+            cbCompileResultDialog.TabIndex = 34;
+            cbCompileResultDialog.Text = "コンパイルで問題があった場合にダイアログで通知する(Error list)";
+            cbCompileResultDialog.UseVisualStyleBackColor = true;
+            // 
+            // cbCompileResultActivateErrorList
+            // 
+            cbCompileResultActivateErrorList.AutoSize = true;
+            cbCompileResultActivateErrorList.Location = new Point(8, 360);
+            cbCompileResultActivateErrorList.Margin = new Padding(4);
+            cbCompileResultActivateErrorList.Name = "cbCompileResultActivateErrorList";
+            cbCompileResultActivateErrorList.Size = new Size(499, 19);
+            cbCompileResultActivateErrorList.TabIndex = 35;
+            cbCompileResultActivateErrorList.Text = "コンパイルで問題がありError listを表示中の場合はError listパネルをアクティブにする";
+            cbCompileResultActivateErrorList.UseVisualStyleBackColor = true;
+            // 
+            // cbCompileResultIncludeWarning
+            // 
+            cbCompileResultIncludeWarning.AutoSize = true;
+            cbCompileResultIncludeWarning.Location = new Point(8, 387);
+            cbCompileResultIncludeWarning.Margin = new Padding(4);
+            cbCompileResultIncludeWarning.Name = "cbCompileResultIncludeWarning";
+            cbCompileResultIncludeWarning.Size = new Size(270, 19);
+            cbCompileResultIncludeWarning.TabIndex = 36;
+            cbCompileResultIncludeWarning.Text = "上記通知/アクティブ化の対象にWarningも含める";
+            cbCompileResultIncludeWarning.UseVisualStyleBackColor = true;
             // 
             // tbUseHistoryBackUp
             // 
@@ -6314,6 +6353,9 @@ namespace mml2vgmIDEx64
         private TextBox tbUseHistoryBackUp;
         private CheckBox cbUseHistoryBackUp;
         private CheckBox cbDispWarningMessage;
+        private CheckBox cbCompileResultDialog;
+        private CheckBox cbCompileResultActivateErrorList;
+        private CheckBox cbCompileResultIncludeWarning;
         private TextBox tbTABWidth;
         private Label label56;
         private CheckBox cbHilightOn;

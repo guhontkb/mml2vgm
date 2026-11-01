@@ -2078,20 +2078,6 @@ namespace mml2vgmIDEx64
                     _Opacity = Common.Range(_Opacity, 10, 100);
                 }
             }
-            private int _MainScreenBackgroundOpacity = 100;
-            public int MainScreenBackgroundOpacity
-            {
-                get
-                {
-                    _MainScreenBackgroundOpacity = Common.Range(_MainScreenBackgroundOpacity, 0, 100);
-                    return _MainScreenBackgroundOpacity;
-                }
-                set
-                {
-                    _MainScreenBackgroundOpacity = value;
-                    _MainScreenBackgroundOpacity = Common.Range(_MainScreenBackgroundOpacity, 0, 100);
-                }
-            }
             private string _TextFontName = "Consolas";
             public string TextFontName { get => _TextFontName; set => _TextFontName = value; }
             private float _TextFontSize = 12.0f;
@@ -2160,6 +2146,9 @@ namespace mml2vgmIDEx64
             public bool UseHistoryBackUp { get; set; } = false;
             public int HistoryBackUpKeepFileCount { get; set; } = 5;
             public bool DispWarningMessage { get; set; } = false;
+            public bool CompileResultDialog { get; set; } = false;
+            public bool CompileResultActivateErrorList { get; set; } = false;
+            public bool CompileResultIncludeWarning { get; set; } = false;
             public int MainScreenBackgroundColorArgb { get; set; } = Color.FromArgb(40, 29, 59).ToArgb();
             public bool MainScreenWallpaperEnabled { get; set; } = false;
             public string MainScreenWallpaperPath { get; set; } = "";
@@ -2191,7 +2180,6 @@ namespace mml2vgmIDEx64
                 other.EmptyPlayList = this.EmptyPlayList;
                 other.ChangeEnterCode = this.ChangeEnterCode;
                 other.Opacity = this.Opacity;
-                other.MainScreenBackgroundOpacity = this.MainScreenBackgroundOpacity;
                 other.TextFontName = this.TextFontName;
                 other.TextFontSize = this.TextFontSize;
                 other.TextFontStyle = this.TextFontStyle;
@@ -2228,6 +2216,9 @@ namespace mml2vgmIDEx64
                 other.UseHistoryBackUp = this.UseHistoryBackUp;
                 other.HistoryBackUpKeepFileCount = this.HistoryBackUpKeepFileCount;
                 other.DispWarningMessage = this.DispWarningMessage;
+                other.CompileResultDialog = this.CompileResultDialog;
+                other.CompileResultActivateErrorList = this.CompileResultActivateErrorList;
+                other.CompileResultIncludeWarning = this.CompileResultIncludeWarning;
                 other.MainScreenBackgroundColorArgb = this.MainScreenBackgroundColorArgb;
                 other.MainScreenWallpaperEnabled = this.MainScreenWallpaperEnabled;
                 other.MainScreenWallpaperPath = this.MainScreenWallpaperPath;
