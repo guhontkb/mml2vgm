@@ -1220,6 +1220,7 @@ namespace Corex64
 
                         if (page.isPcmMap && page.keyOn)
                         {
+                            var lp = mml?.line?.Lp ?? GetCurrentLinePos(page);
                             int n = Const.NOTE.IndexOf(page.noteCmd);
                             int arpNote = page.arpFreqMode ? 0 : page.arpDelta;
                             int f = page.octaveNow * 12 + n + page.shift + page.keyShift + arpNote;
@@ -1228,6 +1229,17 @@ namespace Corex64
                                 if (parent.instPCMMap[page.pcmMapNo].ContainsKey(f))
                                 {
                                     page.instrument = parent.instPCMMap[page.pcmMapNo][f];
+                                    if (!parent.instPCM.ContainsKey(page.instrument))
+                                    {
+                                        msgBox.setErrMsg(string.Format(Msg.get("E19004"), page.instrument), lp);
+                                        return;
+                                    }
+                                    if (parent.instPCM[page.instrument].Item2.chip != enmChipType.YM2610B
+                                        || parent.instPCM[page.instrument].Item2.loopAdr != 0)
+                                    {
+                                        msgBox.setErrMsg(string.Format(Msg.get("E19005"), page.instrument), lp);
+                                        return;
+                                    }
                                     SetADPCMAAddress(
                                         mml,
                                         page
@@ -1236,13 +1248,13 @@ namespace Corex64
                                 }
                                 else
                                 {
-                                    msgBox.setErrMsg(string.Format(Msg.get("E10025"), page.octaveNow, page.noteCmd, page.shift + page.keyShift + arpNote), mml.line.Lp);
+                                    msgBox.setErrMsg(string.Format(Msg.get("E10025"), page.octaveNow, page.noteCmd, page.shift + page.keyShift + arpNote), lp);
                                     return;
                                 }
                             }
                             else
                             {
-                                msgBox.setErrMsg(string.Format(Msg.get("E10024"), page.pcmMapNo), mml.line.Lp);
+                                msgBox.setErrMsg(string.Format(Msg.get("E10024"), page.pcmMapNo), lp);
                                 return;
                             }
 
@@ -1317,5 +1329,16 @@ namespace Corex64
             vch = (byte)((page.ch > 2 && page.ch < 6) ? page.ch - 3 : (page.ch < 3 ? page.ch : 2));
         }
 
+        private LinePos GetCurrentLinePos(partPage page)
+        {
+            if (page?.mmlData == null || page.mmlData.Count < 1) return null;
+
+            int index = page.mmlPos;
+            if (index >= page.mmlData.Count) index = page.mmlData.Count - 1;
+            if (index > 0) index--;
+
+            MML cmml = page.mmlData[index];
+            return cmml?.line?.Lp;
+        }
     }
 }
