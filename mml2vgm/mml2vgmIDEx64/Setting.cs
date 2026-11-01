@@ -2115,6 +2115,7 @@ namespace mml2vgmIDEx64
             private int _TabWidth = 8;
             private string[] _GwiFileHistory = null;
             public string[] LastOpenedFiles { get; set; }
+            public string LastActiveFile { get; set; }
             private string _Tutorial = "Tutorial.txt";
             private string _CommandManual = "mml2vgm_MMLCommandMemo.txt";
             private string _CommandManualMucom = "";
@@ -2203,6 +2204,7 @@ namespace mml2vgmIDEx64
                 other.ShowFilePathInTitleBar = this.ShowFilePathInTitleBar;
                 other.GwiFileHistory = this.GwiFileHistory;
                 other.LastOpenedFiles = this.LastOpenedFiles;
+                other.LastActiveFile = this.LastActiveFile;
                 other.LogWarning = this.LogWarning;
                 other.PlayDeviceCB = this.PlayDeviceCB;
                 other.LogLevel = this.LogLevel;

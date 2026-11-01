@@ -1781,7 +1781,24 @@ namespace mml2vgmIDEx64
                     }
                 }
 
-                if (openedCount > 0) return;
+                if (openedCount > 0)
+                {
+                    ActivateOpenedFile(setting.other.LastActiveFile);
+                    return;
+                }
+            }
+
+            if (!string.IsNullOrEmpty(setting.other.LastActiveFile) && File.Exists(setting.other.LastActiveFile))
+            {
+                try
+                {
+                    OpenFile(setting.other.LastActiveFile);
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    Log.ForcedWrite(ex);
+                }
             }
 
             string lastFn = "";
@@ -1803,6 +1820,23 @@ namespace mml2vgmIDEx64
                 OpenFile(lastFn);
             }
             catch { }
+        }
+
+        private bool ActivateOpenedFile(string fileName)
+        {
+            if (string.IsNullOrEmpty(fileName)) return false;
+
+            string fullPath = fileName.Replace('\\', Path.DirectorySeparatorChar).Replace('/', Path.DirectorySeparatorChar);
+            foreach (Document document in DocumentBox)
+            {
+                if (document == null || document.editor == null) continue;
+                if (document.gwiFullPath != fullPath) continue;
+
+                document.editor.Activate();
+                return true;
+            }
+
+            return false;
         }
 
         private void Tsmi_Click(object sender, EventArgs e)
@@ -3868,6 +3902,9 @@ namespace mml2vgmIDEx64
                         lastOpenedFiles.Add(document.gwiFullPath);
                 }
                 setting.other.LastOpenedFiles = lastOpenedFiles.ToArray();
+
+                Document activeDocument = GetActiveDocument();
+                setting.other.LastActiveFile = activeDocument?.gwiFullPath;
 
                 setting.Save();
             }
