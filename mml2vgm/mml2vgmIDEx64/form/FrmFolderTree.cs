@@ -38,6 +38,7 @@ namespace mml2vgmIDEx64
         private int fileListSortColumn = -1;
         private bool fileListSortAscending = true;
         private FileSizeDisplayUnit fileSizeDisplayUnit = FileSizeDisplayUnit.Byte;
+        private DurationDisplayFormat durationDisplayFormat = DurationDisplayFormat.HourMinuteSecond;
         private bool restoringFileListSettings;
         private readonly Setting setting;
         private readonly ContextMenuStrip cmsFileListHeaderMenu = new ContextMenuStrip();
@@ -80,6 +81,7 @@ namespace mml2vgmIDEx64
             Common.ApplyDarkScrollBarTheme(this);
             ApplyFolderTextFont();
             UpdateFileSizeDisplay();
+            UpdateDurationDisplay();
         }
 
         private void RestoreFileListSettings()
@@ -90,6 +92,10 @@ namespace mml2vgmIDEx64
                 if (Enum.IsDefined(typeof(FileSizeDisplayUnit), setting.location.FolderFileSizeDisplayUnit))
                 {
                     fileSizeDisplayUnit = (FileSizeDisplayUnit)setting.location.FolderFileSizeDisplayUnit;
+                }
+                if (Enum.IsDefined(typeof(DurationDisplayFormat), setting.location.FolderDurationDisplayMode))
+                {
+                    durationDisplayFormat = (DurationDisplayFormat)setting.location.FolderDurationDisplayMode;
                 }
 
                 Setting.FileListColumnInfo[] savedColumns = setting.location.FolderFileListColumns;
@@ -104,6 +110,14 @@ namespace mml2vgmIDEx64
                     int width = Math.Max(0, savedColumn.Width);
                     column.Width = width;
                     if (width > 0) fileListColumnDisplayWidths[column] = width;
+                }
+
+                if (columnHeaderName.Width <= 0)
+                {
+                    int width = fileListColumnDisplayWidths.ContainsKey(columnHeaderName)
+                        ? fileListColumnDisplayWidths[columnHeaderName]
+                        : 180;
+                    columnHeaderName.Width = Math.Max(1, width);
                 }
 
                 foreach (Setting.FileListColumnInfo savedColumn in savedColumns.OrderBy(info => info?.DisplayIndex))
@@ -141,6 +155,7 @@ namespace mml2vgmIDEx64
 
             setting.location.FolderFileListColumns = columns.ToArray();
             setting.location.FolderFileSizeDisplayUnit = (int)fileSizeDisplayUnit;
+            setting.location.FolderDurationDisplayMode = (int)durationDisplayFormat;
         }
 
         private enum FileSizeDisplayUnit
@@ -148,6 +163,12 @@ namespace mml2vgmIDEx64
             Byte,
             KB,
             MB
+        }
+
+        private enum DurationDisplayFormat
+        {
+            HourMinuteSecond,
+            SecondsWithCentiseconds
         }
 
         public void ApplyFolderTextFont()
@@ -1125,10 +1146,14 @@ namespace mml2vgmIDEx64
                     item.SubItems.Add(file.LastWriteTime.ToString("yyyy/MM/dd HH:mm:ss"));
                     ListViewItem.ListViewSubItem fileSizeSubItem = item.SubItems.Add(FormatFileSize(file.Length));
                     fileSizeSubItem.Tag = file.Length;
-                    string[] waveInfo = GetWaveInfo(file.FullName);
-                    foreach (string value in waveInfo)
+                    string[] waveInfo = GetWaveInfo(file.FullName, out double durationSeconds);
+                    for (int i = 0; i < waveInfo.Length; i++)
                     {
-                        item.SubItems.Add(value);
+                        ListViewItem.ListViewSubItem subItem = item.SubItems.Add(waveInfo[i]);
+                        if (i == 0 && durationSeconds >= 0d)
+                        {
+                            subItem.Tag = durationSeconds;
+                        }
                     }
                     item.Tag = file.FullName;
                     lvFileList.Items.Add(item);
@@ -1207,9 +1232,9 @@ namespace mml2vgmIDEx64
             switch (fileSizeDisplayUnit)
             {
                 case FileSizeDisplayUnit.KB:
-                    return string.Format(CultureInfo.CurrentCulture, "{0:N1}", sizeInBytes / 1024d);
+                    return string.Format(CultureInfo.CurrentCulture, "{0:N1} KB", sizeInBytes / 1024d);
                 case FileSizeDisplayUnit.MB:
-                    return string.Format(CultureInfo.CurrentCulture, "{0:N2}", sizeInBytes / 1024d / 1024d);
+                    return string.Format(CultureInfo.CurrentCulture, "{0:N2} MB", sizeInBytes / 1024d / 1024d);
                 default:
                     return string.Format(CultureInfo.CurrentCulture, "{0:N0}", sizeInBytes);
             }
@@ -1221,15 +1246,18 @@ namespace mml2vgmIDEx64
             {
                 case FileSizeDisplayUnit.KB:
                     tsbSizeUnit.Text = "Size: KB";
-                    columnHeaderSize.Text = "Size (KB)";
+                    columnHeaderSize.Text = "Size";
+                    columnHeaderSize.TextAlign = HorizontalAlignment.Right;
                     break;
                 case FileSizeDisplayUnit.MB:
                     tsbSizeUnit.Text = "Size: MB";
-                    columnHeaderSize.Text = "Size (MB)";
+                    columnHeaderSize.Text = "Size";
+                    columnHeaderSize.TextAlign = HorizontalAlignment.Right;
                     break;
                 default:
                     tsbSizeUnit.Text = "Size: B";
-                    columnHeaderSize.Text = "Size (B)";
+                    columnHeaderSize.Text = "Size";
+                    columnHeaderSize.TextAlign = HorizontalAlignment.Right;
                     break;
             }
         }
@@ -1250,6 +1278,34 @@ namespace mml2vgmIDEx64
             }
 
             UpdateFileSizeDisplay();
+            UpdateFileList(tvFolderTree.SelectedNode ?? (tvFolderTree.Nodes.Count > 0 ? tvFolderTree.Nodes[0] : null));
+            SaveFileListSettings();
+        }
+
+        private void UpdateDurationDisplay()
+        {
+            switch (durationDisplayFormat)
+            {
+                case DurationDisplayFormat.SecondsWithCentiseconds:
+                    tsbDurationUnit.Text = "Dur: sec";
+                    columnHeaderDuration.Text = "Duration";
+                    columnHeaderDuration.TextAlign = HorizontalAlignment.Right;
+                    break;
+                default:
+                    tsbDurationUnit.Text = "Dur: h:m:s";
+                    columnHeaderDuration.Text = "Duration";
+                    columnHeaderDuration.TextAlign = HorizontalAlignment.Right;
+                    break;
+            }
+        }
+
+        private void TsbDurationUnit_Click(object sender, EventArgs e)
+        {
+            durationDisplayFormat = durationDisplayFormat == DurationDisplayFormat.HourMinuteSecond
+                ? DurationDisplayFormat.SecondsWithCentiseconds
+                : DurationDisplayFormat.HourMinuteSecond;
+
+            UpdateDurationDisplay();
             UpdateFileList(tvFolderTree.SelectedNode ?? (tvFolderTree.Nodes.Count > 0 ? tvFolderTree.Nodes[0] : null));
             SaveFileListSettings();
         }
@@ -1529,14 +1585,25 @@ namespace mml2vgmIDEx64
                             CultureInfo.CurrentCulture, out long size)) return size;
                         break;
                     case 3:
+                        object durationTag = item.SubItems[column].Tag;
+                        if (durationTag is double durationSecondsFromTag) return durationSecondsFromTag;
                         string[] durationParts = text.Split(':');
                         if (durationParts.Length == 3
                             && int.TryParse(durationParts[0], out int hours)
                             && int.TryParse(durationParts[1], out int minutes)
                             && int.TryParse(durationParts[2], out int seconds))
                         {
-                            return TimeSpan.FromHours(hours).Add(TimeSpan.FromMinutes(minutes)).Add(TimeSpan.FromSeconds(seconds));
+                            return TimeSpan.FromHours(hours).Add(TimeSpan.FromMinutes(minutes)).Add(TimeSpan.FromSeconds(seconds)).TotalSeconds;
                         }
+                        if (double.TryParse(text, NumberStyles.Float, CultureInfo.CurrentCulture, out double durationSeconds))
+                            return durationSeconds;
+                        if (double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out durationSeconds))
+                            return durationSeconds;
+                        string durationSecondText = text.Replace(" s", string.Empty, StringComparison.OrdinalIgnoreCase).Trim();
+                        if (double.TryParse(durationSecondText, NumberStyles.Float, CultureInfo.CurrentCulture, out durationSeconds))
+                            return durationSeconds;
+                        if (double.TryParse(durationSecondText, NumberStyles.Float, CultureInfo.InvariantCulture, out durationSeconds))
+                            return durationSeconds;
                         break;
                     case 4:
                         if (long.TryParse(text.Replace(" Hz", string.Empty), NumberStyles.Number,
@@ -1566,8 +1633,9 @@ namespace mml2vgmIDEx64
                 || (tsmiFilterWav.Checked && extension.Equals(".wav", StringComparison.OrdinalIgnoreCase));
         }
 
-        private string[] GetWaveInfo(string filePath)
+        private string[] GetWaveInfo(string filePath, out double durationSeconds)
         {
+            durationSeconds = -1d;
             string[] waveInfo = new string[4];
             if (!Path.GetExtension(filePath).Equals(".wav", StringComparison.OrdinalIgnoreCase)) return waveInfo;
 
@@ -1576,8 +1644,8 @@ namespace mml2vgmIDEx64
                 using (WaveFileReader reader = new WaveFileReader(filePath))
                 {
                     TimeSpan duration = reader.TotalTime;
-                    waveInfo[0] = string.Format("{0:00}:{1:00}:{2:00}",
-                        (int)duration.TotalHours, duration.Minutes, duration.Seconds);
+                    durationSeconds = duration.TotalSeconds;
+                    waveInfo[0] = FormatDuration(duration);
                     waveInfo[1] = reader.WaveFormat.SampleRate.ToString("N0");
                     waveInfo[2] = string.Format("{0} bit", reader.WaveFormat.BitsPerSample);
                     waveInfo[3] = reader.WaveFormat.Channels == 1
@@ -1591,6 +1659,13 @@ namespace mml2vgmIDEx64
             }
 
             return waveInfo;
+        }
+
+        private string FormatDuration(TimeSpan duration)
+        {
+            return durationDisplayFormat == DurationDisplayFormat.SecondsWithCentiseconds
+                ? string.Format(CultureInfo.CurrentCulture, "{0:F2} s", duration.TotalSeconds)
+                : string.Format("{0:00}:{1:00}:{2:00}", (int)duration.TotalHours, duration.Minutes, duration.Seconds);
         }
 
             private bool ShouldShowFolders()
@@ -1757,10 +1832,13 @@ namespace mml2vgmIDEx64
             cmsFileListHeaderMenu.Items.Clear();
             if (!string.IsNullOrEmpty(targetColumn.Text) && targetColumn.Width > 0)
             {
-                ToolStripMenuItem hideItem = new ToolStripMenuItem(string.Format(CultureInfo.CurrentCulture, "Hide {0}", targetColumn.Text));
-                hideItem.Tag = targetColumn;
-                hideItem.Click += FileListHeaderMenuItem_Click;
-                cmsFileListHeaderMenu.Items.Add(hideItem);
+                if (targetColumn != columnHeaderName)
+                {
+                    ToolStripMenuItem hideItem = new ToolStripMenuItem(string.Format(CultureInfo.CurrentCulture, "Hide {0}", targetColumn.Text));
+                    hideItem.Tag = targetColumn;
+                    hideItem.Click += FileListHeaderMenuItem_Click;
+                    cmsFileListHeaderMenu.Items.Add(hideItem);
+                }
             }
 
             ToolStripMenuItem showAllItem = new ToolStripMenuItem(FileListHeaderMenuShowAllText);
@@ -1777,6 +1855,7 @@ namespace mml2vgmIDEx64
                 ToolStripMenuItem item = new ToolStripMenuItem(column.Text);
                 item.Tag = column;
                 item.Checked = column.Width > 0;
+                if (column == columnHeaderName) item.Enabled = false;
                 item.Click += FileListHeaderMenuItem_Click;
                 cmsFileListHeaderMenu.Items.Add(item);
             }
@@ -1836,6 +1915,7 @@ namespace mml2vgmIDEx64
         private void ToggleFileListColumn(ColumnHeader column)
         {
             if (column == null || column == columnHeaderHeaderFill) return;
+            if (column == columnHeaderName) return;
 
             if (column.Width > 0)
             {

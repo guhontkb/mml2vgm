@@ -57,6 +57,7 @@ namespace mml2vgmIDEx64
             toolStrip1 = new ToolStrip();
             tsbReload = new ToolStripButton();
             tsbSizeUnit = new ToolStripButton();
+            tsbDurationUnit = new ToolStripButton();
             tsddbFilter = new ToolStripDropDownButton();
             tsmiFilterAll = new ToolStripMenuItem();
             toolStripSeparator2 = new ToolStripSeparator();
@@ -254,6 +255,7 @@ namespace mml2vgmIDEx64
             // columnHeaderBitsPerSample
             //
             columnHeaderBitsPerSample.Text = "Depth";
+            columnHeaderBitsPerSample.TextAlign = HorizontalAlignment.Right;
             columnHeaderBitsPerSample.Width = 80;
             //
             // columnHeaderChannels
@@ -269,10 +271,10 @@ namespace mml2vgmIDEx64
             // toolStrip1
             //
             toolStrip1.Dock = DockStyle.None;
-            toolStrip1.Items.AddRange(new ToolStripItem[] { tsbReload, tsbSizeUnit, tsddbFilter });
+            toolStrip1.Items.AddRange(new ToolStripItem[] { tsbReload, tsbSizeUnit, tsbDurationUnit, tsddbFilter });
             toolStrip1.Location = new Point(0, 0);
             toolStrip1.Name = "toolStrip1";
-            toolStrip1.Size = new Size(289, 25);
+            toolStrip1.Size = new Size(366, 25);
             toolStrip1.Stretch = true;
             toolStrip1.TabIndex = 0;
             //
@@ -294,6 +296,15 @@ namespace mml2vgmIDEx64
             tsbSizeUnit.Text = "Size: B";
             tsbSizeUnit.ToolTipText = "サイズ表示単位を切り替え (Byte/KB/MB)";
             tsbSizeUnit.Click += TsbSizeUnit_Click;
+            //
+            // tsbDurationUnit
+            //
+            tsbDurationUnit.DisplayStyle = ToolStripItemDisplayStyle.Text;
+            tsbDurationUnit.Name = "tsbDurationUnit";
+            tsbDurationUnit.Size = new Size(71, 22);
+            tsbDurationUnit.Text = "Dur: h:m:s";
+            tsbDurationUnit.ToolTipText = "Duration表示を切り替え (hh:mm:ss / 秒.小数点第2位)";
+            tsbDurationUnit.Click += TsbDurationUnit_Click;
             //
             // tsddbFilter
             //
@@ -423,6 +434,7 @@ namespace mml2vgmIDEx64
         private System.Windows.Forms.ToolStrip toolStrip1;
         private System.Windows.Forms.ToolStripButton tsbReload;
         private System.Windows.Forms.ToolStripButton tsbSizeUnit;
+        private System.Windows.Forms.ToolStripButton tsbDurationUnit;
         private System.Windows.Forms.ToolStripDropDownButton tsddbFilter;
         private System.Windows.Forms.ToolStripMenuItem tsmiFilterAll;
         private System.Windows.Forms.ToolStripMenuItem tsmiFilterFolder;

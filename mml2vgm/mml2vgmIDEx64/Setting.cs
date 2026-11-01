@@ -3329,6 +3329,7 @@ namespace mml2vgmIDEx64
 
             public FileListColumnInfo[] FolderFileListColumns { get; set; } = null;
             public int FolderFileSizeDisplayUnit { get; set; } = 0;
+            public int FolderDurationDisplayMode { get; set; } = 0;
 
             public Location Copy()
             {
@@ -3343,6 +3344,7 @@ namespace mml2vgmIDEx64
                     ? null
                     : (FileListColumnInfo[])this.FolderFileListColumns.Clone();
                 Location.FolderFileSizeDisplayUnit = this.FolderFileSizeDisplayUnit;
+                Location.FolderDurationDisplayMode = this.FolderDurationDisplayMode;
 
                 return Location;
             }
