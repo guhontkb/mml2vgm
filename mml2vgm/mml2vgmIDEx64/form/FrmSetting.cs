@@ -726,7 +726,7 @@ namespace mml2vgmIDEx64
             gbWaveConvert.Size = new System.Drawing.Size(496, 154);
             gbWaveConvert.TabIndex = 8;
             gbWaveConvert.TabStop = false;
-            gbWaveConvert.Text = "wave convert parameters";
+            gbWaveConvert.Text = "wave convert parameters (sox)";
 
             lblWaveConvertYM2610B.AutoSize = true;
             lblWaveConvertYM2610B.Location = new System.Drawing.Point(8, 28);
