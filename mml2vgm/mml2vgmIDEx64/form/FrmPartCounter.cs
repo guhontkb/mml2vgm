@@ -103,7 +103,9 @@ namespace mml2vgmIDEx64
             dgvPartCounter.ForeColor = Color.FromArgb(setting.ColorScheme.PartCounter_ForeColor);
             mutedRowForeColor = BlendColor(dgvPartCounter.ForeColor, dgvPartCounter.BackgroundColor, 0.6f);
             dgvPartCounter.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(setting.ColorScheme.Panel_HeaderBackColor);
+            dgvPartCounter.ColumnHeadersDefaultCellStyle.ForeColor = Color.FromArgb(setting.ColorScheme.Panel_HeaderForeColor);
             dgvPartCounter.ColumnHeadersDefaultCellStyle.SelectionBackColor = Color.FromArgb(setting.ColorScheme.Panel_HeaderHighlightBackColor);
+            dgvPartCounter.ColumnHeadersDefaultCellStyle.SelectionForeColor = Color.FromArgb(setting.ColorScheme.Panel_HeaderForeColor);
             dgvPartCounter.GridColor = Color.FromArgb(setting.ColorScheme.Panel_GridBorderColor);
             dgvPartCounter.CellBorderStyle = DataGridViewCellBorderStyle.Single;
             dgvPartCounter.DefaultCellStyle.SelectionBackColor = Color.Empty;

@@ -132,13 +132,19 @@ namespace mml2vgmIDEx64
         public void AddIssueRow(string level, string fileName, string line, string message)
         {
             int no = dataGridView1.Rows.Count + 1;
-            dataGridView1.Rows.Add(
+            int rowIndex = dataGridView1.Rows.Add(
                 no.ToString(),
                 level,
                 fileName,
                 line,
                 message
             );
+            if (level == "Error" || level == "Warning")
+            {
+                Color levelColor = level == "Error" ? Color.FromArgb(255, 112, 112) : Color.Yellow;
+                dataGridView1.Rows[rowIndex].Cells["ClmEtype"].Style.ForeColor = levelColor;
+                dataGridView1.Rows[rowIndex].Cells["ClmEtype"].Style.SelectionForeColor = levelColor;
+            }
             ApplyLevelFilter();
             UpdateIssueCountStatus();
         }
@@ -149,7 +155,9 @@ namespace mml2vgmIDEx64
             ssErrorList.SizingGrip = false;
 
             tslErrorCount = new ToolStripStatusLabel();
+            tslErrorCount.ForeColor = Color.FromArgb(255, 112, 112);
             tslWarningCount = new ToolStripStatusLabel();
+            tslWarningCount.ForeColor = Color.Yellow;
             tsddbFilter = new ToolStripDropDownButton();
             tsddbFilter.DropDownDirection = ToolStripDropDownDirection.AboveLeft;
             tsddbFilter.DisplayStyle = ToolStripItemDisplayStyle.Text;
@@ -468,17 +476,14 @@ namespace mml2vgmIDEx64
 
         private sealed class DarkToolStripRenderer : ToolStripProfessionalRenderer
         {
-            private readonly Color foreColor;
-
             public DarkToolStripRenderer(Color backColor, Color foreColor, Color selectedColor, Color borderColor)
                 : base(new DarkToolStripColorTable(backColor, foreColor, selectedColor, borderColor))
             {
-                this.foreColor = foreColor;
             }
 
             protected override void OnRenderItemText(ToolStripItemTextRenderEventArgs e)
             {
-                e.TextColor = foreColor;
+                e.TextColor = e.Item.ForeColor;
                 base.OnRenderItemText(e);
             }
         }
