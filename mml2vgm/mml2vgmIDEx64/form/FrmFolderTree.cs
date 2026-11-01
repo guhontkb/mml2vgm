@@ -67,6 +67,7 @@ namespace mml2vgmIDEx64
         private readonly ToolTip folderTreeToolTip = new ToolTip();
         private TreeNode currentToolTipNode = null;
         private string currentToolTipText = "";
+        private Font fileListHeaderFont = null;
 
         public FrmFolderTree(Setting setting, DockPanel dockPanel)
         {
@@ -101,6 +102,7 @@ namespace mml2vgmIDEx64
             folderTreeToolTip.InitialDelay = 300;
             folderTreeToolTip.ReshowDelay = 100;
             folderTreeToolTip.AutoPopDelay = 10000;
+            Disposed += (sender, e) => fileListHeaderFont?.Dispose();
         }
 
         public void ApplyColorSetting(Setting setting)
@@ -118,6 +120,9 @@ namespace mml2vgmIDEx64
             lvFileList.ForeColor = Color.FromArgb(setting.ColorScheme.FolderTree_ForeColor);
             fileListHeaderBackColor = Color.FromArgb(setting.ColorScheme.Panel_HeaderBackColor);
             fileListSortedHeaderBackColor = Color.FromArgb(setting.ColorScheme.Panel_HeaderHighlightBackColor);
+            Font previousHeaderFont = fileListHeaderFont;
+            fileListHeaderFont = new Font(setting.other.PartCounterFontName, setting.other.PartCounterFontSize, setting.other.PartCounterFontStyle);
+            previousHeaderFont?.Dispose();
             lvFileList.Invalidate();
         }
 
@@ -1487,10 +1492,10 @@ namespace mml2vgmIDEx64
             {
                 textBounds.Width = Math.Max(0, textBounds.Width - 14);
             }
-            TextRenderer.DrawText(e.Graphics, e.Header.Text, e.Font,
+            Font headerFont = fileListHeaderFont ?? e.Font;
+            TextRenderer.DrawText(e.Graphics, e.Header.Text, headerFont,
                 textBounds, FileListHeaderForeColor,
                 alignment | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
-
             if (hasSortIcon)
             {
                 DrawFileListSortGlyph(e.Graphics, e.Bounds, fileListSortAscending);
@@ -1954,7 +1959,8 @@ namespace mml2vgmIDEx64
 
         private bool IsFileListHeaderArea(Point location)
         {
-            return lvFileList.View == View.Details && location.Y >= 0 && location.Y <= lvFileList.Font.Height + 8;
+            Font headerFont = fileListHeaderFont ?? lvFileList.Font;
+            return lvFileList.View == View.Details && location.Y >= 0 && location.Y <= headerFont.Height + 8;
         }
 
         private void ShowFileListHeaderMenuFromCursor()

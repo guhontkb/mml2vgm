@@ -936,6 +936,11 @@ namespace mml2vgmIDEx64
             dgvPartCounter.Font = partCounterFont;
             dgvPartCounter.DefaultCellStyle.Font = partCounterFont;
             dgvPartCounter.RowTemplate.DefaultCellStyle.Font = partCounterFont;
+            dgvPartCounter.ColumnHeadersDefaultCellStyle.Font = partCounterFont;
+            Font headerFont = dgvPartCounter.ColumnHeadersDefaultCellStyle.Font;
+            int headerHeight = Math.Max(21, headerFont.Height + 8);
+            dgvPartCounter.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+            dgvPartCounter.ColumnHeadersHeight = headerHeight;
             foreach (DataGridViewRow row in dgvPartCounter.Rows)
             {
                 row.DefaultCellStyle.Font = partCounterFont;

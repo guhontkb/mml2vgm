@@ -53,7 +53,7 @@
             dataGridViewCellStyle1.SelectionForeColor = System.Drawing.Color.White;
             dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
             this.dataGridView1.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
-            this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
             this.dataGridView1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.ClmEtype,
             this.ClmFileName,
@@ -85,7 +85,7 @@
             // 
             // ClmEtype
             // 
-            this.ClmEtype.HeaderText = "";
+            this.ClmEtype.HeaderText = "Level";
             this.ClmEtype.Name = "ClmEtype";
             this.ClmEtype.ReadOnly = true;
             this.ClmEtype.Width = 80;

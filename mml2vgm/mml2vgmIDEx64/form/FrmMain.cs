@@ -3664,7 +3664,7 @@ namespace mml2vgmIDEx64
             }
             if (setting.Debug_DispFrameCounter)
             {
-                frmDebug = new frmDebug();
+                frmDebug = new frmDebug(setting);
                 frmDebug.Show();
             }
 
@@ -3815,7 +3815,7 @@ namespace mml2vgmIDEx64
             }
             if (setting.Debug_DispFrameCounter)
             {
-                frmDebug = new frmDebug();
+                frmDebug = new frmDebug(setting);
                 frmDebug.Show();
             }
 

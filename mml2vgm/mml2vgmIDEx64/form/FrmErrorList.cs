@@ -12,18 +12,21 @@ namespace mml2vgmIDEx64
         private ContextMenuStrip cmsErrorList = null;
         private ToolStripMenuItem tsmiCopy = null;
         private ToolStripMenuItem tsmiCopyAll = null;
+        private Font headerFont = null;
 
         public FrmErrorList(Setting setting)
         {
             InitializeComponent();
             Common.ApplyDarkScrollBarTheme(this);
             ApplyColorSetting(setting);
+            ApplyUnifiedHeaderHeight();
             this.dataGridView1.MultiSelect = true;
             this.dataGridView1.ClipboardCopyMode = DataGridViewClipboardCopyMode.EnableAlwaysIncludeHeaderText;
             this.dataGridView1.KeyDown += DataGridView1_KeyDown;
             InitializeContextMenu();
 
             Common.SetDoubleBuffered(dataGridView1);
+            Disposed += (sender, e) => headerFont?.Dispose();
         }
 
         public void ApplyColorSetting(Setting setting)
@@ -33,8 +36,21 @@ namespace mml2vgmIDEx64
             this.dataGridView1.DefaultCellStyle.BackColor = Color.FromArgb(setting.ColorScheme.ErrorList_BackColor);
             this.dataGridView1.ForeColor = Color.FromArgb(setting.ColorScheme.ErrorList_ForeColor);
             this.dataGridView1.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(setting.ColorScheme.Panel_HeaderBackColor);
-            this.dataGridView1.ColumnHeadersDefaultCellStyle.SelectionBackColor = Color.FromArgb(setting.ColorScheme.Panel_HeaderHighlightBackColor);
+            this.dataGridView1.ColumnHeadersDefaultCellStyle.SelectionBackColor = Color.FromArgb(setting.ColorScheme.Panel_HeaderBackColor);
+            Font previousHeaderFont = headerFont;
+            headerFont = new Font(setting.other.PartCounterFontName, setting.other.PartCounterFontSize, setting.other.PartCounterFontStyle);
+            this.dataGridView1.ColumnHeadersDefaultCellStyle.Font = headerFont;
+            previousHeaderFont?.Dispose();
             this.dataGridView1.GridColor = Color.FromArgb(setting.ColorScheme.Panel_GridBorderColor);
+            ApplyUnifiedHeaderHeight();
+        }
+
+        private void ApplyUnifiedHeaderHeight()
+        {
+            Font activeHeaderFont = dataGridView1.ColumnHeadersDefaultCellStyle.Font ?? dataGridView1.Font;
+            int headerHeight = Math.Max(21, activeHeaderFont.Height + 8);
+            dataGridView1.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+            dataGridView1.ColumnHeadersHeight = headerHeight;
         }
         protected override string GetPersistString()
         {

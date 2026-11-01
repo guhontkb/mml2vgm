@@ -7,10 +7,18 @@ namespace mml2vgmIDEx64
     {
         public bool append = false;
 
-        public frmDebug()
+        public frmDebug(Setting setting)
         {
             InitializeComponent();
             Common.ApplyDarkScrollBarTheme(this);
+            Common.ApplyDarkControlTheme(this);
+            ApplyColorSetting(setting);
+        }
+
+        public void ApplyColorSetting(Setting setting)
+        {
+            if (setting == null) return;
+            Common.SetBFColor(this, setting);
         }
 
         private void timer1_Tick(object sender, EventArgs e)
