@@ -3327,6 +3327,9 @@ namespace mml2vgmIDEx64
             private dgvColumnInfo[] _PartCounterClmInfo = null;
             public dgvColumnInfo[] PartCounterClmInfo { get => _PartCounterClmInfo; set => _PartCounterClmInfo = value; }
 
+            public FileListColumnInfo[] FolderFileListColumns { get; set; } = null;
+            public int FolderFileSizeDisplayUnit { get; set; } = 0;
+
             public Location Copy()
             {
                 Location Location = new Location();
@@ -3336,9 +3339,21 @@ namespace mml2vgmIDEx64
                 Location.RMIDIKbd = this.RMIDIKbd;
                 Location.PartCounterClmInfo = this.PartCounterClmInfo;
                 Location.ShowMixer = this.ShowMixer;
+                Location.FolderFileListColumns = this.FolderFileListColumns == null
+                    ? null
+                    : (FileListColumnInfo[])this.FolderFileListColumns.Clone();
+                Location.FolderFileSizeDisplayUnit = this.FolderFileSizeDisplayUnit;
 
                 return Location;
             }
+        }
+
+        [Serializable]
+        public class FileListColumnInfo
+        {
+            public int ColumnIndex { get; set; }
+            public int DisplayIndex { get; set; }
+            public int Width { get; set; }
         }
 
         [Serializable]

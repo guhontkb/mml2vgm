@@ -38,6 +38,7 @@ namespace mml2vgmIDEx64
         private int fileListSortColumn = -1;
         private bool fileListSortAscending = true;
         private FileSizeDisplayUnit fileSizeDisplayUnit = FileSizeDisplayUnit.Byte;
+        private bool restoringFileListSettings;
         private readonly Setting setting;
         private readonly ContextMenuStrip cmsFileListHeaderMenu = new ContextMenuStrip();
         private readonly Dictionary<ColumnHeader, int> fileListColumnDisplayWidths = new Dictionary<ColumnHeader, int>();
@@ -73,11 +74,73 @@ namespace mml2vgmIDEx64
             lvFileList.ColumnWidthChanged += LvFileList_ColumnWidthChanged;
             lvFileList.HandleDestroyed += LvFileList_HandleDestroyed;
             InitializeFileListColumnDisplayWidths();
+            RestoreFileListSettings();
 
             Common.SetDoubleBuffered(tvFolderTree);
             Common.ApplyDarkScrollBarTheme(this);
             ApplyFolderTextFont();
             UpdateFileSizeDisplay();
+        }
+
+        private void RestoreFileListSettings()
+        {
+            restoringFileListSettings = true;
+            try
+            {
+                if (Enum.IsDefined(typeof(FileSizeDisplayUnit), setting.location.FolderFileSizeDisplayUnit))
+                {
+                    fileSizeDisplayUnit = (FileSizeDisplayUnit)setting.location.FolderFileSizeDisplayUnit;
+                }
+
+                Setting.FileListColumnInfo[] savedColumns = setting.location.FolderFileListColumns;
+                if (savedColumns == null) return;
+
+                foreach (Setting.FileListColumnInfo savedColumn in savedColumns)
+                {
+                    if (savedColumn == null || savedColumn.ColumnIndex < 0
+                        || savedColumn.ColumnIndex >= lvFileList.Columns.Count - 1) continue;
+
+                    ColumnHeader column = lvFileList.Columns[savedColumn.ColumnIndex];
+                    int width = Math.Max(0, savedColumn.Width);
+                    column.Width = width;
+                    if (width > 0) fileListColumnDisplayWidths[column] = width;
+                }
+
+                foreach (Setting.FileListColumnInfo savedColumn in savedColumns.OrderBy(info => info?.DisplayIndex))
+                {
+                    if (savedColumn == null || savedColumn.ColumnIndex < 0
+                        || savedColumn.ColumnIndex >= lvFileList.Columns.Count - 1) continue;
+                    int displayIndex = Math.Max(0, Math.Min(savedColumn.DisplayIndex, lvFileList.Columns.Count - 2));
+                    lvFileList.Columns[savedColumn.ColumnIndex].DisplayIndex = displayIndex;
+                }
+
+                EnsureHeaderFillColumnAtEnd();
+            }
+            finally
+            {
+                restoringFileListSettings = false;
+            }
+        }
+
+        private void SaveFileListSettings()
+        {
+            if (restoringFileListSettings) return;
+
+            List<Setting.FileListColumnInfo> columns = new List<Setting.FileListColumnInfo>();
+            foreach (ColumnHeader column in lvFileList.Columns)
+            {
+                if (column == columnHeaderHeaderFill) continue;
+                if (column.Width > 0) fileListColumnDisplayWidths[column] = column.Width;
+                columns.Add(new Setting.FileListColumnInfo
+                {
+                    ColumnIndex = column.Index,
+                    DisplayIndex = column.DisplayIndex,
+                    Width = column.Width
+                });
+            }
+
+            setting.location.FolderFileListColumns = columns.ToArray();
+            setting.location.FolderFileSizeDisplayUnit = (int)fileSizeDisplayUnit;
         }
 
         private enum FileSizeDisplayUnit
@@ -1188,6 +1251,7 @@ namespace mml2vgmIDEx64
 
             UpdateFileSizeDisplay();
             UpdateFileList(tvFolderTree.SelectedNode ?? (tvFolderTree.Nodes.Count > 0 ? tvFolderTree.Nodes[0] : null));
+            SaveFileListSettings();
         }
 
         private void LvFileList_ColumnClick(object sender, ColumnClickEventArgs e)
@@ -1220,11 +1284,16 @@ namespace mml2vgmIDEx64
             ColumnHeader column = lvFileList.Columns[e.ColumnIndex];
             if (column == columnHeaderHeaderFill) return;
             if (column.Width > 0) fileListColumnDisplayWidths[column] = column.Width;
+            SaveFileListSettings();
         }
 
         private void LvFileList_ColumnReordered(object sender, ColumnReorderedEventArgs e)
         {
-            BeginInvoke((MethodInvoker)EnsureHeaderFillColumnAtEnd);
+            BeginInvoke((MethodInvoker)(() =>
+            {
+                EnsureHeaderFillColumnAtEnd();
+                SaveFileListSettings();
+            }));
         }
 
         private void EnsureHeaderFillColumnAtEnd()
@@ -1760,6 +1829,7 @@ namespace mml2vgmIDEx64
                     c.Width = Math.Max(1, width);
                 }
                 UpdateHeaderFillWidth();
+                SaveFileListSettings();
             }
         }
 
@@ -1771,11 +1841,13 @@ namespace mml2vgmIDEx64
             {
                 fileListColumnDisplayWidths[column] = column.Width;
                 column.Width = 0;
+                SaveFileListSettings();
                 return;
             }
 
             int width = fileListColumnDisplayWidths.ContainsKey(column) ? fileListColumnDisplayWidths[column] : 80;
             column.Width = Math.Max(1, width);
+            SaveFileListSettings();
         }
 
         private static void LogFolderOperationException(string operation, Exception ex, string target)
