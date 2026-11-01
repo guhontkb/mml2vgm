@@ -337,7 +337,7 @@ namespace Corex64
             }
             catch
             {
-                //パート解析に失敗 
+                //パート解析に失敗
                 msgBox.setErrMsg(string.Format(Msg.get("E02010"), parts), new LinePos(null,"-"));
             }
 

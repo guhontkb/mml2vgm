@@ -900,7 +900,7 @@ namespace Corex64
                 //他の定義が現れたらtoneDoublerの定義は終了
                 if (t == 'F' || t == 'N' || t == 'M' || t == 'L'
                     || t == 'A' || t == 'V' || t == 'C'
-                    || t == 'P' || t == 'E' 
+                    || t == 'P' || t == 'E'
                     || t == 'T' || t == 'H' || t == 'W' || t == 'S')
                 {
                     toneDoublerCounter = -1;
@@ -1077,7 +1077,7 @@ namespace Corex64
                         {
                             if (i == envType)
                             {
-                                if ((envType == 8 && vs.Length < 10) 
+                                if ((envType == 8 && vs.Length < 10)
                                     || (envType == 12 && vs.Length > 9))
                                 {
                                     if (vs.Length == envType) env[i] = (int)enmChipType.SN76489;
@@ -5014,7 +5014,7 @@ namespace Corex64
 
                             //lineNumber = pw.getLineNumber();
                             Commander(pw, page, mml);
-                            if (compileEnd) 
+                            if (compileEnd)
                                 return;
                         }
                     }
@@ -5060,7 +5060,7 @@ namespace Corex64
                                     cnt = Math.Min(cnt, page.lfo[lfo].waitCounter);
                                 }
 
-                                if (page.arpeggioMode && page.arpIndex != -1) 
+                                if (page.arpeggioMode && page.arpIndex != -1)
                                     cnt = Math.Min(cnt, page.arpCounter);
 
                                 if (page.keyOnDelay.sw)
@@ -5659,7 +5659,7 @@ namespace Corex64
                 if (page.noteOns[i].length > 0) continue;
                 if (!page.noteOns[i].Keyon) continue;
 
-                if (page.noteOns[i].length != -1) 
+                if (page.noteOns[i].length != -1)
                     page.noteOns[i].Keyon = false;
             }
         }
@@ -5698,7 +5698,7 @@ namespace Corex64
                         break;
                     case 1: //DR phase
                         //System.Diagnostics.Debug.Write("eDR");
-                        page.envVolume -= page.envelope[(int)eENV.DST]; 
+                        page.envVolume -= page.envelope[(int)eENV.DST];
                         //System.Diagnostics.Debug.Write(string.Format(":{0}", pw.ppg[pw.cpgNum].envVolume));
                         if (page.envVolume <= page.envelope[(int)eENV.SL])
                         {
@@ -6019,12 +6019,12 @@ namespace Corex64
                     case 1://KeyOff phase
                         //最後のループポイントを探す
                         int lp = -1;
-                        for (int p = 0; p < instVArp[page.varpInstrument].Length; p++) 
+                        for (int p = 0; p < instVArp[page.varpInstrument].Length; p++)
                         {
                             if (instVArp[page.varpInstrument][p].type != enmMMLType.LoopPoint || instVArp[page.varpInstrument][p].dat == 2) continue;
                             lp = p + 1;
                         }
-                        
+
                         if (lp != page.varpLoopPtr)//既存のループポイントと異なるループポイントが見つかった(2個目のループポイントが見つかった)
                         {
                             if (instVArp[page.varpInstrument][lp - 1].dat != 0)//ループポイントが「/」の場合はリセット
@@ -6074,7 +6074,7 @@ namespace Corex64
                         continue;
                     }
 
-                    //Cmd デフォルトコマンド 
+                    //Cmd デフォルトコマンド
                     if (ca.Ptr == 1)
                     {
                         ca.DefCmd = instCommandArp[ca.Num][ca.Ptr].type;
@@ -6083,7 +6083,7 @@ namespace Corex64
                         continue;
                     }
 
-                    //Sync 
+                    //Sync
                     if (ca.Ptr == 2)
                     {
                         ca.Sync = instCommandArp[ca.Num][ca.Ptr].dat;

@@ -592,7 +592,7 @@ namespace Corex64
         private void OutTraceInfoFile(outDatum[] desBuf)
         {
             StringBuilder buf = new StringBuilder();
-            
+
             foreach (outDatum od in desBuf)
             {
                 if (od.linePos != null)
