@@ -74,6 +74,9 @@ namespace mml2vgmIDEx64
         private Color focusedRowSelectionBackColor = Color.FromArgb(96, 96, 148);
         private Color focusedSelectionForeColor = Color.White;
         private Color mutedRowForeColor = Color.Empty;
+        private readonly Color mutedCellBackColor = Color.FromArgb(194, 180, 56);
+        private readonly Color soloCellBackColor = Color.FromArgb(211, 78, 54);
+        private readonly Color muteSoloCellForeColor = Color.FromArgb(10, 36, 10);
         private Font partCounterFont = null;
         private int focusedRowIndex = -1;
         private string focusedColumnName = null;
@@ -94,7 +97,7 @@ namespace mml2vgmIDEx64
             //dgvPartCounter.DefaultCellStyle.SelectionBackColor = Color.Empty;
             dgvPartCounter.ForeColor = Color.FromArgb(setting.ColorScheme.PartCounter_ForeColor);
             mutedRowForeColor = BlendColor(dgvPartCounter.ForeColor, dgvPartCounter.BackgroundColor, 0.6f);
-            dgvPartCounter.GridColor = dgvPartCounter.ForeColor;
+            dgvPartCounter.GridColor = BlendColor(dgvPartCounter.ForeColor, dgvPartCounter.BackgroundColor, 0.45f);
             dgvPartCounter.CellBorderStyle = DataGridViewCellBorderStyle.Single;
             dgvPartCounter.DefaultCellStyle.SelectionBackColor = Color.Empty;
             dgvPartCounter.DefaultCellStyle.SelectionForeColor = Color.Empty;
@@ -515,22 +518,32 @@ namespace mml2vgmIDEx64
         private void DgvPartCounter_CellClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.ColumnIndex < 0) return;
+
+            string cellName = dgvPartCounter.Columns[e.ColumnIndex].Name;
+
+            if (cellName == "ClmMute" || cellName == "ClmSolo")
+            {
+                switch (cellName)
+                {
+                    case "ClmMute":
+                        ClickMUTE(e.RowIndex);
+                        break;
+                    case "ClmSolo":
+                        ClickSOLO(e.RowIndex);
+                        break;
+                }
+                ClearFocusedSelection();
+                return;
+            }
+
             if (e.RowIndex >= 0)
             {
                 FocusSingleCell(e.RowIndex, e.ColumnIndex);
             }
 
-            string cellName = dgvPartCounter.Columns[e.ColumnIndex].Name;
-
-            if (cellName != "ClmMute" && cellName != "ClmSolo" && cellName != clmKBDAssign) return;
+            if (cellName != clmKBDAssign) return;
             switch (cellName)
             {
-                case "ClmMute":
-                    ClickMUTE(e.RowIndex);
-                    break;
-                case "ClmSolo":
-                    ClickSOLO(e.RowIndex);
-                    break;
                 case clmKBDAssign:
                     ClickKBDAssign(e.RowIndex);
                     break;
@@ -620,6 +633,18 @@ namespace mml2vgmIDEx64
             }
         }
 
+        private void ClearFocusedSelection()
+        {
+            focusedRowIndex = -1;
+            focusedColumnName = null;
+            focusedRowMode = false;
+            dgvPartCounter.ClearSelection();
+            if (dgvPartCounter.CurrentCell != null)
+            {
+                dgvPartCounter.CurrentCell.Selected = false;
+            }
+        }
+
         private void ApplyBaseRowColors()
         {
             foreach (DataGridViewRow row in dgvPartCounter.Rows)
@@ -630,9 +655,7 @@ namespace mml2vgmIDEx64
                 bool isMute = IsRowMuted(row);
                 Color rowForeColor = isMute ? mutedRowForeColor : dgvPartCounter.ForeColor;
 
-                Color rowBackColor = isSolo
-                    ? Color.FromArgb(setting.ColorScheme.PartCounter_SOLOROW_BackColor)
-                    : dgvPartCounter.BackgroundColor;
+                Color rowBackColor = dgvPartCounter.BackgroundColor;
 
                 foreach (DataGridViewCell cell in row.Cells)
                 {
@@ -641,22 +664,28 @@ namespace mml2vgmIDEx64
                 }
 
                 row.Cells[dgvPartCounter.Columns["ClmSolo"].Index].Style.BackColor = isSolo
-                    ? Color.FromArgb(setting.ColorScheme.PartCounter_SOLO_BackColor)
+                    ? soloCellBackColor
                     : rowBackColor;
+                row.Cells[dgvPartCounter.Columns["ClmSolo"].Index].Style.ForeColor = isSolo
+                    ? muteSoloCellForeColor
+                    : rowForeColor;
 
                 row.Cells[dgvPartCounter.Columns["ClmMute"].Index].Style.BackColor = isMute
-                    ? Color.FromArgb(setting.ColorScheme.PartCounter_MUTE_BackColor)
+                    ? mutedCellBackColor
                     : rowBackColor;
+                row.Cells[dgvPartCounter.Columns["ClmMute"].Index].Style.ForeColor = isMute
+                    ? muteSoloCellForeColor
+                    : rowForeColor;
             }
         }
 
         private void ApplyFocusColors()
         {
+            ApplyBaseRowColors();
+
             if (focusedRowIndex < 0 || focusedRowIndex >= dgvPartCounter.Rows.Count) return;
             if (string.IsNullOrEmpty(focusedColumnName)) return;
             if (!dgvPartCounter.Columns.Contains(focusedColumnName)) return;
-
-            ApplyBaseRowColors();
 
             DataGridViewRow row = dgvPartCounter.Rows[focusedRowIndex];
             if (focusedRowMode)
@@ -665,6 +694,7 @@ namespace mml2vgmIDEx64
                 {
                     if (!rowCell.OwningColumn.Visible) continue;
                     if (rowCell.OwningColumn.Name == "ClmSpacer") continue;
+                    if (IsMuteOrSoloActiveCell(row, rowCell)) continue;
                     rowCell.Style.BackColor = focusedRowSelectionBackColor;
                     rowCell.Style.ForeColor = focusedSelectionForeColor;
                 }
@@ -674,6 +704,7 @@ namespace mml2vgmIDEx64
             if (!focusedColumn.Visible) return;
 
             DataGridViewCell focusedCell = row.Cells[focusedColumn.Index];
+            if (IsMuteOrSoloActiveCell(row, focusedCell)) return;
             focusedCell.Style.BackColor = focusedCellSelectionBackColor;
             focusedCell.Style.ForeColor = focusedSelectionForeColor;
         }
@@ -882,6 +913,10 @@ namespace mml2vgmIDEx64
 
             this.setting = setting;
             ApplyPartCounterFont(setting);
+            dgvPartCounter.BackgroundColor = Color.FromArgb(setting.ColorScheme.PartCounter_BackColor);
+            dgvPartCounter.DefaultCellStyle.BackColor = dgvPartCounter.BackgroundColor;
+            dgvPartCounter.ForeColor = Color.FromArgb(setting.ColorScheme.PartCounter_ForeColor);
+            dgvPartCounter.GridColor = BlendColor(dgvPartCounter.ForeColor, dgvPartCounter.BackgroundColor, 0.45f);
             mutedRowForeColor = BlendColor(Color.FromArgb(setting.ColorScheme.PartCounter_ForeColor), Color.FromArgb(setting.ColorScheme.PartCounter_BackColor), 0.6f);
             ApplyBaseRowColors();
             ApplyFocusColors();
@@ -957,6 +992,29 @@ namespace mml2vgmIDEx64
 
             object muteValue = row.Cells[dgvPartCounter.Columns["ClmMute"].Index].Value;
             return muteValue != null && muteValue.ToString() == "M";
+        }
+
+        private static bool IsActiveCell(DataGridViewCell cell, string activeValue)
+        {
+            return cell?.Value != null && cell.Value.ToString() == activeValue;
+        }
+
+        private bool IsMuteOrSoloActiveCell(DataGridViewRow row, DataGridViewCell cell)
+        {
+            if (row == null || cell == null) return false;
+
+            string columnName = cell.OwningColumn?.Name;
+            if (columnName == "ClmMute")
+            {
+                return IsActiveCell(row.Cells[dgvPartCounter.Columns["ClmMute"].Index], "M");
+            }
+
+            if (columnName == "ClmSolo")
+            {
+                return IsActiveCell(row.Cells[dgvPartCounter.Columns["ClmSolo"].Index], "S");
+            }
+
+            return false;
         }
 
         private static Color BlendColor(Color baseColor, Color overlayColor, double ratio)
@@ -1349,15 +1407,15 @@ namespace mml2vgmIDEx64
                 {
                     foreach(DataGridViewCell cell in row.Cells)
                     {
-                        cell.Style.BackColor = ms.solo
-                            ? Color.FromArgb(setting.ColorScheme.PartCounter_SOLOROW_BackColor)
-                            : dgvPartCounter.BackgroundColor;
+                        cell.Style.BackColor = dgvPartCounter.BackgroundColor;
                     }
                 }
                 row.Cells[dgvPartCounter.Columns["ClmSolo"].Index].Value = ms.solo ? "S" : "";
-                row.Cells[dgvPartCounter.Columns["ClmSolo"].Index].Style.BackColor = ms.solo ? Color.FromArgb(setting.ColorScheme.PartCounter_SOLO_BackColor) : Color.Empty;
+                row.Cells[dgvPartCounter.Columns["ClmSolo"].Index].Style.BackColor = ms.solo ? soloCellBackColor : Color.Empty;
+                row.Cells[dgvPartCounter.Columns["ClmSolo"].Index].Style.ForeColor = ms.solo ? muteSoloCellForeColor : Color.Empty;
                 row.Cells[dgvPartCounter.Columns["ClmMute"].Index].Value = ms.mute ? "M" : "";
-                row.Cells[dgvPartCounter.Columns["ClmMute"].Index].Style.BackColor = ms.mute ? Color.FromArgb(setting.ColorScheme.PartCounter_MUTE_BackColor) : Color.Empty;
+                row.Cells[dgvPartCounter.Columns["ClmMute"].Index].Style.BackColor = ms.mute ? mutedCellBackColor : Color.Empty;
+                row.Cells[dgvPartCounter.Columns["ClmMute"].Index].Style.ForeColor = ms.mute ? muteSoloCellForeColor : Color.Empty;
                 SetMute(row);
             }
 
