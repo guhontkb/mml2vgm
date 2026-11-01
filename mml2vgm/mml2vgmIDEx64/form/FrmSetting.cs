@@ -41,15 +41,7 @@ namespace mml2vgmIDEx64
         private float partCounterFontSize;
         private System.Drawing.FontStyle partCounterFontStyle;
         private CheckBox cbShowFilePathInTitleBar;
-        private Label lblMainScrollBarColor;
-        private Label lblMainScrollBarCustomThumbColor;
-        private Label lblMainScrollBarCustomTrackColor;
         private Label lblMainBackgroundColor;
-        private Button btnMainScrollBarCustomThumbColor;
-        private Panel pnlMainScrollBarCustomThumbColor;
-        private Button btnMainScrollBarCustomTrackColor;
-        private Panel pnlMainScrollBarCustomTrackColor;
-        private Button btnMainScrollBarResetDefault;
         private Button btnMainBackgroundCustomColor;
         private Panel pnlMainBackgroundCustomColor;
         private Button btnMainBackgroundResetDefault;
@@ -62,12 +54,7 @@ namespace mml2vgmIDEx64
         private Button btnMainWallpaperPath;
         private Label lblMainWallpaperLayout;
         private ComboBox cmbMainWallpaperLayout;
-        private static readonly System.Drawing.Color DefaultMainScrollBarThumbColor = System.Drawing.Color.FromArgb(100, 140, 220);
-        private static readonly System.Drawing.Color DefaultMainScrollBarTrackColor = System.Drawing.Color.FromArgb(45, 60, 95);
         private static readonly System.Drawing.Color DefaultMainBackgroundColor = System.Drawing.Color.FromArgb(40, 29, 59);
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public Action<System.Drawing.Color, System.Drawing.Color> MainScrollBarColorPreviewChanged { get; set; }
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public Action<System.Drawing.Color> MainBackgroundColorPreviewChanged { get; set; }
@@ -235,87 +222,20 @@ namespace mml2vgmIDEx64
 
         private void InitializeMainScrollBarColorSetting()
         {
-            lblMainScrollBarColor = new Label();
-            lblMainScrollBarCustomThumbColor = new Label();
-            lblMainScrollBarCustomTrackColor = new Label();
             lblMainBackgroundColor = new Label();
-            btnMainScrollBarCustomThumbColor = new Button();
-            pnlMainScrollBarCustomThumbColor = new Panel();
-            btnMainScrollBarCustomTrackColor = new Button();
-            pnlMainScrollBarCustomTrackColor = new Panel();
-            btnMainScrollBarResetDefault = new Button();
             btnMainBackgroundCustomColor = new Button();
             pnlMainBackgroundCustomColor = new Panel();
             btnMainBackgroundResetDefault = new Button();
             cdMainScrollBarCustomColor = new ColorDialog();
 
-            lblMainScrollBarColor.AutoSize = true;
-            lblMainScrollBarColor.Location = new System.Drawing.Point(8, 20);
-            lblMainScrollBarColor.Margin = new Padding(4, 0, 4, 0);
-            lblMainScrollBarColor.Name = "lblMainScrollBarColor";
-            lblMainScrollBarColor.Size = new System.Drawing.Size(179, 15);
-            lblMainScrollBarColor.Text = "スクロールバー";
-
-            lblMainScrollBarCustomThumbColor.AutoSize = true;
-            lblMainScrollBarCustomThumbColor.Location = new System.Drawing.Point(8, 43);
-            lblMainScrollBarCustomThumbColor.Margin = new Padding(4, 0, 4, 0);
-            lblMainScrollBarCustomThumbColor.Name = "lblMainScrollBarCustomThumbColor";
-            lblMainScrollBarCustomThumbColor.Size = new System.Drawing.Size(53, 15);
-            lblMainScrollBarCustomThumbColor.Text = "つまみ色";
-
-            btnMainScrollBarCustomThumbColor.Location = new System.Drawing.Point(70, 39);
-            btnMainScrollBarCustomThumbColor.Margin = new Padding(4);
-            btnMainScrollBarCustomThumbColor.Name = "btnMainScrollBarCustomThumbColor";
-            btnMainScrollBarCustomThumbColor.Size = new System.Drawing.Size(100, 23);
-            btnMainScrollBarCustomThumbColor.Text = "色を選択...";
-            btnMainScrollBarCustomThumbColor.UseVisualStyleBackColor = true;
-            btnMainScrollBarCustomThumbColor.Click += btnMainScrollBarCustomThumbColor_Click;
-
-            pnlMainScrollBarCustomThumbColor.BorderStyle = BorderStyle.FixedSingle;
-            pnlMainScrollBarCustomThumbColor.Location = new System.Drawing.Point(177, 39);
-            pnlMainScrollBarCustomThumbColor.Margin = new Padding(4);
-            pnlMainScrollBarCustomThumbColor.Name = "pnlMainScrollBarCustomThumbColor";
-            pnlMainScrollBarCustomThumbColor.Size = new System.Drawing.Size(86, 23);
-            pnlMainScrollBarCustomThumbColor.BackColor = DefaultMainScrollBarThumbColor;
-
-            lblMainScrollBarCustomTrackColor.AutoSize = true;
-            lblMainScrollBarCustomTrackColor.Location = new System.Drawing.Point(271, 43);
-            lblMainScrollBarCustomTrackColor.Margin = new Padding(4, 0, 4, 0);
-            lblMainScrollBarCustomTrackColor.Name = "lblMainScrollBarCustomTrackColor";
-            lblMainScrollBarCustomTrackColor.Size = new System.Drawing.Size(47, 15);
-            lblMainScrollBarCustomTrackColor.Text = "トラック色";
-
-            btnMainScrollBarCustomTrackColor.Location = new System.Drawing.Point(326, 39);
-            btnMainScrollBarCustomTrackColor.Margin = new Padding(4);
-            btnMainScrollBarCustomTrackColor.Name = "btnMainScrollBarCustomTrackColor";
-            btnMainScrollBarCustomTrackColor.Size = new System.Drawing.Size(100, 23);
-            btnMainScrollBarCustomTrackColor.Text = "色を選択...";
-            btnMainScrollBarCustomTrackColor.UseVisualStyleBackColor = true;
-            btnMainScrollBarCustomTrackColor.Click += btnMainScrollBarCustomTrackColor_Click;
-
-            pnlMainScrollBarCustomTrackColor.BorderStyle = BorderStyle.FixedSingle;
-            pnlMainScrollBarCustomTrackColor.Location = new System.Drawing.Point(433, 39);
-            pnlMainScrollBarCustomTrackColor.Margin = new Padding(4);
-            pnlMainScrollBarCustomTrackColor.Name = "pnlMainScrollBarCustomTrackColor";
-            pnlMainScrollBarCustomTrackColor.Size = new System.Drawing.Size(71, 23);
-            pnlMainScrollBarCustomTrackColor.BackColor = DefaultMainScrollBarTrackColor;
-
-            btnMainScrollBarResetDefault.Location = new System.Drawing.Point(8, 70);
-            btnMainScrollBarResetDefault.Margin = new Padding(4);
-            btnMainScrollBarResetDefault.Name = "btnMainScrollBarResetDefault";
-            btnMainScrollBarResetDefault.Size = new System.Drawing.Size(160, 23);
-            btnMainScrollBarResetDefault.Text = "デフォルトカラーにリセット";
-            btnMainScrollBarResetDefault.UseVisualStyleBackColor = true;
-            btnMainScrollBarResetDefault.Click += btnMainScrollBarResetDefault_Click;
-
             lblMainBackgroundColor.AutoSize = true;
-            lblMainBackgroundColor.Location = new System.Drawing.Point(8, 120);
+            lblMainBackgroundColor.Location = new System.Drawing.Point(8, 20);
             lblMainBackgroundColor.Margin = new Padding(4, 0, 4, 0);
             lblMainBackgroundColor.Name = "lblMainBackgroundColor";
             lblMainBackgroundColor.Size = new System.Drawing.Size(67, 15);
             lblMainBackgroundColor.Text = "背景色設定";
 
-            btnMainBackgroundCustomColor.Location = new System.Drawing.Point(8, 141);
+            btnMainBackgroundCustomColor.Location = new System.Drawing.Point(8, 41);
             btnMainBackgroundCustomColor.Margin = new Padding(4);
             btnMainBackgroundCustomColor.Name = "btnMainBackgroundCustomColor";
             btnMainBackgroundCustomColor.Size = new System.Drawing.Size(160, 23);
@@ -324,13 +244,13 @@ namespace mml2vgmIDEx64
             btnMainBackgroundCustomColor.Click += btnMainBackgroundCustomColor_Click;
 
             pnlMainBackgroundCustomColor.BorderStyle = BorderStyle.FixedSingle;
-            pnlMainBackgroundCustomColor.Location = new System.Drawing.Point(177, 141);
+            pnlMainBackgroundCustomColor.Location = new System.Drawing.Point(177, 41);
             pnlMainBackgroundCustomColor.Margin = new Padding(4);
             pnlMainBackgroundCustomColor.Name = "pnlMainBackgroundCustomColor";
             pnlMainBackgroundCustomColor.Size = new System.Drawing.Size(86, 23);
             pnlMainBackgroundCustomColor.BackColor = DefaultMainBackgroundColor;
 
-            btnMainBackgroundResetDefault.Location = new System.Drawing.Point(8, 172);
+            btnMainBackgroundResetDefault.Location = new System.Drawing.Point(8, 72);
             btnMainBackgroundResetDefault.Margin = new Padding(4);
             btnMainBackgroundResetDefault.Name = "btnMainBackgroundResetDefault";
             btnMainBackgroundResetDefault.Size = new System.Drawing.Size(160, 23);
@@ -339,15 +259,6 @@ namespace mml2vgmIDEx64
             btnMainBackgroundResetDefault.Click += btnMainBackgroundResetDefault_Click;
 
             cdMainScrollBarCustomColor.FullOpen = true;
-
-            lblMainScrollBarColor.Visible = false;
-            lblMainScrollBarCustomThumbColor.Visible = false;
-            btnMainScrollBarCustomThumbColor.Visible = false;
-            pnlMainScrollBarCustomThumbColor.Visible = false;
-            lblMainScrollBarCustomTrackColor.Visible = false;
-            btnMainScrollBarCustomTrackColor.Visible = false;
-            pnlMainScrollBarCustomTrackColor.Visible = false;
-            btnMainScrollBarResetDefault.Visible = false;
             tpColor.Controls.Add(lblMainBackgroundColor);
             tpColor.Controls.Add(btnMainBackgroundCustomColor);
             tpColor.Controls.Add(pnlMainBackgroundCustomColor);
@@ -356,37 +267,6 @@ namespace mml2vgmIDEx64
             tpColor.Controls.SetChildIndex(pnlMainBackgroundCustomColor, 0);
             tpColor.Controls.SetChildIndex(btnMainBackgroundCustomColor, 0);
             tpColor.Controls.SetChildIndex(lblMainBackgroundColor, 0);
-        }
-
-        private void btnMainScrollBarCustomThumbColor_Click(object sender, EventArgs e)
-        {
-            cdMainScrollBarCustomColor.Color = pnlMainScrollBarCustomThumbColor.BackColor;
-            if (cdMainScrollBarCustomColor.ShowDialog(this) != DialogResult.OK) return;
-            pnlMainScrollBarCustomThumbColor.BackColor = cdMainScrollBarCustomColor.Color;
-            RaiseMainScrollBarColorPreviewChanged();
-        }
-
-        private void btnMainScrollBarCustomTrackColor_Click(object sender, EventArgs e)
-        {
-            cdMainScrollBarCustomColor.Color = pnlMainScrollBarCustomTrackColor.BackColor;
-            if (cdMainScrollBarCustomColor.ShowDialog(this) != DialogResult.OK) return;
-            pnlMainScrollBarCustomTrackColor.BackColor = cdMainScrollBarCustomColor.Color;
-            RaiseMainScrollBarColorPreviewChanged();
-        }
-
-        private void btnMainScrollBarResetDefault_Click(object sender, EventArgs e)
-        {
-            pnlMainScrollBarCustomThumbColor.BackColor = DefaultMainScrollBarThumbColor;
-            pnlMainScrollBarCustomTrackColor.BackColor = DefaultMainScrollBarTrackColor;
-            RaiseMainScrollBarColorPreviewChanged();
-        }
-
-        private void RaiseMainScrollBarColorPreviewChanged()
-        {
-            MainScrollBarColorPreviewChanged?.Invoke(
-                pnlMainScrollBarCustomThumbColor.BackColor,
-                pnlMainScrollBarCustomTrackColor.BackColor
-            );
         }
 
         private void btnMainBackgroundCustomColor_Click(object sender, EventArgs e)
@@ -1229,8 +1109,6 @@ namespace mml2vgmIDEx64
             cbUseHistoryBackUp.Checked = setting.other.UseHistoryBackUp;
             tbUseHistoryBackUp.Text = setting.other.HistoryBackUpKeepFileCount.ToString();
             tbTABWidth.Text = setting.other.TabWidth.ToString();
-            pnlMainScrollBarCustomThumbColor.BackColor = System.Drawing.Color.FromArgb(setting.other.MainScreenScrollBarCustomColorArgb);
-            pnlMainScrollBarCustomTrackColor.BackColor = System.Drawing.Color.FromArgb(setting.other.MainScreenScrollBarCustomTrackColorArgb);
             pnlMainBackgroundCustomColor.BackColor = System.Drawing.Color.FromArgb(setting.other.MainScreenBackgroundColorArgb);
             cbMainWallpaperEnabled.Checked = setting.other.MainScreenWallpaperEnabled;
             tbMainWallpaperPath.Text = setting.other.MainScreenWallpaperPath;
@@ -2162,10 +2040,6 @@ namespace mml2vgmIDEx64
             {
                 setting.other.TabWidth = Math.Max(Math.Min(i, 100), 1);
             }
-            setting.other.MainScreenScrollBarThemeMode = (int)Common.ScrollBarThemeMode.Custom;
-            setting.other.MainScreenUseDarkScrollBar = true;
-            setting.other.MainScreenScrollBarCustomColorArgb = pnlMainScrollBarCustomThumbColor.BackColor.ToArgb();
-            setting.other.MainScreenScrollBarCustomTrackColorArgb = pnlMainScrollBarCustomTrackColor.BackColor.ToArgb();
             setting.other.MainScreenBackgroundColorArgb = pnlMainBackgroundCustomColor.BackColor.ToArgb();
 
             setting.midiExport.UseMIDIExport = cbUseMIDIExport.Checked;
