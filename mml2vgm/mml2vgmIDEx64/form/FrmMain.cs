@@ -2615,6 +2615,7 @@ namespace mml2vgmIDEx64
             {
                 finishedCompileMUS();
             }
+
         }
 
         private void finishedCompileGWI(bool headerAlreadyAdjusted = false)

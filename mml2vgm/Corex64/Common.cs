@@ -43,12 +43,12 @@ namespace Corex64
         }
 
 
-        public static byte[] GetPCMDataFromFile(string path, clsPcm instPCM, out bool isRaw, out bool is16bit, out int samplerate)
+        public static byte[] GetPCMDataFromFile(string path, clsPcm instPCM, out bool isRaw, out bool is16bit, out int samplerate, LinePos linePos = null)
         {
-            return GetPCMDataFromFile(path, instPCM.fileName, instPCM.vol, out isRaw, out is16bit, out samplerate);
+            return GetPCMDataFromFile(path, instPCM.fileName, instPCM.vol, out isRaw, out is16bit, out samplerate, linePos);
         }
 
-        public static byte[] GetPCMDataFromFile(string path, string fileName, int vol, out bool isRaw, out bool is16bit, out int samplerate)
+        public static byte[] GetPCMDataFromFile(string path, string fileName, int vol, out bool isRaw, out bool is16bit, out int samplerate, LinePos linePos = null)
         {
             string fnPcm = Path.Combine(path, fileName).Replace('\\', Path.DirectorySeparatorChar).Replace('/', Path.DirectorySeparatorChar);
 
@@ -58,7 +58,7 @@ namespace Corex64
 
             if (!File.Exists(fnPcm))
             {
-                msgBox.setErrMsg(string.Format(Msg.get("E02000"), fileName), new LinePos(null,"-"));
+                msgBox.setErrMsg(string.Format(Msg.get("E02000"), fileName), linePos ?? new LinePos(null,"-"));
                 return null;
             }
 

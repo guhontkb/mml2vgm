@@ -950,6 +950,7 @@ namespace Corex64
         public enmPcmDefineType type;
         public int No = -1;
         public string FileName = "";
+        public LinePos linePos;
         public int BaseFreq = 8000;
         public int Volume = 100;
         public enmChipType chip = enmChipType.YM2612;

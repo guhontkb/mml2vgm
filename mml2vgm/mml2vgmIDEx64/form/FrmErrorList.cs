@@ -131,14 +131,39 @@ namespace mml2vgmIDEx64
 
         public void AddIssueRow(string level, string fileName, string line, string message)
         {
-            int no = dataGridView1.Rows.Count + 1;
-            int rowIndex = dataGridView1.Rows.Add(
-                no.ToString(),
+            int rowIndex = dataGridView1.Rows.Count;
+            for (int i = 0; i < dataGridView1.Rows.Count; i++)
+            {
+                DataGridViewRow row = dataGridView1.Rows[i];
+                if (CompareIssues(
+                    fileName,
+                    line,
+                    level,
+                    message,
+                    row.Cells["ClmFileName"].Value?.ToString(),
+                    row.Cells["ClmLine"].Value?.ToString(),
+                    row.Cells["ClmEtype"].Value?.ToString(),
+                    row.Cells["ClmMessage"].Value?.ToString()) < 0)
+                {
+                    rowIndex = i;
+                    break;
+                }
+            }
+
+            dataGridView1.Rows.Insert(
+                rowIndex,
+                (rowIndex + 1).ToString(),
                 level,
                 fileName,
                 line,
                 message
             );
+
+            for (int i = rowIndex + 1; i < dataGridView1.Rows.Count; i++)
+            {
+                dataGridView1.Rows[i].Cells["ClmNo"].Value = (i + 1).ToString();
+            }
+
             if (level == "Error" || level == "Warning")
             {
                 Color levelColor = level == "Error" ? Color.FromArgb(255, 112, 112) : Color.Yellow;
@@ -147,6 +172,38 @@ namespace mml2vgmIDEx64
             }
             ApplyLevelFilter();
             UpdateIssueCountStatus();
+        }
+
+        private static int CompareIssues(
+            string firstFileName,
+            string firstLine,
+            string firstLevel,
+            string firstMessage,
+            string secondFileName,
+            string secondLine,
+            string secondLevel,
+            string secondMessage)
+        {
+            int comparison = StringComparer.OrdinalIgnoreCase.Compare(firstFileName, secondFileName);
+            if (comparison != 0) return comparison;
+
+            comparison = CompareLine(firstLine, secondLine);
+            if (comparison != 0) return comparison;
+
+            comparison = StringComparer.Ordinal.Compare(firstLevel, secondLevel);
+            if (comparison != 0) return comparison;
+
+            return StringComparer.Ordinal.Compare(firstMessage, secondMessage);
+        }
+
+        private static int CompareLine(string first, string second)
+        {
+            bool firstIsLine = int.TryParse(first, out int firstLine);
+            bool secondIsLine = int.TryParse(second, out int secondLine);
+            if (firstIsLine && secondIsLine) return firstLine.CompareTo(secondLine);
+            if (firstIsLine) return -1;
+            if (secondIsLine) return 1;
+            return StringComparer.Ordinal.Compare(first, second);
         }
 
         private void InitializeStatusBar()

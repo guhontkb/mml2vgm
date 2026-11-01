@@ -452,7 +452,7 @@ namespace Corex64
                     page.instrument = n;
                     if (!parent.instPCM.ContainsKey(n))
                     {
-                        msgBox.setErrMsg(string.Format(Msg.get("E20002"), n), mml.line.Lp);
+                        msgBox.setErrMsgOncePerFile(string.Format(Msg.get("E20002"), n), mml.line.Lp);
                     }
                     else
                     {
@@ -572,7 +572,7 @@ namespace Corex64
                 }
 
                 OutFmKeyOff(page, null);
-                //音色 
+                //音色
                 page.spg.instrument = -1;
                 //周波数
                 //音量
@@ -590,7 +590,7 @@ namespace Corex64
             {
                 foreach (partPage page in pw.pg)
                 {
-                    if (page.Type == enmChannelType.FMOPN 
+                    if (page.Type == enmChannelType.FMOPN
                         || (!page.Ch3SpecialMode && page.Type == enmChannelType.FMOPNex)
                         || (!page.pcm && page.Type == enmChannelType.FMPCM))
                     {
