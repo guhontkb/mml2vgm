@@ -1740,6 +1740,23 @@ namespace mml2vgmIDEx64
             return false;
         }
 
+        public void FocusFolderAndShowFiles(string targetPath)
+        {
+            bool selected = !string.IsNullOrEmpty(targetPath)
+                && SelectFolderNode(targetPath, tvFolderTree.Nodes);
+
+            TreeNode node = selected
+                ? tvFolderTree.SelectedNode
+                : (tvFolderTree.SelectedNode ?? (tvFolderTree.Nodes.Count > 0 ? tvFolderTree.Nodes[0] : null));
+            if (node == null) return;
+
+            if (tvFolderTree.SelectedNode != node) tvFolderTree.SelectedNode = node;
+            else UpdateFileList(node);
+
+            node.EnsureVisible();
+            if (tvFolderTree.CanFocus) tvFolderTree.Focus();
+        }
+
         private void LvFileList_MouseDown(object sender, MouseEventArgs e)
         {
             if (e.Button != MouseButtons.Right) return;
