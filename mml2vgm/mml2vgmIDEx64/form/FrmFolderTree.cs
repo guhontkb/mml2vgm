@@ -16,6 +16,7 @@ namespace mml2vgmIDEx64
     public partial class FrmFolderTree : WeifenLuo.WinFormsUI.Docking.DockContent
     {
         private static readonly Color FileListHeaderBackColor = Color.FromArgb(80, 80, 160);
+        private static readonly Color FileListSortedHeaderBackColor = Color.FromArgb(105, 105, 190);
         private static readonly Color FileListHeaderForeColor = Color.FromArgb(230, 255, 255);
         private static readonly Color FolderTreeSplitterColor = Color.FromArgb(60, 60, 72);
         private static readonly Color FileListActiveSelectionBackColor = Color.FromArgb(89, 89, 121);
@@ -59,6 +60,8 @@ namespace mml2vgmIDEx64
         private FileListHeaderNativeWindow lvFileListHeaderWindow = null;
         private const int LVM_FIRST = 0x1000;
         private const int LVM_GETHEADER = LVM_FIRST + 31;
+        private const uint RDW_INVALIDATE = 0x0001;
+        private const uint RDW_UPDATENOW = 0x0100;
         private const int WM_CONTEXTMENU = 0x007B;
         private const string FolderHeaderText = "Folder";
         private readonly ToolTip folderTreeToolTip = new ToolTip();
@@ -1379,6 +1382,10 @@ namespace mml2vgmIDEx64
 
             lvFileList.ListViewItemSorter = new FileListItemComparer(fileListSortColumn, fileListSortAscending);
             lvFileList.Sort();
+            if (lvFileListHeaderHandle != IntPtr.Zero)
+            {
+                RedrawWindow(lvFileListHeaderHandle, IntPtr.Zero, IntPtr.Zero, RDW_INVALIDATE | RDW_UPDATENOW);
+            }
         }
 
         private void LvFileList_ColumnWidthChanging(object sender, ColumnWidthChangingEventArgs e)
@@ -1456,7 +1463,8 @@ namespace mml2vgmIDEx64
 
         private void LvFileList_DrawColumnHeader(object sender, DrawListViewColumnHeaderEventArgs e)
         {
-            using (SolidBrush backgroundBrush = new SolidBrush(FileListHeaderBackColor))
+            bool hasSortIcon = fileListSortColumn == e.ColumnIndex && e.ColumnIndex != columnHeaderHeaderFill.Index;
+            using (SolidBrush backgroundBrush = new SolidBrush(hasSortIcon ? FileListSortedHeaderBackColor : FileListHeaderBackColor))
             {
                 e.Graphics.FillRectangle(backgroundBrush, e.Bounds);
             }
@@ -1464,7 +1472,6 @@ namespace mml2vgmIDEx64
             TextFormatFlags alignment = e.Header.TextAlign == HorizontalAlignment.Right
                 ? TextFormatFlags.Right
                 : e.Header.TextAlign == HorizontalAlignment.Center ? TextFormatFlags.HorizontalCenter : TextFormatFlags.Left;
-            bool hasSortIcon = (fileListSortColumn == e.ColumnIndex && e.ColumnIndex != columnHeaderHeaderFill.Index);
             Rectangle textBounds = Rectangle.Inflate(e.Bounds, -6, 0);
             if (hasSortIcon)
             {
@@ -2100,6 +2107,9 @@ namespace mml2vgmIDEx64
 
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         private static extern IntPtr SendMessage(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam);
+
+        [DllImport("user32.dll")]
+        private static extern bool RedrawWindow(IntPtr hWnd, IntPtr lprcUpdate, IntPtr hrgnUpdate, uint flags);
 
         private sealed class FileListHeaderNativeWindow : NativeWindow
         {
