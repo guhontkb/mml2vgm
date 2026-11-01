@@ -891,6 +891,7 @@ namespace mml2vgmIDEx64
 
         private void TsmiOption_Click(object sender, EventArgs e)
         {
+            Log.ForcedWrite($"Option:Open ActiveDocument={(dpMain.ActiveDocument as DockContent)?.Text}");
             stop();
             for (int i = 0; i < 10; i++) { Application.DoEvents(); Thread.Sleep(1); }
             Audio.Close();
@@ -907,6 +908,7 @@ namespace mml2vgmIDEx64
                 ApplyWindowOpacity(opacity, frmSetting);
             };
             DialogResult res = frmSetting.ShowDialog();
+            Log.ForcedWrite($"Option:Closed DialogResult={res}");
             if (res != DialogResult.OK)
             {
                 ApplyWindowOpacity(beforeOpacity);
@@ -920,6 +922,7 @@ namespace mml2vgmIDEx64
             //stop();
             flgReinit = true;
             Reinit(frmSetting.setting);
+            Log.ForcedWrite("Option:Reinit complete");
         }
 
         private void tsmiLaunchMDPlayer_Click(object sender, EventArgs e)
@@ -3285,6 +3288,7 @@ namespace mml2vgmIDEx64
 
         private void DpMain_ActiveDocumentChanged(object sender, EventArgs e)
         {
+            Log.ForcedWrite($"DpMain_ActiveDocumentChanged: ActiveDocument={(dpMain.ActiveDocument as DockContent)?.Text}");
             UpdateControl();
         }
 
@@ -3683,13 +3687,17 @@ namespace mml2vgmIDEx64
 
             this.setting = setting;
             this.setting.Save();
+            Log.ForcedWrite("Reinit:ApplyWindowOpacity");
             ApplyWindowOpacity(this.setting.other.Opacity);
+            Log.ForcedWrite("Reinit:ApplyFolderTextFont");
             frmFolderTree?.ApplyFolderTextFont();
+            Log.ForcedWrite("Reinit:ApplyDarkScrollBarTheme");
             Common.ApplyDarkScrollBarTheme(this);
             foreach (Form frm in FormBox)
             {
                 Common.ApplyDarkScrollBarTheme(frm);
             }
+            Log.ForcedWrite("Reinit:ApplyMainBackgroundColor");
             ApplyMainBackgroundColor();
             frmPartCounter?.ApplyColorSetting(this.setting);
 

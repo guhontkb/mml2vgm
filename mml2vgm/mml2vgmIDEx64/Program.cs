@@ -44,6 +44,7 @@ namespace mml2vgmIDEx64
                     Application.ThreadException +=
                         new System.Threading.ThreadExceptionEventHandler(
                             Application_ThreadException);
+                    CustomControl.MultiSelectTreeView.DiagnosticLog = msg => Log.ForcedWrite(msg);
 
                     Setting setting = Setting.Load();
                     Audio.Init(setting);

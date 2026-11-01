@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace CustomControl
@@ -16,7 +17,10 @@ namespace CustomControl
         private SolidBrush brushFontColor;
         private TreeNode hoverNode;
         private Bitmap backBmp = null;
+        private bool backBmpDisposed = false;
         private StringFormat sf;
+
+        public static Action<string> DiagnosticLog;
 
         public Color HotColor
         {
@@ -91,9 +95,11 @@ namespace CustomControl
 
         protected override void Dispose(bool disposing)
         {
+            DiagnosticLog?.Invoke($"MultiSelectTreeView.Dispose: Name={Name} disposing={disposing}{System.Environment.NewLine}{System.Environment.StackTrace}");
             base.Dispose(disposing);
 
             if (backBmp != null) backBmp.Dispose();
+            backBmpDisposed = true;
             if (brushNodeBack != null) brushNodeBack.Dispose();
             if (brushHotNodeBack != null) brushHotNodeBack.Dispose();
             if (brushSelectedNodeBack != null) brushSelectedNodeBack.Dispose();
@@ -119,16 +125,26 @@ namespace CustomControl
 
                 if (e.Bounds.Width == 0 && e.Bounds.Height == 0) return;
 
-                if (backBmp == null)
+                if (e.Bounds.Width <= 0 || e.Bounds.Height <= 0)
+                {
+                    DiagnosticLog?.Invoke("MultiSelectTreeView.OnDrawNode: 不正な描画サイズのため描画をスキップ " + BuildDrawNodeDiagnostic(e));
+                    return;
+                }
+
+                if (backBmp == null || backBmpDisposed)
+                {
                     backBmp = new Bitmap(e.Bounds.Width, e.Bounds.Height);
+                    backBmpDisposed = false;
+                }
                 else if (backBmp.Width != e.Bounds.Width || backBmp.Height != e.Bounds.Height)
                 {
-                    backBmp.Dispose();
+                    Bitmap oldBmp = backBmp;
                     backBmp = new Bitmap(e.Bounds.Width, e.Bounds.Height);
+                    oldBmp.Dispose();
                 }
 
                 Rectangle bnd = new Rectangle(0, 0, e.Bounds.Width, e.Bounds.Height);
-                Graphics g = Graphics.FromImage(backBmp);
+                using Graphics g = Graphics.FromImage(backBmp);
 
                 if ((e.State & TreeNodeStates.Selected) != 0)
                 {
@@ -204,6 +220,18 @@ namespace CustomControl
             {
                 ;
             }
+            catch (Exception ex)
+            {
+                DiagnosticLog?.Invoke($"MultiSelectTreeView.OnDrawNode: 例外 {ex.GetType().Name}: {ex.Message} " + BuildDrawNodeDiagnostic(e));
+                throw;
+            }
+        }
+
+        private string BuildDrawNodeDiagnostic(DrawTreeNodeEventArgs e)
+        {
+            string bmpState = backBmp == null ? "null" : (backBmpDisposed ? "disposed" : "alive");
+            return $"Name={Name} IsDisposed={IsDisposed} IsHandleCreated={IsHandleCreated} Visible={Visible} ClientSize={ClientSize}"
+                + $" Bounds={e.Bounds} State={e.State} Node={e.Node?.Text} Level={e.Node?.Level} backBmp={bmpState}";
         }
 
         private void DrawExpandIcon(Graphics g, Rectangle rect)
