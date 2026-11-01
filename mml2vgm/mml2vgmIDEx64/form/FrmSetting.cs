@@ -33,6 +33,13 @@ namespace mml2vgmIDEx64
         private Label lblFolderFontSize;
         private Label lblFolderFontStyle;
         private Button btFolderFont;
+        private Label lblPartCounterFontName;
+        private Label lblPartCounterFontSize;
+        private Label lblPartCounterFontStyle;
+        private Button btnPartCounterFont;
+        private string partCounterFontName;
+        private float partCounterFontSize;
+        private System.Drawing.FontStyle partCounterFontStyle;
         private CheckBox cbShowFilePathInTitleBar;
         private Label lblMainScrollBarColor;
         private Label lblMainScrollBarCustomThumbColor;
@@ -77,6 +84,7 @@ namespace mml2vgmIDEx64
             InitializeComponent();
             Common.ApplyDarkScrollBarTheme(this);
             InitializeFolderTab();
+            InitializePartCounterFontSetting();
             InitializeColorTab();
             InitializeMDPlayerPathSetting();
             InitializeMainScrollBarColorSetting();
@@ -102,6 +110,86 @@ namespace mml2vgmIDEx64
             tbcMIDIoutList.TabPages.Remove(tabPage2);
             tbcMIDIoutList.TabPages.Remove(tabPage3);
             tbcMIDIoutList.TabPages.Remove(tabPage4);
+        }
+
+        private void InitializePartCounterFontSetting()
+        {
+            tpMMLParameter.Controls.Add(new Label
+            {
+                AutoSize = true,
+                Location = new System.Drawing.Point(27, 62),
+                Text = "フォント名"
+            });
+            tpMMLParameter.Controls.Add(new Label
+            {
+                AutoSize = true,
+                Location = new System.Drawing.Point(250, 62),
+                Text = "サイズ"
+            });
+            tpMMLParameter.Controls.Add(new Label
+            {
+                AutoSize = true,
+                Location = new System.Drawing.Point(300, 62),
+                Text = "スタイル"
+            });
+            lblPartCounterFontName = new Label
+            {
+                AutoSize = true,
+                Location = new System.Drawing.Point(27, 80),
+                Name = "lblPartCounterFontName",
+                Text = setting.other.PartCounterFontName
+            };
+            lblPartCounterFontSize = new Label
+            {
+                AutoSize = true,
+                Location = new System.Drawing.Point(250, 80),
+                Name = "lblPartCounterFontSize",
+                Text = setting.other.PartCounterFontSize.ToString()
+            };
+            lblPartCounterFontStyle = new Label
+            {
+                AutoSize = true,
+                Location = new System.Drawing.Point(300, 80),
+                Name = "lblPartCounterFontStyle",
+                Text = setting.other.PartCounterFontStyle.ToString()
+            };
+            btnPartCounterFont = new Button
+            {
+                Location = new System.Drawing.Point(27, 108),
+                Name = "btnPartCounterFont",
+                Size = new System.Drawing.Size(130, 23),
+                Text = "フォントを選択...",
+                UseVisualStyleBackColor = true
+            };
+            btnPartCounterFont.Click += BtnPartCounterFont_Click;
+            tpMMLParameter.Controls.Add(lblPartCounterFontName);
+            tpMMLParameter.Controls.Add(lblPartCounterFontSize);
+            tpMMLParameter.Controls.Add(lblPartCounterFontStyle);
+            tpMMLParameter.Controls.Add(btnPartCounterFont);
+            partCounterFontName = setting.other.PartCounterFontName;
+            partCounterFontSize = setting.other.PartCounterFontSize;
+            partCounterFontStyle = setting.other.PartCounterFontStyle;
+        }
+
+        private void BtnPartCounterFont_Click(object sender, EventArgs e)
+        {
+            using (FontDialog fontDialog = new FontDialog())
+            {
+                try
+                {
+                    fontDialog.Font = new System.Drawing.Font(partCounterFontName, partCounterFontSize, partCounterFontStyle);
+                }
+                catch { }
+
+                if (fontDialog.ShowDialog(this) != DialogResult.OK) return;
+
+                partCounterFontName = fontDialog.Font.Name;
+                partCounterFontSize = fontDialog.Font.Size;
+                partCounterFontStyle = fontDialog.Font.Style;
+                lblPartCounterFontName.Text = partCounterFontName;
+                lblPartCounterFontSize.Text = partCounterFontSize.ToString();
+                lblPartCounterFontStyle.Text = partCounterFontStyle.ToString();
+            }
         }
 
         private void InitializeMDPlayerPathSetting()
@@ -1374,6 +1462,12 @@ namespace mml2vgmIDEx64
             cbHilightOn.Checked= setting.other.HilightOn;
 
             cbDispInstrumentName.Checked = setting.MMLParameter.dispInstrumentName;
+            lblPartCounterFontName.Text = setting.other.PartCounterFontName;
+            lblPartCounterFontSize.Text = setting.other.PartCounterFontSize.ToString();
+            lblPartCounterFontStyle.Text = setting.other.PartCounterFontStyle.ToString();
+            partCounterFontName = setting.other.PartCounterFontName;
+            partCounterFontSize = setting.other.PartCounterFontSize;
+            partCounterFontStyle = setting.other.PartCounterFontStyle;
             cbDispWarningMessage.Checked = setting.other.DispWarningMessage;
 
             cbFixedExportPlace.Checked = setting.export.FixedExportPlace;
@@ -2261,6 +2355,9 @@ namespace mml2vgmIDEx64
             }
 
             setting.MMLParameter.dispInstrumentName = cbDispInstrumentName.Checked;
+            setting.other.PartCounterFontName = partCounterFontName;
+            setting.other.PartCounterFontSize = partCounterFontSize;
+            setting.other.PartCounterFontStyle = partCounterFontStyle;
 
             setting.export.FixedExportPlace = cbFixedExportPlace.Checked;
             setting.export.FixedExportPlacePath = tbFixedExportPlacePath.Text;

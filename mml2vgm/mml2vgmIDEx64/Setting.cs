@@ -2104,6 +2104,12 @@ namespace mml2vgmIDEx64
             public float FolderFontSize { get => _FolderFontSize; set => _FolderFontSize = value; }
             private FontStyle _FolderFontStyle = FontStyle.Regular;
             public FontStyle FolderFontStyle { get => _FolderFontStyle; set => _FolderFontStyle = value; }
+            private string _PartCounterFontName = "Segoe UI";
+            public string PartCounterFontName { get => _PartCounterFontName; set => _PartCounterFontName = value; }
+            private float _PartCounterFontSize = 9.0f;
+            public float PartCounterFontSize { get => _PartCounterFontSize; set => _PartCounterFontSize = value; }
+            private FontStyle _PartCounterFontStyle = FontStyle.Regular;
+            public FontStyle PartCounterFontStyle { get => _PartCounterFontStyle; set => _PartCounterFontStyle = value; }
             public bool ShowFilePathInTitleBar { get; set; } = false;
             public int TabWidth { get => _TabWidth; set => _TabWidth = value; }
             private int _TabWidth = 8;
@@ -2195,6 +2201,9 @@ namespace mml2vgmIDEx64
                 other.FolderFontName = this.FolderFontName;
                 other.FolderFontSize = this.FolderFontSize;
                 other.FolderFontStyle = this.FolderFontStyle;
+                other.PartCounterFontName = this.PartCounterFontName;
+                other.PartCounterFontSize = this.PartCounterFontSize;
+                other.PartCounterFontStyle = this.PartCounterFontStyle;
                 other.ShowFilePathInTitleBar = this.ShowFilePathInTitleBar;
                 other.GwiFileHistory = this.GwiFileHistory;
                 other.LastOpenedFiles = this.LastOpenedFiles;

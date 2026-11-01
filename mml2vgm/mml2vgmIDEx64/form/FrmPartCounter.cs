@@ -74,6 +74,7 @@ namespace mml2vgmIDEx64
         private Color focusedRowSelectionBackColor = Color.FromArgb(96, 96, 148);
         private Color focusedSelectionForeColor = Color.White;
         private Color mutedRowForeColor = Color.Empty;
+        private Font partCounterFont = null;
         private int focusedRowIndex = -1;
         private string focusedColumnName = null;
         private bool focusedRowMode = false;
@@ -86,6 +87,8 @@ namespace mml2vgmIDEx64
             this.setting = setting;
             comparer=new PartRowComparer(SortOrder.Ascending);
 
+            ApplyPartCounterFont(setting);
+            Disposed += (sender, e) => partCounterFont?.Dispose();
             dgvPartCounter.BackgroundColor = Color.FromArgb(setting.ColorScheme.PartCounter_BackColor);
             dgvPartCounter.DefaultCellStyle.BackColor = dgvPartCounter.BackgroundColor;
             //dgvPartCounter.DefaultCellStyle.SelectionBackColor = Color.Empty;
@@ -137,11 +140,11 @@ namespace mml2vgmIDEx64
             {
                 bar = new double[64][]
             {
-                //black 
+                //black
                 new double[]{    255 ,   0 ,   0   ,140 , 120 , 120   , 80 ,  80 ,  80   , 40 ,  40 ,  40   }
-                //blue 
+                //blue
                 , new double[]{  255 ,   0 ,   0   ,140 , 120 , 215   , 80 ,  80 , 160   , 40 ,  40 ,  80   }
-                //red 
+                //red
                 , new double[]{  255 ,   0 ,   0   ,235 , 120 , 140   ,160 ,  80 ,  80   , 80 ,  40 ,  40   }
                 //purple
                 , new double[]{  255 ,   0 ,   0   ,235 , 120 , 215   ,160 ,  80 , 160   , 80 ,  40 ,  80   }
@@ -156,11 +159,11 @@ namespace mml2vgmIDEx64
                 //muap
                 , new double[]{  255 ,   0 ,   0   ,255 ,   0 ,   0   ,255 , 255 ,   0   ,  0 ,   0 , 255   }
 
-                //black 
+                //black
                 , new double[]{  140 , 120 , 120   , 80 ,  80 ,  80   , 70 ,  70 ,  70   , 40 ,  40 ,  40   }
-                //blue 
+                //blue
                 , new double[]{  140 , 120 , 215   , 80 ,  80 , 160   , 70 ,  70 , 120   , 40 ,  40 ,  80   }
-                //red 
+                //red
                 , new double[]{  235 , 120 , 140   ,160 ,  80 ,  80   ,120 ,  70 ,  70   , 80 ,  40 ,  40   }
                 //purple
                 , new double[]{  235 , 120 , 215   ,160 ,  80 , 160   ,120 ,  70 , 120   , 80 ,  40 ,  80   }
@@ -449,8 +452,8 @@ namespace mml2vgmIDEx64
                 int chipNumber = (int)row.Cells["ClmChipNumber"].Value;
 
                 if (!mmlParams.Insts.ContainsKey(chip)
-                    || !mmlParams.Insts[chip].ContainsKey(chipIndex) 
-                    || !mmlParams.Insts[chip][chipIndex].ContainsKey(chipNumber)) 
+                    || !mmlParams.Insts[chip].ContainsKey(chipIndex)
+                    || !mmlParams.Insts[chip][chipIndex].ContainsKey(chipNumber))
                     continue;
 
                 MMLParameter.Instrument mmli = mmlParams.Insts[chip][chipIndex][chipNumber];
@@ -801,6 +804,7 @@ namespace mml2vgmIDEx64
         {
             DataGridViewRow r = new DataGridViewRow();
             r.CreateCells(dgvPartCounter);
+            r.DefaultCellStyle.Font = partCounterFont;
 
             r.Cells[dgvPartCounter.Columns["ClmPartNumber"].Index].Value = cells[0];
             r.Cells[dgvPartCounter.Columns["ClmChipIndex"].Index].Value = cells[1];
@@ -877,10 +881,25 @@ namespace mml2vgmIDEx64
             if (setting == null) return;
 
             this.setting = setting;
+            ApplyPartCounterFont(setting);
             mutedRowForeColor = BlendColor(Color.FromArgb(setting.ColorScheme.PartCounter_ForeColor), Color.FromArgb(setting.ColorScheme.PartCounter_BackColor), 0.6f);
             ApplyBaseRowColors();
             ApplyFocusColors();
             dgvPartCounter.Invalidate();
+        }
+
+        private void ApplyPartCounterFont(Setting setting)
+        {
+            Font previousFont = partCounterFont;
+            partCounterFont = new Font(setting.other.PartCounterFontName, setting.other.PartCounterFontSize, setting.other.PartCounterFontStyle);
+            dgvPartCounter.Font = partCounterFont;
+            dgvPartCounter.DefaultCellStyle.Font = partCounterFont;
+            dgvPartCounter.RowTemplate.DefaultCellStyle.Font = partCounterFont;
+            foreach (DataGridViewRow row in dgvPartCounter.Rows)
+            {
+                row.DefaultCellStyle.Font = partCounterFont;
+            }
+            previousFont?.Dispose();
         }
 
         /// <summary>
@@ -1373,7 +1392,7 @@ namespace mml2vgmIDEx64
             if (rowIndex < 0)
             {
                 if (!SoloMode) return;
-                //Click SOLO Reset(mute復帰)) 
+                //Click SOLO Reset(mute復帰))
                 List<char> usePt = new List<char>();
                 object obj1 = null;
                 object obj2 = null;
@@ -1474,7 +1493,7 @@ namespace mml2vgmIDEx64
             if (rowIndex < 0)
             {
                 if (SoloMode) return;
-                //Click MUTE Reset 
+                //Click MUTE Reset
                 usePt = new List<char>();
                 object obj = null;
                 foreach (DataGridViewRow r in dgvPartCounter.Rows)
@@ -1669,7 +1688,7 @@ namespace mml2vgmIDEx64
             int chipNumber = (int)r.Cells["ClmChipNumber"].Value;
             if (mmlParams == null) return false;
             if (!mmlParams.Insts.ContainsKey(chip)) return false;
-            if (!mmlParams.Insts[chip].ContainsKey(chipIndex) 
+            if (!mmlParams.Insts[chip].ContainsKey(chipIndex)
                 || !mmlParams.Insts[chip][chipIndex].ContainsKey(chipNumber)) return false;
             MMLParameter.Instrument mmli = mmlParams.Insts[chip][chipIndex][chipNumber];
 
