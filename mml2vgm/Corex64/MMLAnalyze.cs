@@ -5141,8 +5141,11 @@ namespace Corex64
                         {
                             if (mml.args == null)
                             {
-                                msgBox.setWrnMsg(Msg.get("E05050")
-                                    , mml.line.Lp);
+                                if (mode == 0)
+                                {
+                                    msgBox.setWrnMsg(Msg.get("E05050")
+                                        , mml.line.Lp);
+                                }
                                 break;
                             }
                             renpuStack.Push((int)mml.args[1]);
